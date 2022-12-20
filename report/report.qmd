@@ -7,6 +7,8 @@ format:
 jupyter: python3
 ---
 
+-- TODO: sparsifiers and what good are they + applications
+
 # Introduction
 
 In this report, we cover spectral graph sparsifiers which are a certain class of sparsifiers that have tight connection with expander graphs and are able to approximate the Laplacian of a graph with high accuracy. Conventionally, these graphs are constructed using randomized algorithms where we pick a certain edge of an original graph with a probability. For example, if an edge is crucial to the connectivity of our graph, then it has high importance and should be picked with high probability. However, in this report, we will show that we can construct a sparsifier with a deterministic algorithm that has a tight connection with the Ramanujan bounds.
@@ -20,17 +22,17 @@ Finally, we will focus our attention on running the algorithm on complete graphs
 
 ## Spectral Sparsification
 
--- recap of spectral sparsification
+-- TODO: recap of spectral sparsification
 
--- two methods of spectral sparsification
+-- TODO: two methods of spectral sparsification
 
--- The lemma for $\mathcal{O}(\frac{n}{\epsilon^2} \log n)$ sparsifiers and the question on how to obtain other spersifiers.
+-- TODO: The lemma for $\mathcal{O}(\frac{n}{\epsilon^2} \log n)$ sparsifiers and the question on how to obtain other spersifiers.
 
 ## Expander Graphs
 
--- recap of expanders
+-- TODO: recap of expanders
 
--- expander mixing lemma
+-- TODO: expander mixing lemma
 
 ## Ramanujan Bounds
 
@@ -38,23 +40,23 @@ Finally, we will focus our attention on running the algorithm on complete graphs
 
 ## Reduction to Matrix Approximation
 
--- a straight-up reduction from graph sparsification to matrix approximation with proofs
+-- TODO: a straight-up reduction from graph sparsification to matrix approximation with proofs
 
 ## Algorithm Intuition
 
--- Charged particle intuition
+-- TODO: Charged particle intuition
 
--- What happens in the average case
+-- TODO: What happens in the average case
 
--- Leguerre polynomials
+-- TODO: Leguerre polynomials
 
--- bounding all the eigenvalues
+-- TODO: bounding all the eigenvalues
 
 ## Potential Functions
 
--- Quantizing the boundedness
+-- TODO: Quantizing the boundedness
 
--- plotting the potential function
+-- TODO: plotting the potential function
 
 ## The Algorithm
 For a demonstration of a line plot on a polar axis, see @fig-polar.
@@ -81,4 +83,4 @@ plt.show()
 
 # Connection with Ramanujan Graphs
 
--- illustration of what happens in the algorithm iteratively on a complete graph.
+-- TODO: illustration of what happens in the algorithm iteratively on a complete graph.
