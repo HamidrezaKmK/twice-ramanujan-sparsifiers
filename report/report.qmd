@@ -1,0 +1,86 @@
+---
+title: "Twice Ramanujan Sparsifiers"
+authors: "Hamid R. Kamkari, Amandeep Singh"
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+-- TODO: sparsifiers and what good are they + applications
+
+# Introduction
+
+In this report, we cover spectral graph sparsifiers which are a certain class of sparsifiers that have tight connection with expander graphs and are able to approximate the Laplacian of a graph with high accuracy. Conventionally, these graphs are constructed using randomized algorithms where we pick a certain edge of an original graph with a probability. For example, if an edge is crucial to the connectivity of our graph, then it has high importance and should be picked with high probability. However, in this report, we will show that we can construct a sparsifier with a deterministic algorithm that has a tight connection with the Ramanujan bounds.
+
+Furthermore, we will cover an important reduction from the graph sparsification problem to a matrix approximation problem which has been further exploder in many follow-up papers (TODO: cite papers). Moreover, this will give us the first deterministic algorithm for obtaining sparsifiers with linear edge count. That said, we have implemented the algorithm in Python and have tested it on a few graphs for illustration purposes. 
+
+Finally, we will focus our attention on running the algorithm on complete graphs. The sparsifier obtained from the complete graph will have high connectivity which resembles similarities with the expander graphs. Although the graph obtained from the algorithm is not regular, we will show that it has a lot of expander-like properties and we will draw close connection with Ramanujan graphs.
+
+
+# Preliminaries
+
+## Spectral Sparsification
+
+-- TODO: recap of spectral sparsification
+
+-- TODO: two methods of spectral sparsification
+
+-- TODO: The lemma for $\mathcal{O}(\frac{n}{\epsilon^2} \log n)$ sparsifiers and the question on how to obtain other spersifiers.
+
+## Expander Graphs
+
+-- TODO: recap of expanders
+
+-- TODO: expander mixing lemma
+
+## Ramanujan Bounds
+
+# Method
+
+## Reduction to Matrix Approximation
+
+-- TODO: a straight-up reduction from graph sparsification to matrix approximation with proofs
+
+## Algorithm Intuition
+
+-- TODO: Charged particle intuition
+
+-- TODO: What happens in the average case
+
+-- TODO: Leguerre polynomials
+
+-- TODO: bounding all the eigenvalues
+
+## Potential Functions
+
+-- TODO: Quantizing the boundedness
+
+-- TODO: plotting the potential function
+
+## The Algorithm
+For a demonstration of a line plot on a polar axis, see @fig-polar.
+
+```{python}
+#| label: fig-polar
+#| fig-cap: "A line plot on a polar axis"
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+r = np.arange(0, 2, 0.01)
+theta = 2 * np.pi * r
+fig, ax = plt.subplots(
+  subplot_kw = {'projection': 'polar'} 
+)
+ax.plot(theta, r)
+ax.set_rticks([0.5, 1, 1.5, 2])
+ax.grid(True)
+plt.show()
+```
+
+## Experimental Details (optional)
+
+# Connection with Ramanujan Graphs
+
+-- TODO: illustration of what happens in the algorithm iteratively on a complete graph.
