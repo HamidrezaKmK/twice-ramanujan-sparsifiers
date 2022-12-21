@@ -83,6 +83,25 @@ code span.st { color: #4070a0; } /* String */
 code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
 </style>
 
 
@@ -130,18 +149,94 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
-<p>– TODO: sparsifiers and what good are they + applications</p>
-<section id="introduction" class="level1">
-<h1>Introduction</h1>
-<p>In this report, we cover spectral graph sparsifiers which are a certain class of sparsifiers that have tight connection with expander graphs and are able to approximate the Laplacian of a graph with high accuracy. Conventionally, these graphs are constructed using randomized algorithms where we pick a certain edge of an original graph with a probability. For example, if an edge is crucial to the connectivity of our graph, then it has high importance and should be picked with high probability. However, in this report, we will show that we can construct a sparsifier with a deterministic algorithm that has a tight connection with the Ramanujan bounds.</p>
-<p>Furthermore, we will cover an important reduction from the graph sparsification problem to a matrix approximation problem which has been further exploder in many follow-up papers (TODO: cite papers). Moreover, this will give us the first deterministic algorithm for obtaining sparsifiers with linear edge count. That said, we have implemented the algorithm in Python and have tested it on a few graphs for illustration purposes.</p>
-<p>Finally, we will focus our attention on running the algorithm on complete graphs. The sparsifier obtained from the complete graph will have high connectivity which resembles similarities with the expander graphs. Although the graph obtained from the algorithm is not regular, we will show that it has a lot of expander-like properties and we will draw close connection with Ramanujan graphs.</p>
-</section>
+<p>For any graph <span class="math inline">\(G\)</span> a sparsifier <span class="math inline">\(H\)</span> is a graph with far fewer edges that is similar to <span class="math inline">\(G\)</span> in some useful way. While <span class="math inline">\(H\)</span> is much easier to do computation on, it holds the same properties as <span class="math inline">\(G\)</span>, and therefore, it is a reliable way of doing approximate computation on <span class="math inline">\(G\)</span>. For example, if we are dealing with path-finding problems on a dense large graph <span class="math inline">\(G\)</span>, the set of sparsifiers used in <span class="citation" data-cites="chew1989there">(<a href="#ref-chew1989there" role="doc-biblioref">Chew 1989</a>)</span> can be used because they are guaranteed to have almost the same shortest path properties as <span class="math inline">\(G\)</span>.</p>
+<p>For illustration, consider the following graph <span class="math inline">\(G\)</span> with four vertices. The new graph obtained has far fewer edges but has the same set of shortest paths between any pair of vertices. This is a simple sparsifier that can be used for shortest path-finding problems and can be obtained via removing trivial edges <span class="math inline">\(w(u,v)\)</span> such that the shortest distance between <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> is smaller than <span class="math inline">\(w(u,v)\)</span>.</p>
+<div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># setup the graph</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.Graph()</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>G.add_nodes_from([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>])</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>G.add_edges_from([</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  (<span class="dv">1</span>, <span class="dv">2</span>, {<span class="st">'w'</span>:<span class="dv">10</span>}),</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  (<span class="dv">1</span>, <span class="dv">3</span>, {<span class="st">'w'</span>:<span class="dv">5</span>}),</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  (<span class="dv">1</span>, <span class="dv">4</span>, {<span class="st">'w'</span>:<span class="dv">6</span>}), </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  (<span class="dv">2</span>, <span class="dv">3</span>, {<span class="st">'w'</span>:<span class="dv">3</span>}), </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  (<span class="dv">2</span>, <span class="dv">4</span>, {<span class="st">'w'</span>:<span class="dv">2</span>}), </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  (<span class="dv">3</span>, <span class="dv">4</span>, {<span class="st">'w'</span>:<span class="dv">6</span>})</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># setup plotting position of all vertices</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>pos<span class="op">=</span>{</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span>:(<span class="dv">0</span>,<span class="dv">0</span>),</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>:(<span class="fl">0.5</span>,<span class="dv">1</span>),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="dv">3</span>:(<span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="dv">4</span>:(<span class="fl">0.5</span>, <span class="fl">0.5</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># a simple networkx plotting function</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_graph():</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  nx.draw_networkx(G,pos)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  labels <span class="op">=</span> nx.get_edge_attributes(G,<span class="st">'w'</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  nx.draw_networkx_edge_labels(G,pos,edge_labels<span class="op">=</span>labels)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  plt.show()</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># before:</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>plot_graph()</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># find the shortest path between any pair of vertices</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>shortest_paths <span class="op">=</span> <span class="bu">dict</span>(nx.all_pairs_dijkstra_path(G, weight<span class="op">=</span><span class="st">'w'</span>))</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> v <span class="kw">in</span> shortest_paths:</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> u <span class="kw">in</span> shortest_paths[v]:</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>      <span class="co"># if the edge from v to u has weight greater than the shortest path</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>      <span class="co"># between v and u, then remove it</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> v <span class="op">!=</span> u <span class="kw">and</span> <span class="bu">len</span>(shortest_paths[v][u]) <span class="op">&gt;</span> <span class="dv">2</span>:</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>        <span class="co"># remove edge from v to u if it exists</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> G.has_edge(v, u):</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>          G.remove_edge(v, u)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># after:</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>plot_graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="fig-shortest-path-sparsification" class="cell quarto-layout-panel" data-fig-show="true" data-fig-size="300" data-execution_count="1">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-shortest-path-sparsification-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="report_files/figure-html/fig-shortest-path-sparsification-output-1.png" class="img-fluid figure-img" data-ref-parent="fig-shortest-path-sparsification" width="540"></p>
+<p></p><figcaption class="figure-caption">(a) The graph <span class="math inline">\(G\)</span> that we intend to sparsify.</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-shortest-path-sparsification-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="report_files/figure-html/fig-shortest-path-sparsification-output-2.png" class="img-fluid figure-img" data-ref-parent="fig-shortest-path-sparsification" width="540"></p>
+<p></p><figcaption class="figure-caption">(b) The graph <span class="math inline">\(H\)</span> that is obtained by removing trivial edges.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1: A simple illustration of a sparsifier that can help with shortest path problems.</figcaption><p></p>
+</figure>
+</div>
+</div>
+<p>On the other hand, <span class="citation" data-cites="benczur1996approximating">(<a href="#ref-benczur1996approximating" role="doc-biblioref">Benczúr and Karger 1996</a>)</span> for example introduces the cut-sparsifiers which are a class of sparsifiers that have almost identical cut weights for any set <span class="math inline">\(S \subset V\)</span>. In this report, we cover spectral graph sparsifiers which are a certain class of sparsifiers that have a tight connection with expander graphs and can approximate the Laplacian of a graph with high accuracy. Because of the close connection between graph spectral connectivity and edge connectivity introduced by Cheeger <span class="citation" data-cites="cheeger1970lower">(<a href="#ref-cheeger1970lower" role="doc-biblioref">Cheeger 1970</a>)</span> spectral sparsifiers were introduced by <span class="citation" data-cites="spielman2004nearly">(<a href="#ref-spielman2004nearly" role="doc-biblioref">Spielman and Teng 2004</a>)</span> and <span class="citation" data-cites="spielman2011spectral">(<a href="#ref-spielman2011spectral" role="doc-biblioref">Spielman and Teng 2011</a>)</span>. Conventionally, these graphs are constructed using randomized algorithms where we pick a certain edge of an original graph with a probability. For example, if an edge is crucial to the connectivity of our graph, then it has high importance and should be picked with high probability. However, in this report, we will show that we can construct a sparsifier with a deterministic algorithm introduced in <span class="citation" data-cites="batson2009twice">(<a href="#ref-batson2009twice" role="doc-biblioref">Batson, Spielman, and Srivastava 2009</a>)</span> that has a tight connection with the Ramanujan bounds.</p>
+<p>Furthermore, we will cover an important reduction from the graph sparsification problem to a matrix approximation problem which has been further exploder in many follow-up papers <span class="citation" data-cites="tat2015constructing">(<a href="#ref-tat2015constructing" role="doc-biblioref">Tat Lee and Sun 2015</a>)</span> and <span class="citation" data-cites="lee2017sdp">(<a href="#ref-lee2017sdp" role="doc-biblioref">Lee and Sun 2017</a>)</span>. Moreover, this will give us the first deterministic algorithm for obtaining sparsifiers with linear edge count. That said, we have implemented the algorithm in Python and have tested it on a few graphs for illustration purposes.</p>
+<p>Finally, we will focus our attention on running the algorithm on complete graphs. The sparsifier obtained from the complete graph will have high connectivity which resembles similarities with the expander graphs. Although the graph obtained from the algorithm is not regular, we will show that it has a lot of expander-like properties and we will draw a close connection with Ramanujan graphs.</p>
 <section id="preliminaries" class="level1">
 <h1>Preliminaries</h1>
+<p>Here we will cover some of the basic definitions that are used in the sparsification literature as well as some core concepts in linear algebra that will be referenced throughout the report.</p>
 <section id="spectral-sparsification" class="level2">
 <h2 class="anchored" data-anchor-id="spectral-sparsification">Spectral Sparsification</h2>
-<p>– TODO: recap of spectral sparsification</p>
+<p>Before everything, we should define what a spectral sparsifier is. A spectral sparsifier is a sparse graph that approximates the Laplacian of a graph with high accuracy. In other words, a sparsifier is a graph that has a lot of the same properties as the original graph.</p>
+<div id="def-spectral-sparsification" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 1 </strong></span>A <span class="math inline">\(\epsilon\)</span>-spectral sparsifier of a graph <span class="math inline">\(G = (V, E, w)\)</span> is a sparse graph <span class="math inline">\(H\)</span> such that, <span class="math display">\[(1 - \epsilon) \mathcal{L}(G) \preceq \mathcal{L}(H) \preceq (1 + \epsilon) \mathcal{L}(G)\]</span> where <span class="math inline">\(\mathcal{L}(G)\)</span> is the Laplacian of <span class="math inline">\(G\)</span> and <span class="math inline">\(\mathcal{L}(H)\)</span> is the Laplacian of <span class="math inline">\(H\)</span>.</p>
+</div>
 <p>– TODO: two methods of spectral sparsification</p>
 <p>– TODO: The lemma for <span class="math inline">\(\mathcal{O}(\frac{n}{\epsilon^2} \log n)\)</span> sparsifiers and the question on how to obtain other spersifiers.</p>
 </section>
@@ -174,40 +269,70 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="the-algorithm" class="level2">
 <h2 class="anchored" data-anchor-id="the-algorithm">The Algorithm</h2>
-<p>For a demonstration of a line plot on a polar axis, see <a href="#fig-polar">Figure&nbsp;1</a>.</p>
-<div class="cell" data-execution_count="1">
+<p>For a demonstration of a line plot on a polar axis, see <a href="#fig-polar">Figure&nbsp;2</a>.</p>
+<div class="cell" data-execution_count="2">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">2</span>, <span class="fl">0.01</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>theta <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> r</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  subplot_kw <span class="op">=</span> {<span class="st">'projection'</span>: <span class="st">'polar'</span>} </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.plot(theta, r)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>ax.set_rticks([<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="fl">1.5</span>, <span class="dv">2</span>])</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">2</span>, <span class="fl">0.01</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>theta <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> r</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  subplot_kw <span class="op">=</span> {<span class="st">'projection'</span>: <span class="st">'polar'</span>} </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>ax.plot(theta, r)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>ax.set_rticks([<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="fl">1.5</span>, <span class="dv">2</span>])</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-polar" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="report_files/figure-html/fig-polar-output-1.png" width="450" height="439" class="figure-img"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;1: A line plot on a polar axis</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2: A line plot on a polar axis</figcaption><p></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="experimental-details-optional" class="level2">
-<h2 class="anchored" data-anchor-id="experimental-details-optional">Experimental Details (optional)</h2>
+<section id="experimental-details" class="level2">
+<h2 class="anchored" data-anchor-id="experimental-details">Experimental Details</h2>
+<p>– TODO: show the results of using the deterministic algorithm vs the randomized algorithm</p>
 </section>
 </section>
 <section id="connection-with-ramanujan-graphs" class="level1">
 <h1>Connection with Ramanujan Graphs</h1>
 <p>– TODO: illustration of what happens in the algorithm iteratively on a complete graph.</p>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-batson2009twice" class="csl-entry" role="doc-biblioentry">
+Batson, Joshua D, Daniel A Spielman, and Nikhil Srivastava. 2009. <span>“Twice-Ramanujan Sparsifiers.”</span> In <em>Proceedings of the Forty-First Annual ACM Symposium on Theory of Computing</em>, 255–62.
+</div>
+<div id="ref-benczur1996approximating" class="csl-entry" role="doc-biblioentry">
+Benczúr, András A, and David R Karger. 1996. <span>“Approximating St Minimum Cuts in <span>Õ</span> (n 2) Time.”</span> In <em>Proceedings of the Twenty-Eighth Annual ACM Symposium on Theory of Computing</em>, 47–55.
+</div>
+<div id="ref-cheeger1970lower" class="csl-entry" role="doc-biblioentry">
+Cheeger, Jeff. 1970. <span>“A Lower Bound for the Smallest Eigenvalue of the Laplacian, Problems in Analysis, a Symposium in Honor of s.”</span> <em>Bochner, Princeton U. Press, Princeton</em>.
+</div>
+<div id="ref-chew1989there" class="csl-entry" role="doc-biblioentry">
+Chew, L Paul. 1989. <span>“There Are Planar Graphs Almost as Good as the Complete Graph.”</span> <em>Journal of Computer and System Sciences</em> 39 (2): 205–19.
+</div>
+<div id="ref-lee2017sdp" class="csl-entry" role="doc-biblioentry">
+Lee, Yin Tat, and He Sun. 2017. <span>“An Sdp-Based Algorithm for Linear-Sized Spectral Sparsification.”</span> In <em>Proceedings of the 49th Annual Acm Sigact Symposium on Theory of Computing</em>, 678–87.
+</div>
+<div id="ref-spielman2004nearly" class="csl-entry" role="doc-biblioentry">
+Spielman, Daniel A, and Shang-Hua Teng. 2004. <span>“Nearly-Linear Time Algorithms for Graph Partitioning, Graph Sparsification, and Solving Linear Systems.”</span> In <em>Proceedings of the Thirty-Sixth Annual ACM Symposium on Theory of Computing</em>, 81–90.
+</div>
+<div id="ref-spielman2011spectral" class="csl-entry" role="doc-biblioentry">
+———. 2011. <span>“Spectral Sparsification of Graphs.”</span> <em>SIAM Journal on Computing</em> 40 (4): 981–1025.
+</div>
+<div id="ref-tat2015constructing" class="csl-entry" role="doc-biblioentry">
+Tat Lee, Yin, and He Sun. 2015. <span>“Constructing Linear-Sized Spectral Sparsification in Almost-Linear Time.”</span> <em>arXiv e-Prints</em>, arXiv–1508.
+</div>
+</div>
+</section>
 </section>
 
 </main>
