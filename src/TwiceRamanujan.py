@@ -147,41 +147,41 @@ class TwiceRamanujan:
             nx.draw_networkx_edges(G, pos,edgelist=[edge], width=0.1*edge[2])
         plt.show()
     
-    def ellipse(self):
-        eigenValues,eigenVectors =scipy.linalg.eig(self.L)
-        idx = eigenValues.argsort()
-        eigenValues = eigenValues[idx]
-        eigenVectors = eigenVectors[:,idx]
-        eigen=list(map(lambda x: 1/x,eigenValues[1:]))
-        for i in range(len(eigen)):
-            globals()["x_"+str(i)] = sympy.symbols('x'+str(i))
-        var=np.array([globals()["x_"+str(i)] for i in range(len(eigen))]).reshape(-1,1)
-        expr=0
-        for i in range(len(eigen)):
-            expr+=eigen[i]*(var[i][0]**2)
-        eq1 = sympy.Eq(expr, 1)
-        x=[globals()["x_"+str(i)] for i in range(len(eigen))]
-        sol = sympy.solve([eq1], x,dict=True)
-        print(sol)
-        print(len(eigen))
+    # def ellipse(self):
+        # eigenValues,eigenVectors =scipy.linalg.eig(self.L)
+        # idx = eigenValues.argsort()
+        # eigenValues = eigenValues[idx]
+        # eigenVectors = eigenVectors[:,idx]
+        # eigen=list(map(lambda x: 1/x,eigenValues[1:]))
+        # for i in range(len(eigen)):
+            # globals()["x_"+str(i)] = sympy.symbols('x'+str(i))
+        # var=np.array([globals()["x_"+str(i)] for i in range(len(eigen))]).reshape(-1,1)
+        # expr=0
+        # for i in range(len(eigen)):
+            # expr+=eigen[i]*(var[i][0]**2)
+        # eq1 = sympy.Eq(expr, 1)
+        # x=[globals()["x_"+str(i)] for i in range(len(eigen))]
+        # sol = sympy.solve([eq1], x,dict=True)
+        # print(sol)
+        # print(len(eigen))
         #sympy.calculus.util.continuous_domain(sol, x[1:], sympy.S.Reals)
-        p=None
-        for solu in sol:
-            if p is None:
-                p=sympy.plot(solu[x_0](-10,10),show=False)
-            else:
-                t=sympy.plot(solu[x_0],show=False)
-                p.extend(t)
-        p.show()
-    def ellipse_analytic(self):
-        globals()["x_"+str(i)] = sympy.symbols('x'+str(i))
-        var=np.array([[x],[y]])
-        temp
-        m=var.T@self.L@var
-        eq1 = Eq(m[0][0], 1)
-        sol = solve([eq1], [x, y])
-        for solu in sol:
-            plot(solu[0],solu[1])
+        # p=None
+        # for solu in sol:
+            # if p is None:
+                # p=sympy.plot(solu[x_0](-10,10),show=False)
+            # else:
+                # t=sympy.plot(solu[x_0],show=False)
+                # p.extend(t)
+        # p.show()
+    # def ellipse_analytic(self):
+        # globals()["x_"+str(i)] = sympy.symbols('x'+str(i))
+        # var=np.array([[x],[y]])
+        # temp
+        # m=var.T@self.L@var
+        # eq1 = Eq(m[0][0], 1)
+        # sol = solve([eq1], [x, y])
+        # for solu in sol:
+            # plot(solu[0],solu[1])
         
 class Clique:
     def __init__(self,n):
@@ -216,7 +216,7 @@ if "__main__"==__name__:
     TR=TwiceRamanujan(L,d=2)
     L_s=TR.sparsify()
     print(L_s)
-    TR.ellipse()
+    #TR.ellipse()
     TR.draw_graph(L_s)
     
     
