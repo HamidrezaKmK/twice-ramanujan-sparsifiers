@@ -7,12 +7,16 @@ import sympy
 
 class TwiceRamanujan:
     def __init__(self,L,d):
-        self.L=L
+        if type(L)==nx.classes.graph.Graph:
+            self.L=nx.laplacian_matrix(L).toarray()
+        else:
+            self.L=L
+        print(self.L)
         self.d=d
-        self.n=L.shape[0]
+        self.n=self.L.shape[0]
         self.parameters()
         self.v=self.vectors(self.L)
-    
+
     def parameters(self):
         d,n=self.d,self.n
         d_root=math.sqrt(d)
@@ -212,8 +216,9 @@ class Clique:
 
 
 if "__main__"==__name__:
-    L=Clique(3).laplacian()
-    TR=TwiceRamanujan(L,d=2)
+    #L=Clique(3).laplacian()
+    g=nx.barbell_graph(4,2)
+    TR=TwiceRamanujan(g,d=2)
     L_s=TR.sparsify()
     print(L_s)
     #TR.ellipse()
