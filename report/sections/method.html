@@ -109,8 +109,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<section id="geometric-interpretation" class="level2">
-<h2 class="anchored" data-anchor-id="geometric-interpretation">Geometric interpretation</h2>
+<p>We will now discuss the deterministic algorithm for approximating the matrix <span class="math inline">\(A\)</span>. The algorithm takes an iterative approach and follows <span class="math inline">\(k\)</span> iterations. At each iteration, it will pick a vector <span class="math inline">\(v_i\)</span> which corresponds to an edge and will add <span class="math inline">\(s_i v_i v_i^T\)</span> to the current accumulated matrix. After <span class="math inline">\(k\)</span> iterations it will give a good approximate for the matrix <span class="math inline">\(A\)</span>. But before we present the bulk of the algorithm, let’s start by laying some groundwork by presenting some useful intuitions.</p>
+<section id="geometric-interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="geometric-interpretation">Geometric interpretation</h3>
 <p>Note that for any pair of matrices <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>, having the same null-space we have that <span class="math inline">\(A \succeq B \Longleftrightarrow I \succeq A^{+/2} B A^{+/2}\)</span>. Hence, <span class="math display">\[(1 - \epsilon) A \approx_\epsilon B \Longleftrightarrow \Pi \approx_\epsilon A^{+/2} B A^{+/2}\]</span> where <span class="math inline">\(\Pi = A^{+/2} A A^{+/2}\)</span> is the identity in the subspace orthogonal to the null space of <span class="math inline">\(A\)</span> and is an <em>idempotent</em> matrix. In other words, <span class="math inline">\(\Pi^2 = \Pi\)</span>. Therefore, without loss of generality, we may assume that <span class="math inline">\(A\)</span> in <strong>?@def-matrix-approximation</strong> is an idempotent matrix <span class="math inline">\(\Pi\)</span> via the transformation described where <span class="math inline">\(A\)</span> is replaced by <span class="math inline">\(A^{+/2} A A^{+/2}\)</span> and <span class="math inline">\(v_i = A^{+/2} v_i\)</span> for all <span class="math inline">\(1 \le i \le m\)</span>.</p>
 <p>With that in mind, thinking about idempotent matrices yields nice intuitions on how to think about the problem geometrically. Furthermore, for any positive semi-definite matrix <span class="math inline">\(M\)</span> we can define an ellipsoid <span class="math inline">\(\{x | x^T M x = 1\}\)</span> and for <span class="math inline">\(M = \Pi\)</span> being an idempotent matrix the ellipsoid corresponds to the sphere in the linearly transformed subspace of <span class="math inline">\(\Pi\)</span>: <span class="math display">\[x^T \Pi x = x^T \Pi \Pi x = ||\Pi x||_2^2 = 1.\]</span></p>
 <p>Therefore, if we consider everything in the mapped subspace, i.e., replacing every vector <span class="math inline">\(x\)</span> with <span class="math inline">\(\Pi x\)</span> automatically, then we want to find a linear combination of their cross product such that the ellipsoid corresponding to that combination approximates a regular spherical shape. In other words, <span class="math display">\[\begin{align*}
@@ -119,49 +120,221 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 \Longleftrightarrow &amp; ~ (1 - \epsilon) \Pi \preceq \hat{\Pi} \preceq (1 + \epsilon) \Pi \\
 \Longleftrightarrow &amp; ~ \forall x : (1 - \epsilon) ||\Pi x||_2^2 \le [\Pi x]^T \hat{\Pi} [\Pi x] \le (1 + \epsilon) ||\Pi x||_2^2 \\
 \end{align*}\]</span></p>
-<p>Therefore, the ellipsoid projected using <span class="math inline">\(\Pi\)</span> is sandwiched between two spheres off by <span class="math inline">\(\epsilon\)</span> in their radius.</p>
+<p>Therefore, the ellipsoid projected using <span class="math inline">\(\Pi\)</span> is sandwiched between two spheres off by <span class="math inline">\(\epsilon\)</span> in their radius. Therefore, the algorithm takes an iterative approach to solve this geometric problem. It first starts of with <span class="math inline">\(\hat{A}^{(0)} = \emptyset\)</span> and then iteratively picks a vector <span class="math inline">\(v_i\)</span> and assigns a weight <span class="math inline">\(s_i\)</span> to it such that the ellipsoid <span class="math inline">\(\hat{A}^{(i)} = \hat{A}^{(i+1)} + s_i v_i v_i^T\)</span> becomes iteratively more like a sphere. To formalize this, the algorithm always bounds the corresponding ellipsoid between two spheres of radius <span class="math inline">\(l^{(i)}\)</span> and <span class="math inline">\(u^{(i)}\)</span>. At the beginning of each iteration, the lower bound <span class="math inline">\(l^{(i)}\)</span> will be increased by some <span class="math inline">\(\delta_l\)</span> and the lower bound <span class="math inline">\(u^{(i)}\)</span> will be increased by some <span class="math inline">\(\delta_u\)</span> and the algorithm will try to find a vector <span class="math inline">\(v_i\)</span> and a weight <span class="math inline">\(s_i\)</span> such that the new ellipsoid <span class="math inline">\(\hat{A}^{(i+1)}\)</span>. Moreover, the key idea here is to cleverly pick <span class="math inline">\(\delta_l\)</span> and <span class="math inline">\(\delta_u\)</span> values such that after <span class="math inline">\(k\)</span> iterations the gap between the two spheres is off by <span class="math inline">\(\epsilon\)</span>. In other words, the following should hold: <span class="math display">\[\frac{u^{(0)} + k \delta_u}{l^{(k)} + k \delta_l} = \frac{u^{(k)}}{l^{(k)}} \le \frac{1 + \epsilon}{1 - \epsilon}.\]</span> This will ensure that the shape of the ellipsoid becomes more and more spherical as the algorithm progresses, and finally, a simple scaling will yield an approximate unit sphere which is what we want.</p>
+<p>For illustration, the following shows the algorithm in action. The algorithm starts with an initial ellipsoid that is not spherical and then iteratively picks a vector <span class="math inline">\(v_i\)</span> and a weight <span class="math inline">\(s_i\)</span> such that it still remains sandwiched between two spheres of radius <span class="math inline">\(l^{(i)}\)</span> and <span class="math inline">\(u^{(i)}\)</span>. Note that in this example <span class="math inline">\(\delta_l\)</span> and <span class="math inline">\(\delta_u\)</span> are equal, therefore, for a large enough <span class="math inline">\(k\)</span> the ellipsoid will become spherical because although the radius is growing the gap remains the same, further limiting the range of the ellipsoid.</p>
+<p><img src="figs/algorithm.gif" title="Title: An elephant" alt="A drawing of an elephant."></p>
+<!-- ```{python}
+#| label: fig-ellipsoid
+#| fig-cap: "A dummy algorithm that approximates a unit sphere"
+#| fig-alt: "A dummy algorithm that approximates a unit sphere"
+#| fig-size: 400
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
+
+def plot_ellipse(ax, A, color, alpha):
+  w, v = np.linalg.eig(A)
+  w = np.sqrt(w)
+  ell = Ellipse(
+    xy = (0, 0), 
+    width = 2 * w[0], 
+    height = 2 * w[1], 
+    angle = np.rad2deg(np.arccos(v[0, 0])), 
+    color = color, 
+    alpha = alpha
+  )
+  ax.add_artist(ell)
+  ax.set_xlim(-10, 10)
+  ax.set_ylim(-10, 10)
+  ax.set_aspect('equal')
+
+chiz = [[[10, 1], [1, 10]], [[3, -1], [-1, 3]], [[5, 2], [2, 3]]]
+for i, chi in enumerate(chiz):
+  plt.figure(i)
+  plot_ellipse(ax, np.array(chi), 'blue', 0.2)
+  plt.show()
+``` -->
 </section>
-<section id="physical-view" class="level2">
-<h2 class="anchored" data-anchor-id="physical-view">Physical View</h2>
-<p>– TODO: Charged particle intuition</p>
-<p>– TODO: What happens in the average case</p>
-<p>– TODO: Leguerre polynomials</p>
-<p>– TODO: bounding all the eigenvalues</p>
-</section>
-<section id="potential-functions" class="level2">
-<h2 class="anchored" data-anchor-id="potential-functions">Potential Functions</h2>
-<p>– TODO: Quantizing the boundedness</p>
-<p>– TODO: plotting the potential function</p>
-</section>
-<section id="the-algorithm" class="level2">
-<h2 class="anchored" data-anchor-id="the-algorithm">The Algorithm</h2>
-<p>For a demonstration of a line plot on a polar axis, see <a href="#fig-polar">Figure&nbsp;1</a>.</p>
-<div class="cell" data-execution_count="1">
+<section id="physical-view-and-the-expected-behavior" class="level2">
+<h2 class="anchored" data-anchor-id="physical-view-and-the-expected-behavior">Physical View and the Expected behavior</h2>
+<p>The fact that <span class="math inline">\(\hat{A}^{(i)}\)</span> should be bounded between two spheres translates into all the eigenvalues of <span class="math inline">\(\hat{A}^{(i)}\)</span> being bounded between the two radiuses. Therefore, an important observation is to monitor what happens to the eigenvalues of <span class="math inline">\(\hat{A}^{(i)}\)</span> when <span class="math inline">\(vv^T\)</span> is being added at each iteration. To do so, we consider the characteristic polynomial of <span class="math inline">\(A\)</span> at each iteration written as <span class="math inline">\(p_A(\lambda) = \det(\lambda I - A)\)</span>. There are two important lemmas when analyzing <span class="math inline">\(A + vv^T\)</span> matrices, one is the Sherman-Morrison lemma which states that:</p>
+<div id="lemma-sherman-morrison">
+<p>Suppose <span class="math inline">\(A\)</span> is an invertible square matrix and <span class="math inline">\(u, v\)</span> are column vectors. Then <span class="math inline">\(A + uv^T\)</span> is invertible iff <span class="math inline">\(1 + v^T A^{-1} u \neq 0\)</span>. In this case, <span class="math display">\[(A + uv^T)^{-1} = A^{-1} - \frac{A^{-1}uv^TA^{-1}}{1 + v^TA^{-1}u}\]</span></p>
+</div>
+<p>The other is the matrix determinant lemma which states that:</p>
+<div id="lemma-matrix-determinant">
+<p>Suppose <span class="math inline">\(A\)</span> is an invertible square matrix and <span class="math inline">\(u, v\)</span> are column vectors. Then <span class="math display">\[\det(A + uv^T) = \det(A) (1 + v^T A^{-1} u)\]</span></p>
+</div>
+<p>Moreover, plugging these into the characteristic polynomial of <span class="math inline">\(A + vv^T\)</span> yields the following:</p>
+<p><span class="math display">\[
+\begin{align*}
+p_{A + vv^T}(\lambda) &amp;= \det(\lambda I - A - vv^T) \\
+&amp; = \det(\lambda I - A) (1 - v^T \left(\lambda I - A \right)^{-1}u) \\
+&amp; = \det (\lambda I - A) \left(1 - v^T \left[\sum_{i=1}^n \frac{1}{\lambda - \lambda_i} u_i u_i^T\right] v\right)\\
+&amp; = p_A(\lambda) \left(1 -  \sum_{i=1}^n \frac{(v^Tu_i)^2}{\lambda - \lambda_i}\right)\\
+\end{align*}
+\]</span></p>
+<p>Therefore, we can assume particles being set on each of the <span class="math inline">\(\lambda_i\)</span> values with the <span class="math inline">\(i\)</span>th one on <span class="math inline">\(\lambda_i\)</span> with charge <span class="math inline">\(v^Tu_i\)</span>. The new set of equilibrium points for this particle set will entail the new eigenvalues of <span class="math inline">\(A + vv^T\)</span> which are the roots of <span class="math inline">\(p_{A + vv^T}(\lambda)\)</span>. Note that for <span class="math inline">\(u_i\)</span> values such that <span class="math inline">\(v^Tu_i=0\)</span> the charge is zero and therefore, the new eigenvalues will be the same as the old ones.</p>
+<p>The following figure illustrates the matrix case <span class="math inline">\(A\)</span> with three different vectors <span class="math inline">\(v_1\)</span>, <span class="math inline">\(v_2\)</span> and <span class="math inline">\(v_3\)</span>. Each color corresponds to the characteristic polynomial for different <span class="math inline">\(v\)</span> values where,</p>
+<p><span class="math display">\[A = \lambda_1 u_1 u_1^T + \lambda_2 u_2 u_2^T + \lambda_3 u_3 u_3^T
+= \begin{bmatrix}
+1.6 &amp; -0.2 &amp; -0.33\\
+-0.2 &amp; 3.4 &amp; -0.33\\
+-0.33 &amp; -0.33 &amp; 1
+\end{bmatrix}\]</span> <span class="math display">\[\begin{bmatrix}\lambda_1 \\ \lambda_2 \\ \lambda_3\end{bmatrix} = \begin{bmatrix}0.79 \\ 1.75 \\ 3.46\end{bmatrix}, u_1 = \begin{bmatrix}
+-0.41\\
+-0.15\\
+-0.9
+\end{bmatrix}, u_2 = \begin{bmatrix}
+-0.9 \\
+-0.03 \\
+0.42
+\end{bmatrix}, u_3 = \begin{bmatrix}
+0.08\\
+-0.99\\
+0.12\\
+\end{bmatrix}\]</span> We note that <span class="math inline">\(\langle v_i, u_j \rangle^2\)</span> is the charge of particle <span class="math inline">\(j\)</span> when adding <span class="math inline">\(v_i\)</span> to <span class="math inline">\(A\)</span> and we can summarize all the charged particles in the following matrix: <span class="math display">\[v_1 = \begin{bmatrix}
+0\\
+1\\
+1\\
+\end{bmatrix}, v_2 = \begin{bmatrix}
+1\\
+1\\
+0\\
+\end{bmatrix},
+C = \begin{bmatrix}
+1.10 &amp; 0.15 &amp; 0.75\\
+0.31 &amp; 0.87 &amp; 0.82
+\end{bmatrix}, C_{ij} = \langle v_i, u_j \rangle^2\]</span></p>
+<div>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">2</span>, <span class="fl">0.01</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>theta <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> r</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  subplot_kw <span class="op">=</span> {<span class="st">'projection'</span>: <span class="st">'polar'</span>} </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.plot(theta, r)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>ax.set_rticks([<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="fl">1.5</span>, <span class="dv">2</span>])</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_characteristic_polynomial(A, v, color):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  x <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">1000</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  w, u <span class="op">=</span> np.linalg.eig(A)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot the determinant of xI - A</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  y <span class="op">=</span> []</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  roots <span class="op">=</span> []</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  prv <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i <span class="kw">in</span> x:</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    val <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> np.<span class="bu">sum</span>(<span class="dv">1</span><span class="op">/</span>(i <span class="op">-</span> w) <span class="op">*</span> (v <span class="op">@</span> u)<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> prv <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">and</span> val <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      roots.append(i)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    prv <span class="op">=</span> val</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    y.append(val)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  plt.plot(x, y, color <span class="op">=</span> color, label<span class="op">=</span><span class="st">'characteristic polynomial of A + vv^T'</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  plt.scatter(roots, np.zeros(<span class="bu">len</span>(roots)), color <span class="op">=</span> color, marker <span class="op">=</span> <span class="st">'o'</span>, label<span class="op">=</span><span class="st">'new-eigenvalues'</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># create an orthonormal 3 by 3 matrix U</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>U <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>], [<span class="dv">1</span>, <span class="dv">1</span>, <span class="op">-</span><span class="dv">2</span>], [<span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>]])</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>U <span class="op">=</span> U <span class="op">/</span> np.linalg.norm(U, axis <span class="op">=</span> <span class="dv">0</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> U <span class="op">@</span> np.diag([<span class="dv">1</span> , <span class="dv">2</span>, <span class="dv">3</span>]) <span class="op">@</span> U.T</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>vz <span class="op">=</span> [[<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>], [<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>]]</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'blue'</span>, <span class="st">'red'</span>]</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the eigenvalues of A</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>w, u <span class="op">=</span> np.linalg.eig(A)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># sort according to w and reorder u</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>w, u <span class="op">=</span> <span class="bu">zip</span>(<span class="op">*</span><span class="bu">sorted</span>(<span class="bu">zip</span>(w, u.T)))</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> np.array(u).T</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> np.array(w)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col, v <span class="kw">in</span> <span class="bu">zip</span>(colors, vz):</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  plt.scatter(w, np.zeros(w.shape), color <span class="op">=</span> <span class="st">'black'</span>, marker <span class="op">=</span> <span class="st">'x'</span>, label<span class="op">=</span><span class="st">'previous eigenvalues'</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add text with textbox equal to np.sum(w) on top of each eigenvalue</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i, wi <span class="kw">in</span> <span class="bu">enumerate</span>(w):</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> plt.text(wi <span class="op">-</span> <span class="fl">0.5</span>, <span class="fl">0.1</span> <span class="op">*</span> (<span class="dv">4</span> <span class="op">*</span> (i <span class="op">%</span> <span class="dv">2</span>) <span class="op">-</span> <span class="fl">2.5</span>), <span class="ss">f"c=</span><span class="sc">{</span>(v <span class="op">@</span> u[:,i])<span class="op">**</span><span class="dv">2</span><span class="sc">:.2f}</span><span class="ss">"</span>, color <span class="op">=</span> <span class="st">'black'</span>)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    t.set_bbox(<span class="bu">dict</span>(facecolor<span class="op">=</span><span class="st">'white'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, edgecolor<span class="op">=</span>col))</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  plot_characteristic_polynomial(A, v, col)</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>  plt.xlim(<span class="dv">0</span>, <span class="fl">5.5</span>)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>  plt.ylim(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  plt.legend()</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="fig-matrix-determinant" class="cell quarto-layout-panel" data-execution_count="1">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-matrix-determinant-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="method_files/figure-html/fig-matrix-determinant-output-1.png" class="img-fluid figure-img" data-ref-parent="fig-matrix-determinant" width="582"></p>
+<p></p><figcaption class="figure-caption">(a) The characteristic polynomial after adding <span class="math inline">\(v_1\)</span> to A.</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-matrix-determinant-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="method_files/figure-html/fig-matrix-determinant-output-2.png" class="img-fluid figure-img" data-ref-parent="fig-matrix-determinant" width="582"></p>
+<p></p><figcaption class="figure-caption">(b) The characteristic polynomial after adding <span class="math inline">\(v_2\)</span> to A.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1: The characteristic polynomial of <span class="math inline">\(A + vv^T\)</span> for different <span class="math inline">\(v\)</span> values, the higher the charge the more it will repel the new eigenvalues from the old ones.</figcaption><p></p>
+</figure>
+</div>
+</div>
+<p>The goal is to pick a <span class="math inline">\(v\)</span> such that all the eigenvalues are uniformly pushed forward so that they can stay between the new ranges <span class="math inline">\(l^{(i+1)}\)</span> and <span class="math inline">\(u^{(i+1)}\)</span>. To get a sense, let’s pick one of the <span class="math inline">\(m\)</span> vectors with uniform probability and add it to <span class="math inline">\(A\)</span>. In that case, the expected charges can be written as: <span class="math display">\[E[\langle v, u_j \rangle^2] = \frac{1}{m} \sum_{i=1}^m \langle v_i, u_j \rangle^2 = \frac{1}{m} u_j^T \left( \sum_{i=1}^m v_i v_i^T \right)u_j = \frac{||\Pi u_j||_2^2}{m} = \frac{1}{m}\]</span> Hence, on expectation all the particles have charge <span class="math inline">\(1/m\)</span> and the expected deterministic polynomial is: <span class="math display">\[
+\begin{align*}
+E[p_{A + v}(\lambda)] &amp;= p_A(\lambda) E\left[1 - \sum_{i=1}^m \frac{\langle u_i, v\rangle^2}{\lambda - \lambda_i}\right] = p_A(\lambda) \left(1 - \sum_{i=1}^m \frac{E\langle u_i, v\rangle^2}{\lambda - \lambda_i}\right)\\
+&amp; = p_A(\lambda) \left(1 - \sum_{i=1}^m \frac{1/m}{\lambda - \lambda_i}\right) = p_A(\lambda) - \frac{1}{m} \sum_{i=1}^m \frac{p_A(\lambda)}{\lambda - \lambda_i}\\
+&amp; = p_A(\lambda) - \frac{1}{m} \sum_{i=1}^m \prod_{1 = j\neq i}^m (\lambda - \lambda_j)\\
+&amp;= p_A(\lambda) - \frac{1}{m} p'_A(\lambda)\\
+\end{align*}
+\]</span> Therefore, if we start off with the matrix <span class="math inline">\(p_{A^{(0)}}(\lambda) = \lambda^n\)</span>, after <span class="math inline">\(nd\)</span> iterations the expected polynomial is a set of associate Laguerre polynomials that are well studied <span class="citation" data-cites="dette1995some">[@dette1995some]</span>, and in particular, it has been proven that the ratio between the largest and smallest root for these polynomials is bounded by the value below:</p>
+<p><span class="math display">\[\frac{d + 1 + 2\sqrt{d}}{d + 1 - 2\sqrt{d}} \xrightarrow{\epsilon = \frac{2\sqrt{d}}{d+1}} \frac{1 + \epsilon
+}{1 - \epsilon}\]</span></p>
+<p>Although this is just speculation and no <span class="math inline">\(v_i\)</span> values will necessarily exist with the expected behavior, we can still get an idea of the goal <span class="math inline">\(\epsilon\)</span> and come up with the following proposition:</p>
+<div id="prp-final-form" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 1 </strong></span>For any matrix <span class="math inline">\(A = \sum_{i=1}^m v_i v_i^T\)</span> we can choose a subset <span class="math inline">\(\mathcal{S}\)</span> of <span class="math inline">\(v_i\)</span> and a set of coefficients <span class="math inline">\(s_i\)</span> with size <span class="math inline">\(nd\)</span> such that: <span class="math display">\[\hat{A} = \sum_{i \in \mathcal{S}} s_i \cdot v_i v_i^T,~~ (1 - \frac{2\sqrt{d}}{d+1}) A \preceq \hat{A} \preceq (1 + \frac{2\sqrt{d}}{d+1}) A\]</span></p>
+</div>
+<p>The graph formulation of <a href="#prp-final-form">Proposition&nbsp;1</a> is as follows:</p>
+<div id="cor-final-form" class="theorem corollary">
+<p><span class="theorem-title"><strong>Corollary 1 </strong></span>For any graph <span class="math inline">\(G\)</span> and any <span class="math inline">\(\epsilon\)</span> we can choose a subset of <span class="math inline">\(\mathcal{O}(n/\epsilon^2)\)</span> edges with arbitrary edge weights to obtain <span class="math inline">\(H\)</span> such that <span class="math inline">\(H\)</span> is an <span class="math inline">\(\epsilon\)</span>-sparsifier of <span class="math inline">\(G\)</span>: <span class="math inline">\(L_G \approx_\epsilon L_H\)</span>.</p>
+</div>
+<p>This is set using <span class="math inline">\(\epsilon = \frac{2\sqrt{d}}{d + 1}\)</span> where <span class="math inline">\(\frac{n}{\epsilon^2} = \mathcal{O}(nd)\)</span>. In the next section, we will see how we can choose <span class="math inline">\(v_i\)</span> and <span class="math inline">\(s_i\)</span> at each step such that after <span class="math inline">\(nd\)</span> iterations this happens.</p>
+<section id="potential-functions" class="level3">
+<h3 class="anchored" data-anchor-id="potential-functions">Potential Functions</h3>
+<p>– TODO: Quantizing the boundedness</p>
+<p>– TODO: plotting the potential function</p>
+</section>
+<section id="the-deterministic-algorithm" class="level3">
+<h3 class="anchored" data-anchor-id="the-deterministic-algorithm">The Deterministic Algorithm</h3>
+<p>For a demonstration of a line plot on a polar axis, see <a href="#fig-polar">Figure&nbsp;2</a>.</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">2</span>, <span class="fl">0.01</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>theta <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> r</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  subplot_kw <span class="op">=</span> {<span class="st">'projection'</span>: <span class="st">'polar'</span>} </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>ax.plot(theta, r)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>ax.set_rticks([<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="fl">1.5</span>, <span class="dv">2</span>])</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div id="fig-polar" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="method_files/figure-html/fig-polar-output-1.png" width="450" height="439" class="figure-img"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;1: A line plot on a polar axis</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2: A line plot on a polar axis</figcaption><p></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="experimental-details" class="level2">
-<h2 class="anchored" data-anchor-id="experimental-details">Experimental Details</h2>
+<section id="experimental-details" class="level3">
+<h3 class="anchored" data-anchor-id="experimental-details">Experimental Details</h3>
 <p>– TODO: show the results of using the deterministic algorithm vs the randomized algorithm</p>
+</section>
 </section>
 
 </main>

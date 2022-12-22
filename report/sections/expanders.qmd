@@ -1,12 +1,12 @@
 
-## Expander Graphs
+### Expander Graphs
 
 -- TODO: recap of expanders
 
 -- TODO: expander mixing lemma
 
-## Ramanujan Bounds
+### Ramanujan Bounds
 
-## The Twice Ramanujan Sparsifier
+### The Twice Ramanujan Sparsifier
 
 -- TODO: illustration of what happens in the algorithm iteratively on a complete graph.
