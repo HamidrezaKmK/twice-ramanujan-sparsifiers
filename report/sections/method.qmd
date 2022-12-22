@@ -1,0 +1,121 @@
+We will now discuss the deterministic algorithm for approximating the matrix $A$. The algorithm takes an iterative approach and follows $k$ iterations. At each iteration, it will pick a vector $v_i$ which corresponds to an edge and will add $s_i v_i v_i^T$ to the current accumulated matrix. After $k$ iterations it will give a good approximate for the matrix $A$. But before we present the bulk of the algorithm, let's start by laying some groundwork by presenting some useful intuitions.
+
+### Geometric interpretation
+
+
+Note that for any pair of matrices $A$ and $B$, having the same null-space we have that $A \succeq B \Longleftrightarrow I \succeq A^{+/2} B A^{+/2}$. Hence, 
+$$(1 - \epsilon) A \approx_\epsilon B \Longleftrightarrow \Pi \approx_\epsilon A^{+/2} B A^{+/2}$$
+where $\Pi = A^{+/2} A A^{+/2}$ is the identity in the subspace orthogonal to the null space of $A$ and is an *idempotent* matrix. In other words, $\Pi^2 = \Pi$. Therefore, without loss of generality, we may assume that $A$ in @def-matrix-approximation is an idempotent matrix $\Pi$ via the transformation described where $A$ is replaced by $A^{+/2} A A^{+/2}$ and $v_i = A^{+/2} v_i$ for all $1 \le i \le m$.
+
+With that in mind, thinking about idempotent matrices yields nice intuitions on how to think about the problem geometrically. Furthermore, for any positive semi-definite matrix $M$ we can define an ellipsoid $\{x | x^T M x = 1\}$ and for $M = \Pi$ being an idempotent matrix the ellipsoid corresponds to the sphere in the linearly transformed subspace of $\Pi$:
+$$x^T \Pi x = x^T \Pi \Pi x = ||\Pi x||_2^2 = 1.$$
+
+Therefore, if we consider everything in the mapped subspace, i.e., replacing every vector $x$ with $\Pi x$ automatically, then we want to find a linear combination of their cross product such that the ellipsoid corresponding to that combination approximates a regular spherical shape. In other words, 
+\begin{align*}
+&\hat{A} = \sum s_i v_i v_i^T \approx_\epsilon A \\
+\Longleftrightarrow & ~ \hat{\Pi} = \sum s_i (A^{+/2}) v_i (A^{+/2} v_i)^T  \approx_\epsilon A^{+/2} A A^{+/2} = \Pi\\
+\Longleftrightarrow & ~ (1 - \epsilon) \Pi \preceq \hat{\Pi} \preceq (1 + \epsilon) \Pi \\
+\Longleftrightarrow & ~ \forall x : (1 - \epsilon) ||\Pi x||_2^2 \le [\Pi x]^T \hat{\Pi} [\Pi x] \le (1 + \epsilon) ||\Pi x||_2^2 \\
+\end{align*}
+
+Therefore, the ellipsoid projected using $\Pi$ is sandwiched between two spheres off by $\epsilon$ in their radius. Therefore, the algorithm takes an iterative approach to solve this geometric problem. It first starts of with $\hat{A}^{(0)} = \emptyset$ and then iteratively picks a vector $v_i$ and assigns a weight $s_i$ to it such that the ellipsoid $\hat{A}^{(i)} = \hat{A}^{(i+1)} + s_i v_i v_i^T$ becomes iteratively more like a sphere. To formalize this, the algorithm always bounds the corresponding ellipsoid between two spheres of radius $l^{(i)}$ and $u^{(i)}$. At the beginning of each iteration, the lower bound $l^{(i)}$ will be increased by some $\delta_l$ and the lower bound $u^{(i)}$ will be increased by some $\delta_u$ and the algorithm will try to find a vector $v_i$ and a weight $s_i$ such that the new ellipsoid $\hat{A}^{(i+1)}$. Moreover, the key idea here is to cleverly pick $\delta_l$ and $\delta_u$ values such that after $k$ iterations the gap between the two spheres is off by $\epsilon$. In other words, the following should hold:
+$$\frac{u^{(0)} + k \delta_u}{l^{(k)} + k \delta_l} = \frac{u^{(k)}}{l^{(k)}} \le \frac{1 + \epsilon}{1 - \epsilon}.$$
+This will ensure that the shape of the ellipsoid becomes more and more spherical as the algorithm progresses, and finally, a simple scaling will yield an approximate unit sphere which is what we want. 
+
+For illustration, the following shows the algorithm in action. The algorithm starts with an initial ellipsoid that is not spherical and then iteratively picks a vector $v_i$ and a weight $s_i$ such that it still remains sandwiched between two spheres of radius $l^{(i)}$ and $u^{(i)}$.
+Note that in this example $\delta_l$ and $\delta_u$ are equal, therefore, for a large enough $k$ the ellipsoid will become spherical because although the radius is growing the gap remains the same, further limiting the range of the ellipsoid.
+![The algorithm in action.](./figs/algorithm.gif){#fig-ellipsoid}
+
+<!-- ```{python}
+#| label: fig-ellipsoid
+#| fig-cap: "A dummy algorithm that approximates a unit sphere"
+#| fig-alt: "A dummy algorithm that approximates a unit sphere"
+#| fig-size: 400
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
+
+def plot_ellipse(ax, A, color, alpha):
+  w, v = np.linalg.eig(A)
+  w = np.sqrt(w)
+  ell = Ellipse(
+    xy = (0, 0), 
+    width = 2 * w[0], 
+    height = 2 * w[1], 
+    angle = np.rad2deg(np.arccos(v[0, 0])), 
+    color = color, 
+    alpha = alpha
+  )
+  ax.add_artist(ell)
+  ax.set_xlim(-10, 10)
+  ax.set_ylim(-10, 10)
+  ax.set_aspect('equal')
+
+chiz = [[[10, 1], [1, 10]], [[3, -1], [-1, 3]], [[5, 2], [2, 3]]]
+for i, chi in enumerate(chiz):
+  plt.figure(i)
+  plot_ellipse(ax, np.array(chi), 'blue', 0.2)
+  plt.show()
+``` -->
+
+## Physical View and the Expected behavior
+
+The fact that $\hat{A}^{(i)}$ should be bounded between two spheres translates into all the eigenvalues of $\hat{A}^{(i)}$ being bounded between the two radiuses. Therefore, an important observation is to monitor what happens to the eigenvalues of $\hat{A}^{(i)}$ when $vv^T$ is being added at each iteration. To do so, we consider the characteristic polynomial of $A$ at each iteration written as $p_A(\lambda) = \det(\lambda I - A)$. There are two important lemmas when analyzing $A + vv^T$ matrices, one is the Sherman-Morrison lemma which states that:
+
+::: {#lemma-sherman-morrison}
+Suppose $A$ is an invertible square matrix and $u, v$ are column vectors. Then $A + uv^T$ is invertible iff $1 + v^T A^{-1} u \neq 0$. In this case,
+$$(A + uv^T)^{-1} = A^{-1} - \frac{A^{-1}uv^TA^{-1}}{1 + v^TA^{-1}u}$$
+:::
+
+The other is the matrix determinant lemma which states that:
+
+::: {#lemma-matrix-determinant}
+Suppose $A$ is an invertible square matrix and $u, v$ are column vectors. Then
+$$\det(A + uv^T) = \det(A) (1 + v^T A^{-1} u)$$
+:::
+
+Moreover, plugging these into the characteristic polynomial of $A + vv^T$ yields the following:
+
+\begin{align*}
+det(\lambda I - A - vv^T) &= det(\lambda I - A) (1 - v^T \left(\lambda I - A \right)) \\
+\end{align*}
+
+-- TODO: Charged particle intuition
+
+-- TODO: What happens in the average case
+
+-- TODO: Leguerre polynomials
+
+-- TODO: bounding all the eigenvalues
+
+## Potential Functions
+
+-- TODO: Quantizing the boundedness
+
+-- TODO: plotting the potential function
+
+## The Deterministic Algorithm
+For a demonstration of a line plot on a polar axis, see @fig-polar.
+
+```{python}
+#| label: fig-polar
+#| fig-cap: "A line plot on a polar axis"
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+r = np.arange(0, 2, 0.01)
+theta = 2 * np.pi * r
+fig, ax = plt.subplots(
+  subplot_kw = {'projection': 'polar'} 
+)
+ax.plot(theta, r)
+ax.set_rticks([0.5, 1, 1.5, 2])
+ax.grid(True)
+plt.show()
+```
+
+## Experimental Details
+
+-- TODO: show the results of using the deterministic algorithm vs the randomized algorithm

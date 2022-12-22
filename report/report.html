@@ -228,35 +228,135 @@ div.csl-indent {
 <p>On the other hand, <span class="citation" data-cites="benczur1996approximating">(<a href="#ref-benczur1996approximating" role="doc-biblioref">Benczúr and Karger 1996</a>)</span> for example introduces the cut-sparsifiers which are a class of sparsifiers that have almost identical cut weights for any set <span class="math inline">\(S \subset V\)</span>. In this report, we cover spectral graph sparsifiers which are a certain class of sparsifiers that have a tight connection with expander graphs and can approximate the Laplacian of a graph with high accuracy. Because of the close connection between graph spectral connectivity and edge connectivity introduced by Cheeger <span class="citation" data-cites="cheeger1970lower">(<a href="#ref-cheeger1970lower" role="doc-biblioref">Cheeger 1970</a>)</span> spectral sparsifiers were introduced by <span class="citation" data-cites="spielman2004nearly">(<a href="#ref-spielman2004nearly" role="doc-biblioref">Spielman and Teng 2004</a>)</span> and <span class="citation" data-cites="spielman2011spectral">(<a href="#ref-spielman2011spectral" role="doc-biblioref">Spielman and Teng 2011</a>)</span>. Conventionally, these graphs are constructed using randomized algorithms where we pick a certain edge of an original graph with a probability. For example, if an edge is crucial to the connectivity of our graph, then it has high importance and should be picked with high probability. However, in this report, we will show that we can construct a sparsifier with a deterministic algorithm introduced in <span class="citation" data-cites="batson2009twice">(<a href="#ref-batson2009twice" role="doc-biblioref">Batson, Spielman, and Srivastava 2009</a>)</span> that has a tight connection with the Ramanujan bounds.</p>
 <p>Furthermore, we will cover an important reduction from the graph sparsification problem to a matrix approximation problem which has been further exploder in many follow-up papers <span class="citation" data-cites="tat2015constructing">(<a href="#ref-tat2015constructing" role="doc-biblioref">Tat Lee and Sun 2015</a>)</span> and <span class="citation" data-cites="lee2017sdp">(<a href="#ref-lee2017sdp" role="doc-biblioref">Lee and Sun 2017</a>)</span>. Moreover, this will give us the first deterministic algorithm for obtaining sparsifiers with linear edge count. That said, we have implemented the algorithm in Python and have tested it on a few graphs for illustration purposes.</p>
 <p>Finally, we will focus our attention on running the algorithm on complete graphs. The sparsifier obtained from the complete graph will have high connectivity which resembles similarities with the expander graphs. Although the graph obtained from the algorithm is not regular, we will show that it has a lot of expander-like properties and we will draw a close connection with Ramanujan graphs.</p>
-<section id="preliminaries" class="level1">
-<h1>Preliminaries</h1>
-<p>Here we will cover some of the basic definitions that are used in the sparsification literature as well as some core concepts in linear algebra that will be referenced throughout the report.</p>
-<section id="spectral-sparsification" class="level2">
-<h2 class="anchored" data-anchor-id="spectral-sparsification">Spectral Sparsification</h2>
+<section id="recap-and-preliminaries" class="level2">
+<h2 class="anchored" data-anchor-id="recap-and-preliminaries">Recap and Preliminaries</h2>
+<p>Here we will cover some preliminaries on spectral sparsification and then we will discuss the effective resistance-based algorithm for spectral sparsification. We will also discuss an important reduction to the matrix problem that was first formalized in <span class="citation" data-cites="batson2009twice">(<a href="#ref-batson2009twice" role="doc-biblioref">Batson, Spielman, and Srivastava 2009</a>)</span> which lays the groundwork for the final algorithm.</p>
+<section id="spectral-sparsification" class="level3">
+<h3 class="anchored" data-anchor-id="spectral-sparsification">Spectral Sparsification</h3>
 <p>Before everything, we should define what a spectral sparsifier is. A spectral sparsifier is a sparse graph that approximates the Laplacian of a graph with high accuracy. In other words, a sparsifier is a graph that has a lot of the same properties as the original graph.</p>
 <div id="def-spectral-sparsification" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 1 </strong></span>A <span class="math inline">\(\epsilon\)</span>-spectral sparsifier of a graph <span class="math inline">\(G = (V, E, w)\)</span> is a sparse graph <span class="math inline">\(H\)</span> such that, <span class="math display">\[(1 - \epsilon) \mathcal{L}(G) \preceq \mathcal{L}(H) \preceq (1 + \epsilon) \mathcal{L}(G)\]</span> where <span class="math inline">\(\mathcal{L}(G)\)</span> is the Laplacian of <span class="math inline">\(G\)</span> and <span class="math inline">\(\mathcal{L}(H)\)</span> is the Laplacian of <span class="math inline">\(H\)</span>.</p>
+<p><span class="theorem-title"><strong>Definition 1 </strong></span>A <span class="math inline">\((k, \epsilon)\)</span>-spectral sparsifier of a graph <span class="math inline">\(G = (V, E, w)\)</span> is a graph <span class="math inline">\(H\)</span> with <span class="math inline">\(k\)</span> edges such that, <span class="math display">\[L_G \approx_\epsilon L_H : (1 - \epsilon) L_G \preceq L_H \preceq (1 + \epsilon) L_G\]</span> where <span class="math inline">\(L_G\)</span> is the Laplacian of <span class="math inline">\(G\)</span> and <span class="math inline">\(L_H\)</span> is the Laplacian of <span class="math inline">\(H\)</span>.</p>
 </div>
-<p>– TODO: two methods of spectral sparsification</p>
-<p>– TODO: The lemma for <span class="math inline">\(\mathcal{O}(\frac{n}{\epsilon^2} \log n)\)</span> sparsifiers and the question on how to obtain other spersifiers.</p>
 </section>
-<section id="expander-graphs" class="level2">
-<h2 class="anchored" data-anchor-id="expander-graphs">Expander Graphs</h2>
-<p>– TODO: recap of expanders</p>
-<p>– TODO: expander mixing lemma</p>
+<section id="reduction-to-the-matrix-problem" class="level3">
+<h3 class="anchored" data-anchor-id="reduction-to-the-matrix-problem">Reduction to the Matrix Problem</h3>
+<p>Here, we will present an analog problem for the sparsification of matrices that is tightly connected to the spectral sparsification problem. The problem is as follows:</p>
+<div id="def-matrix-approximation" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 2 </strong></span><strong><span class="math inline">\((k, \epsilon)\)</span>-approximation of matrices</strong> Given a set of <span class="math inline">\(m\)</span> vectors <span class="math inline">\(v_1, \ldots, v_m \in \mathbb{R}^n\)</span> if <span class="math inline">\(A = \sum_{i=1}^m v_iv_i^T\)</span> is a positive semi-definite matrix, then we intend to find a subset of vectors <span class="math inline">\(\mathcal{S} \subseteq \{1, \ldots, m\}\)</span> of size <span class="math inline">\(k\)</span> and a set of coefficients <span class="math inline">\(s_i \in \mathbb{R}^+\)</span> such that <span class="math inline">\(\hat{A} = \sum_{i \in \mathcal{S}} s_i v_i v_i^T \approx_\epsilon A\)</span>.</p>
+</div>
+<p>Now we will show that one can solve the <span class="math inline">\((k, \epsilon)\)</span> problem in <a href="#def-matrix-approximation">Definition&nbsp;2</a> then it can plug into the graph sparsification problem and obtain a <span class="math inline">\((k, \epsilon)\)</span>-spectral sparsifier. To do so, observe that if we set <span class="math inline">\(A = L_G\)</span> and <span class="math inline">\(v_{ab} = \sqrt{w_G(a,b)} (\chi_a - \chi_b)\)</span> and <span class="math inline">\(s_{ab} = \frac{w_H(a,b)}{w_G(a,b)}\)</span>, then the problem in <a href="#def-matrix-approximation">Definition&nbsp;2</a> is equivalent to the spectral sparsification problem:</p>
+<p><span class="math display">\[\begin{align*}
+A = L_G &amp;= \sum_{(a,b) \in E(G)} w_G(a,b) L_{ab} \\
+&amp;= \sum_{(a,b) \in E(G)} \sqrt{w_G(a,b)}^2 (\chi_a - \chi_b) (\chi_a - \chi_b)^T\\
+&amp; = \sum_{ab \in E(G)} v_{ab} v_{ab}^T\\
+\hat{A} = L_H &amp;= \sum_{(a, b) \in E(H)} w_H(a,b) L_{ab} \\
+&amp;= \sum_{(a, b) \in E(H)} \frac{w_H(a,b)}{w_G(a,b)} \sqrt{w_G(a,b)}^2 (\chi_a - \chi_b) (\chi_a - \chi_b)^T\\
+&amp;= \sum_{(a,b) \in E(H)} s_{ab} v_{ab} v_{ab}^T
+\end{align*}\]</span></p>
 </section>
-<section id="ramanujan-bounds" class="level2">
-<h2 class="anchored" data-anchor-id="ramanujan-bounds">Ramanujan Bounds</h2>
+<section id="sampling-based-sparsification" class="level3">
+<h3 class="anchored" data-anchor-id="sampling-based-sparsification">Sampling-based Sparsification</h3>
+<p>As alluded to previously, the problem of spectral sparsification can be approached from an edge-sampling perspective. In particular, one can assign importance weights to each edge and then come up with a sampling scheme that samples edges according to their importance. For example, an edge that is crucial for the connectivity of the graph has high importance for cut-sparsifiers or spectral sparsifiers. To that end, a set of edges can be independently sampled according to this scheme and after sampling each edge the graph becomes more and more similar to the original graph. However, since this sampling is done according to the measure of importance, even after sampling a small number of edges, the graph becomes a good approximation of the original graph.</p>
+<p>One can also formulate the same thing for the matrix approximation problem. Assume that for each vector <span class="math inline">\(i\)</span>, we have a corresponding matrix <span class="math inline">\(X_i = s_i v_i v_i^T\)</span> which will be picked with probability <span class="math inline">\(p_i\)</span> and we will consider <span class="math inline">\(\hat{A} = \sum_{i \in \mathcal{S}} X_i\)</span> where <span class="math inline">\(\mathcal{S}\)</span> is the set of indices of the sampled vectors. One can bound the number of sampled vectors by coming up with good probabilities <span class="math inline">\(p_i\)</span> such that <span class="math inline">\(\sum p_i\)</span> is bounded by <span class="math inline">\(k\)</span> and can also bound the error of the approximation by using matrix concentration bounds. However, these algorithms tend to have the following problems:</p>
+<ol type="1">
+<li>The algorithm is not deterministic meaning that there is a very low chance of producing a large set <span class="math inline">\(\mathcal{S}\)</span>.</li>
+<li>The algorithm is not deterministic meaning that there is a very low chance of producing an approximate <span class="math inline">\(\hat{A}\)</span> which is not close to <span class="math inline">\(A\)</span>.</li>
+<li>Because these algorithms rely on exponential concentration bounds, typically they require to sample <span class="math inline">\(\mathcal{O}(n \cdot polylog(n))\)</span> vectors to achieve a good approximation.</li>
+</ol>
+<p>Although flawed, these solutions are easy and using this idea, a set of sampling techniques have been proposed to tackle the problem of sparsification with the most famous among them being the <strong>effective-resistance</strong> based sparsifiers <span class="citation" data-cites="spielman2008graph">(<a href="#ref-spielman2008graph" role="doc-biblioref">Spielman and Srivastava 2008</a>)</span>. We will briefly cover the main idea and intuition behind this and redirect the reader to other resources for further detailed reading.</p>
+<p>The effective resistance between two nodes <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> is the equivalent resistance if we assume that the rest of the nodes are harmonic and only one external current is given to <span class="math inline">\(a\)</span> and one external current is taken from <span class="math inline">\(b\)</span>; then, the measured voltage difference between these two nodes will denote the effective resistance which can be written as <span class="math inline">\((\chi_a - \chi_b)^T L^+_G (\chi_a - \chi_b)\)</span> using Laplacians. Moreover, effective resistances have a combinatorial interpretation as well. If we assume we sample spanning trees proportional to their weight products, then the effective resistance between two nodes is proportional to the probability of the edge between those two nodes appearing. This means that a crucial edge in the connectivity, will have a high probability of appearing in the sampled spanning trees and thus will have a high effective resistance; that said, this will yield a high importance weight for that edge and thus it will be sampled more often:</p>
+<p><strong>Effective-resistance based sparsifier</strong> For each edge <span class="math inline">\((a, b) \in E\)</span>, sample <span class="math inline">\((a,b)\)</span> with probability <span class="math inline">\(p(a,b) = \min\left(1, C\cdot (\log n) \epsilon^{-2} w(a,b) R_{eff}(a, b)\right)\)</span>. Where <span class="math inline">\(R_{eff}(a, b)\)</span> is the effective resistance between <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>. Using Rudelson concentration lemma <span class="citation" data-cites="rudelson1999random">(<a href="#ref-rudelson1999random" role="doc-biblioref">Rudelson 1999</a>)</span>, <span class="citation" data-cites="spielman2008graph">(<a href="#ref-spielman2008graph" role="doc-biblioref">Spielman and Srivastava 2008</a>)</span> shows that for a certain constant <span class="math inline">\(C\)</span> after picking <span class="math inline">\(\mathcal{O}(n\log n /\epsilon)\)</span> edges the resulting graph is a <span class="math inline">\(\epsilon\)</span>-spectral sparsifier with high probability.</p>
+<!-- To show that, we use the following concentration-bound theorem:
+
+::: {#thm-rudelson}
+Let $X_1, \ldots, X_n$ be independent random positive semidefinite matrices such that $||X_i|| \le R$ almost surely. Let $X = \sum X_i$ and let $\mu_{\min}$ and $\mu_{\max}$ be the minimum and maximum eigenvalues of $E[X]$. Then, for $1 > \epsilon > 0$,
+$$Pr\left[ \lambda_{\min} (\sum X_i) \le (1 - \epsilon) \mu_{\min} \right] \le n \left( \frac{e^{-\epsilon}}{(1 - \epsilon)^{(1 - \epsilon)}} \right)^{\mu_{\min}/R} \le e^{-\epsilon^2 / 2},$$
+and for $\epsilon > 0$,
+$$Pr\left[ \lambda_{\max} (\sum X_i) \le (1 + \epsilon) \mu_{\max} \right] \le n \left( \frac{e^{-\epsilon}}{(1 + \epsilon)^{(1 + \epsilon)}} \right)^{\mu_{\max}/R} \le e^{-\epsilon^2 / 3}.$$
+:::
+
+Now if we return to the idempotent matrix $\Pi$ in the previous section and plug in the Laplacians in the formula we obtain $\Pi = L_G^{+/2} L_G L_G^{+/2}$. Then, approximating $\Pi$ using $\hat{\Pi}$ will yield a graph that is a spectral sparsifier.
+Now the idea is to assign a random positive semi-definite matrix to each edge $(a, b)$ and pick that matrix with a probability $p(a,b)$ which will give us a set of random matrices $X_{ab}$ that sum up to $\hat{\Pi}$. By applying a simple union bound we can show that:
+$$Pr[\hat{\Pi} \approx_\epsilon \Pi] \ge 1 - Pr[\hat{\Pi} \succ (1 + \epsilon) \Pi]- Pr[\hat{\Pi} \prec (1 - \epsilon) \Pi]$${#eq-randomized-sparsification}
+Hence, since $\Pi$ has only eigenvalues equal to one or zero, then we can apply @thm-rudelson with $\mu_{\min} = 1$ and $\mu_{\max} = 1$ because we only consider the space orthogonal to the kernel. Then we can show that both the values in the right-hand side of @eq-randomized-sparsification are at most $n 
+\cdot e^{-\epsilon^2 / 3R}$ if the lemma conditions hold. We will indeed show that for $X_{ab} = w(a,b) / p(a,b) \cdot L_G^{+/2} L_{ab} L_G^{+/2}$, this is the case:
+
+1. $\forall a, b \in V: ||X_{ab}|| \le R$
+
+    Note that for $R = \frac{1}{C \log n \epsilon^{-2}}$ we can prove this:
+    \begin{align*}
+    ||X_{ab}|| &\le Tr(X_{ab}) = w(a,b) / p(a,b) \cdot Tr(L_G^{+/2} L_{ab} L_G^{+/2}) \\ 
+    &\le w(a,b) / p(a,b) \cdot Tr(L_G^{+/2} (\chi_a - \chi_b) (\chi_a - \chi_b)^T L_G^{+/2}) \\ 
+    & = w(a,b) / p(a,b) \cdot Tr((\chi_a - \chi_b)^T L_G^+ (\chi_a - \chi_b)) \\
+    & = w(a,b) / p(a,b) \cdot R_{eff}(a, b) \le \frac{1}{C (\log n) \epsilon^{-2}}\\
+    \end{align*}
+2. $E[\sum_{a,b} X_{ab}] = \Pi$
+
+
+    This can be easily shown by plugging in the formula:
+    \begin{align*}
+    E[\sum_{a,b} X_{ab}] &= \sum_{a,b} E[X_{ab}] = \sum_{a,b} p(a,b) \frac{w(a,b)}{p(a,b)} \cdot L_G^{+/2} L_{ab} L_G^{+/2}\\
+    & = L_G^{+/2} \left( \sum_{a,b} w(a,b) L_{ab} \right) L_G^{+/2} = L_G^{+/2} L_{G} L_G^{+/2} = \Pi
+    \end{align*}
+
+
+
+
+::: {#cor-randomized-sparsification}
+::: -->
 </section>
 </section>
-<section id="method" class="level1">
-<h1>Method</h1>
-<section id="reduction-to-matrix-approximation" class="level2">
-<h2 class="anchored" data-anchor-id="reduction-to-matrix-approximation">Reduction to Matrix Approximation</h2>
-<p>– TODO: a straight-up reduction from graph sparsification to matrix approximation with proofs</p>
+<section id="method" class="level2">
+<h2 class="anchored" data-anchor-id="method">Method</h2>
+<p>We will now discuss the deterministic algorithm for approximating the matrix <span class="math inline">\(A\)</span>. The algorithm takes an iterative approach and follows <span class="math inline">\(k\)</span> iterations. At each iteration, it will pick a vector <span class="math inline">\(v_i\)</span> which corresponds to an edge and will add <span class="math inline">\(s_i v_i v_i^T\)</span> to the current accumulated matrix. After <span class="math inline">\(k\)</span> iterations it will give a good approximate for the matrix <span class="math inline">\(A\)</span>. But before we present the bulk of the algorithm, let’s start by laying some groundwork by presenting some useful intuitions.</p>
+<section id="geometric-interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="geometric-interpretation">Geometric interpretation</h3>
+<p>Note that for any pair of matrices <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>, having the same null-space we have that <span class="math inline">\(A \succeq B \Longleftrightarrow I \succeq A^{+/2} B A^{+/2}\)</span>. Hence, <span class="math display">\[(1 - \epsilon) A \approx_\epsilon B \Longleftrightarrow \Pi \approx_\epsilon A^{+/2} B A^{+/2}\]</span> where <span class="math inline">\(\Pi = A^{+/2} A A^{+/2}\)</span> is the identity in the subspace orthogonal to the null space of <span class="math inline">\(A\)</span> and is an <em>idempotent</em> matrix. In other words, <span class="math inline">\(\Pi^2 = \Pi\)</span>. Therefore, without loss of generality, we may assume that <span class="math inline">\(A\)</span> in <a href="#def-matrix-approximation">Definition&nbsp;2</a> is an idempotent matrix <span class="math inline">\(\Pi\)</span> via the transformation described where <span class="math inline">\(A\)</span> is replaced by <span class="math inline">\(A^{+/2} A A^{+/2}\)</span> and <span class="math inline">\(v_i = A^{+/2} v_i\)</span> for all <span class="math inline">\(1 \le i \le m\)</span>.</p>
+<p>With that in mind, thinking about idempotent matrices yields nice intuitions on how to think about the problem geometrically. Furthermore, for any positive semi-definite matrix <span class="math inline">\(M\)</span> we can define an ellipsoid <span class="math inline">\(\{x | x^T M x = 1\}\)</span> and for <span class="math inline">\(M = \Pi\)</span> being an idempotent matrix the ellipsoid corresponds to the sphere in the linearly transformed subspace of <span class="math inline">\(\Pi\)</span>: <span class="math display">\[x^T \Pi x = x^T \Pi \Pi x = ||\Pi x||_2^2 = 1.\]</span></p>
+<p>Therefore, if we consider everything in the mapped subspace, i.e., replacing every vector <span class="math inline">\(x\)</span> with <span class="math inline">\(\Pi x\)</span> automatically, then we want to find a linear combination of their cross product such that the ellipsoid corresponding to that combination approximates a regular spherical shape. In other words, <span class="math display">\[\begin{align*}
+&amp;\hat{A} = \sum s_i v_i v_i^T \approx_\epsilon A \\
+\Longleftrightarrow &amp; ~ \hat{\Pi} = \sum s_i (A^{+/2}) v_i (A^{+/2} v_i)^T  \approx_\epsilon A^{+/2} A A^{+/2} = \Pi\\
+\Longleftrightarrow &amp; ~ (1 - \epsilon) \Pi \preceq \hat{\Pi} \preceq (1 + \epsilon) \Pi \\
+\Longleftrightarrow &amp; ~ \forall x : (1 - \epsilon) ||\Pi x||_2^2 \le [\Pi x]^T \hat{\Pi} [\Pi x] \le (1 + \epsilon) ||\Pi x||_2^2 \\
+\end{align*}\]</span></p>
+<p>Therefore, the ellipsoid projected using <span class="math inline">\(\Pi\)</span> is sandwiched between two spheres off by <span class="math inline">\(\epsilon\)</span> in their radius. Therefore, the algorithm takes an iterative approach to solve this geometric problem. It first starts of with <span class="math inline">\(\hat{A}^{(0)} = \emptyset\)</span> and then iteratively picks a vector <span class="math inline">\(v_i\)</span> and assigns a weight <span class="math inline">\(s_i\)</span> to it such that the ellipsoid <span class="math inline">\(\hat{A}^{(i)} = \hat{A}^{(i+1)} + s_i v_i v_i^T\)</span> becomes iteratively more like a sphere. To formalize this, the algorithm always bounds the corresponding ellipsoid between two spheres of radius <span class="math inline">\(l^{(i)}\)</span> and <span class="math inline">\(u^{(i)}\)</span>. At the beginning of each iteration, the lower bound <span class="math inline">\(l^{(i)}\)</span> will be increased by some <span class="math inline">\(\delta_l\)</span> and the lower bound <span class="math inline">\(u^{(i)}\)</span> will be increased by some <span class="math inline">\(\delta_u\)</span> and the algorithm will try to find a vector <span class="math inline">\(v_i\)</span> and a weight <span class="math inline">\(s_i\)</span> such that the new ellipsoid <span class="math inline">\(\hat{A}^{(i+1)}\)</span>. Moreover, the key idea here is to cleverly pick <span class="math inline">\(\delta_l\)</span> and <span class="math inline">\(\delta_u\)</span> values such that after <span class="math inline">\(k\)</span> iterations the gap between the two spheres is off by <span class="math inline">\(\epsilon\)</span>. In other words, the following should hold: <span class="math display">\[\frac{u^{(0)} + k \delta_u}{l^{(k)} + k \delta_l} = \frac{u^{(k)}}{l^{(k)}} \le \frac{1 + \epsilon}{1 - \epsilon}.\]</span> This will ensure that the shape of the ellipsoid becomes more and more spherical as the algorithm progresses, and finally, a simple scaling will yield an approximate unit sphere which is what we want.</p>
+<p>For illustration, the following shows the algorithm in action. The algorithm starts with an initial ellipsoid that is not spherical and then iteratively picks a vector <span class="math inline">\(v_i\)</span> and a weight <span class="math inline">\(s_i\)</span> such that it still remains sandwiched between two spheres of radius <span class="math inline">\(l^{(i)}\)</span> and <span class="math inline">\(u^{(i)}\)</span>. Note that in this example <span class="math inline">\(\delta_l\)</span> and <span class="math inline">\(\delta_u\)</span> are equal, therefore, for a large enough <span class="math inline">\(k\)</span> the ellipsoid will become spherical because although the radius is growing the gap remains the same, further limiting the range of the ellipsoid. <img src="./figs/algorithm.gif" id="fig-ellipsoid" class="img-fluid" alt="The algorithm in action."></p>
+<!-- ```{python}
+#| label: fig-ellipsoid
+#| fig-cap: "A dummy algorithm that approximates a unit sphere"
+#| fig-alt: "A dummy algorithm that approximates a unit sphere"
+#| fig-size: 400
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
+
+def plot_ellipse(ax, A, color, alpha):
+  w, v = np.linalg.eig(A)
+  w = np.sqrt(w)
+  ell = Ellipse(
+    xy = (0, 0), 
+    width = 2 * w[0], 
+    height = 2 * w[1], 
+    angle = np.rad2deg(np.arccos(v[0, 0])), 
+    color = color, 
+    alpha = alpha
+  )
+  ax.add_artist(ell)
+  ax.set_xlim(-10, 10)
+  ax.set_ylim(-10, 10)
+  ax.set_aspect('equal')
+
+chiz = [[[10, 1], [1, 10]], [[3, -1], [-1, 3]], [[5, 2], [2, 3]]]
+for i, chi in enumerate(chiz):
+  plt.figure(i)
+  plot_ellipse(ax, np.array(chi), 'blue', 0.2)
+  plt.show()
+``` -->
 </section>
-<section id="algorithm-intuition" class="level2">
-<h2 class="anchored" data-anchor-id="algorithm-intuition">Algorithm Intuition</h2>
+</section>
+<section id="physical-view" class="level2">
+<h2 class="anchored" data-anchor-id="physical-view">Physical View</h2>
 <p>– TODO: Charged particle intuition</p>
 <p>– TODO: What happens in the average case</p>
 <p>– TODO: Leguerre polynomials</p>
@@ -300,9 +400,19 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="experimental-details">Experimental Details</h2>
 <p>– TODO: show the results of using the deterministic algorithm vs the randomized algorithm</p>
 </section>
+<section id="sparsification-of-complete-graphs" class="level2">
+<h2 class="anchored" data-anchor-id="sparsification-of-complete-graphs">Sparsification of Complete Graphs</h2>
 </section>
-<section id="connection-with-ramanujan-graphs" class="level1">
-<h1>Connection with Ramanujan Graphs</h1>
+<section id="expander-graphs" class="level2">
+<h2 class="anchored" data-anchor-id="expander-graphs">Expander Graphs</h2>
+<p>– TODO: recap of expanders</p>
+<p>– TODO: expander mixing lemma</p>
+</section>
+<section id="ramanujan-bounds" class="level2">
+<h2 class="anchored" data-anchor-id="ramanujan-bounds">Ramanujan Bounds</h2>
+</section>
+<section id="the-twice-ramanujan-sparsifier" class="level2">
+<h2 class="anchored" data-anchor-id="the-twice-ramanujan-sparsifier">The Twice Ramanujan Sparsifier</h2>
 <p>– TODO: illustration of what happens in the algorithm iteratively on a complete graph.</p>
 <section id="references" class="level3">
 <h3 class="anchored" data-anchor-id="references">References</h3>
@@ -321,6 +431,12 @@ Chew, L Paul. 1989. <span>“There Are Planar Graphs Almost as Good as the Compl
 </div>
 <div id="ref-lee2017sdp" class="csl-entry" role="doc-biblioentry">
 Lee, Yin Tat, and He Sun. 2017. <span>“An Sdp-Based Algorithm for Linear-Sized Spectral Sparsification.”</span> In <em>Proceedings of the 49th Annual Acm Sigact Symposium on Theory of Computing</em>, 678–87.
+</div>
+<div id="ref-rudelson1999random" class="csl-entry" role="doc-biblioentry">
+Rudelson, Mark. 1999. <span>“Random Vectors in the Isotropic Position.”</span> <em>Journal of Functional Analysis</em> 164 (1): 60–72.
+</div>
+<div id="ref-spielman2008graph" class="csl-entry" role="doc-biblioentry">
+Spielman, Daniel A, and Nikhil Srivastava. 2008. <span>“Graph Sparsification by Effective Resistances.”</span> In <em>Proceedings of the Fortieth Annual ACM Symposium on Theory of Computing</em>, 563–68.
 </div>
 <div id="ref-spielman2004nearly" class="csl-entry" role="doc-biblioentry">
 Spielman, Daniel A, and Shang-Hua Teng. 2004. <span>“Nearly-Linear Time Algorithms for Graph Partitioning, Graph Sparsification, and Solving Linear Systems.”</span> In <em>Proceedings of the Thirty-Sixth Annual ACM Symposium on Theory of Computing</em>, 81–90.
