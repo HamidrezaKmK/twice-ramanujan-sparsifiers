@@ -1,4 +1,10 @@
+# Working with graphs
 networkx
 
+# Plotting and basic linear algebra
 matplotlib
 numpy
+scipy
+
+# Math notation
+sympy

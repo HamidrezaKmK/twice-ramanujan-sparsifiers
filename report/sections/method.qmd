@@ -216,9 +216,40 @@ This is set using $\epsilon = \frac{2\sqrt{d}}{d + 1}$ where $\frac{n}{\epsilon^
 
 ### Potential Functions
 
--- TODO: Quantizing the boundedness
+The big question is, how can we quantize the boundedness of the matrix $A$ at each step? We want $A^{(i)}$ to have eigenvalues that are bounded by $l^{(i+1)}$ and $u^{(i+1)}$; and so, we use a family of **potential functions** that explode when the eigenvalues approach the bounds. A set of such potentials can be chosen using the fact that $uI - A$ or $A - lI$ will have infinitely small eigenvalues when the eigenvalues of $A$ approach $u$ or $l$ respectively; therefore, their inverse will be ill-conditioned and have infinitely large eigenvalues. We can use the following potential functions:
 
--- TODO: plotting the potential function
+$$\Phi_{u, l}(A) = \Phi_u(A) + \Phi_l(A) = Tr[(uI - A)^{-1}] + Tr[(A - l I)^{-1}]$$
+
+In summary, the main idea is to choose $v_i$ and $s_i$ such that the potential for the matrix $A^{(i)}$ in the next iteration does not explode. To do so, we ensure that the potentials remain monotonically decreasing:
+
+$$\infty \gg \Phi^{u^{(0)}}(A^{(0)}) \ge \Phi^{u^{(1)}}(A^{(1)}) \ge ... \ge \Phi^{u^{(nd)}}(A^{(nd)})$$
+$$\infty \gg \Phi^{\ell^{(0)}}(A^{(0)}) \ge \Phi^{\ell^{(1)}}(A^{(1)}) \ge ... \ge \Phi^{\ell^{(nd)}}(A^{(nd)})$$
+
+
+With that in mind, let's assume we are going to assign $s_k$ to any vector $v_k$ such that after the increase in our upper and lower bound, the potential remains non-increasing. Now let us separately consider the upper and lower bound potentials.
+
+When increasing $l^{(i)}$, the eigenvalues come closer to the lower bound, and hence, the potential of the lower bound will increase; therefore, for any vector $v_k$, the coefficient $s_k$ should be bounded by some value $L_{A^{(i)}}(v_k)$ such that after adding $s_k \cdot v_k v_k^T$ to $A^{(i)}$, spectrum shifts forward and the increase in the potential cancels out. That said, for any matrix $A$ and any vector $v$ we have:
+$$
+\begin{align*}
+&\Phi^{\overset{l'}{\overbrace{l + \delta_l}}}(A + s \cdot vv^T) \le \Phi^l(A)\\
+\Phi^{l'}(A + s \cdot vv^T) & = Tr(A + s \cdot vv^T - l'I)^{-1}  \qquad \text{Sherman-Morrison}\\\
+& = Tr\left((A - l'I)^{-1}\right) + Tr\left(\frac{s \cdot (A - l'I)^{-1} v v^T (A - l'I)^{-1}}{1 + s \cdot v^T (A - l' I)^{-1} v}\right)\\
+&= \Phi^{l'}(A) - \frac{s \cdot v^T (A - l'I)^{-2}v}{1 + s \cdot v^T  (A - l'I)^{-1}v} \le \Phi^l(A)\\
+\Leftrightarrow &~ \underset{\Delta}{\underbrace{\Phi^{l'}(A) - \Phi^l(A)}} \le \frac{s \cdot v^T (A - l'I)^{-2}v}{1 + s \cdot v^T  (A - l'I)^{-1}v}\\
+\Leftrightarrow &~ s\cdot \left[v^T (A - l'I)^{-2}v  - \Delta v^T(A - l' I)^{-1} v\right] \ge \Delta\\
+\Leftrightarrow &~ s \ge \frac{\Delta}{v^T \left( (A - l'I)^{-2} - \Delta (A - l' I)^{-1} \right) v} = L_A(v)\\
+\end{align*}$$ {#eqn-l-potential}
+
+On the other hand, a similar thing can be said for the upper-bound potential. when increasing $u^{(i)}$, the eigenvalues are further away from the upper bound which gives us the freedom to shift the eigenvalues forward. However, this shifting should not be so extreme that the potential at most increases offset the decrease introduced after adding $\delta_u$ to the potential.
+$$\Phi^{\overset{u'}{\overbrace{u + \delta_u}}}(A + s \cdot vv^T) \le \Phi^u(A)$$
+
+Similar to @eqn-l-potential, if we negate $s$ and $A$ then the upper-bound potential will act similarly to the lower-bound potential. Therefore, we can write the following:
+$$s \le U_A(v) = \frac{\Delta}{v^T \left((u' I - A)^{-2} - \Delta (u' I - A)^{-1}\right)v}, ~~ \Delta = \Phi^{u}(A) - \Phi^{u'}(A)$$
+
+
+Finally, for every vector $v_i$ at each step, we can introduce an upper and lower bound for the coefficient corresponding to that vector. However, this is not enough to ensure that at least one $v_i$ exists such that $L_A$; in other words, it might be the case that for each vector the upper and lower bounds are contradictory which will put the algorithm in a stale-mate state. To avoid this, we pick the values $\delta_u$ and $\delta_l$ carefully and introduce a nice lemma in the next section that ensures always such a vector exists.
+
+### The Existence of a good Vector
 
 ### The Deterministic Algorithm
 For a demonstration of a line plot on a polar axis, see @fig-polar.
