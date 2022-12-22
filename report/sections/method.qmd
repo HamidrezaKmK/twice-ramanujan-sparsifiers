@@ -24,8 +24,8 @@ This will ensure that the shape of the ellipsoid becomes more and more spherical
 
 For illustration, the following shows the algorithm in action. The algorithm starts with an initial ellipsoid that is not spherical and then iteratively picks a vector $v_i$ and a weight $s_i$ such that it still remains sandwiched between two spheres of radius $l^{(i)}$ and $u^{(i)}$.
 Note that in this example $\delta_l$ and $\delta_u$ are equal, therefore, for a large enough $k$ the ellipsoid will become spherical because although the radius is growing the gap remains the same, further limiting the range of the ellipsoid.
-![The algorithm in action.](./figs/algorithm.gif){#fig-ellipsoid}
 
+![The algorithm in action.](figs/algorithm.gif){fig-alt="The schematic of the algorithm in action."}
 <!-- ```{python}
 #| label: fig-ellipsoid
 #| fig-cap: "A dummy algorithm that approximates a unit sphere"
@@ -77,25 +77,150 @@ $$\det(A + uv^T) = \det(A) (1 + v^T A^{-1} u)$$
 
 Moreover, plugging these into the characteristic polynomial of $A + vv^T$ yields the following:
 
+$$
 \begin{align*}
-det(\lambda I - A - vv^T) &= det(\lambda I - A) (1 - v^T \left(\lambda I - A \right)) \\
+p_{A + vv^T}(\lambda) &= \det(\lambda I - A - vv^T) \\
+& = \det(\lambda I - A) (1 - v^T \left(\lambda I - A \right)^{-1}u) \\
+& = \det (\lambda I - A) \left(1 - v^T \left[\sum_{i=1}^n \frac{1}{\lambda - \lambda_i} u_i u_i^T\right] v\right)\\
+& = p_A(\lambda) \left(1 -  \sum_{i=1}^n \frac{(v^Tu_i)^2}{\lambda - \lambda_i}\right)\\
 \end{align*}
+$$
 
--- TODO: Charged particle intuition
+Therefore, we can assume particles being set on each of the $\lambda_i$ values with the $i$th one on $\lambda_i$ with charge $v^Tu_i$. The new set of equilibrium points for this particle set will entail the new eigenvalues of $A + vv^T$ which are the roots of $p_{A + vv^T}(\lambda)$. Note that for $u_i$ values such that $v^Tu_i=0$ the charge is zero and therefore, the new eigenvalues will be the same as the old ones.
 
--- TODO: What happens in the average case
+The following figure illustrates the matrix case $A$ with three different vectors $v_1$, $v_2$ and $v_3$. Each color corresponds to the characteristic polynomial for different $v$ values where,
 
--- TODO: Leguerre polynomials
+$$A = \lambda_1 u_1 u_1^T + \lambda_2 u_2 u_2^T + \lambda_3 u_3 u_3^T
+ = \begin{bmatrix}
+1.6 & -0.2 & -0.33\\
+-0.2 & 3.4 & -0.33\\
+-0.33 & -0.33 & 1
+\end{bmatrix}$$
+$$\begin{bmatrix}\lambda_1 \\ \lambda_2 \\ \lambda_3\end{bmatrix} = \begin{bmatrix}0.79 \\ 1.75 \\ 3.46\end{bmatrix}, u_1 = \begin{bmatrix}
+-0.41\\
+-0.15\\
+-0.9
+\end{bmatrix}, u_2 = \begin{bmatrix}
+-0.9 \\
+-0.03 \\
+0.42
+\end{bmatrix}, u_3 = \begin{bmatrix}
+0.08\\
+-0.99\\
+0.12\\
+\end{bmatrix}$$
+We note that $\langle v_i, u_j \rangle^2$ is the charge of particle $j$ when adding $v_i$ to $A$ and we can summarize all the charged particles in the following matrix:
+$$v_1 = \begin{bmatrix}
+0\\
+1\\
+1\\
+\end{bmatrix}, v_2 = \begin{bmatrix}
+1\\
+1\\
+0\\
+\end{bmatrix}, 
+C = \begin{bmatrix}
+1.10 & 0.15 & 0.75\\
+0.31 & 0.87 & 0.82
+\end{bmatrix}, C_{ij} = \langle v_i, u_j \rangle^2$$
+```{python}
+#| label: fig-matrix-determinant
+#| fig-cap: "The characteristic polynomial of $A + vv^T$ for different $v$ values, the higher the charge the more it will repel the new eigenvalues from the old ones."
+#| fig-subcap: 
+#|  - "The characteristic polynomial after adding $v_1$ to A."
+#|  - "The characteristic polynomial after adding $v_2$ to A."
+#| layout-ncol: 2
 
--- TODO: bounding all the eigenvalues
+import numpy as np
+import matplotlib.pyplot as plt
 
-## Potential Functions
+def plot_characteristic_polynomial(A, v, color):
+  x = np.linspace(-25, 50, 1000)
+  w, u = np.linalg.eig(A)
+  # plot the determinant of xI - A
+  y = []
+  roots = []
+  prv = 0
+  for i in x:
+    val = 1 - np.sum(1/(i - w) * (v @ u)**2)
+    if prv < 0 and val > 0:
+      roots.append(i)
+    prv = val
+    y.append(val)
+  plt.plot(x, y, color = color, label='characteristic polynomial of A + vv^T')
+  plt.scatter(roots, np.zeros(len(roots)), color = color, marker = 'o', label='new-eigenvalues')
+
+# create an orthonormal 3 by 3 matrix U
+U = np.array([[1, 1, 1], [1, 1, -2], [1, -1, 0]])
+U = U / np.linalg.norm(U, axis = 0)
+A = U @ np.diag([1 , 2, 3]) @ U.T
+
+
+
+vz = [[0, 1, 1], [1, 1, 0]]
+
+colors = ['blue', 'red']
+
+# plot the eigenvalues of A
+w, u = np.linalg.eig(A)
+# sort according to w and reorder u
+w, u = zip(*sorted(zip(w, u.T)))
+u = np.array(u).T
+w = np.array(w)
+
+for col, v in zip(colors, vz):
+  plt.scatter(w, np.zeros(w.shape), color = 'black', marker = 'x', label='previous eigenvalues')
+  # add text with textbox equal to np.sum(w) on top of each eigenvalue
+  for i, wi in enumerate(w):
+    t = plt.text(wi - 0.5, 0.1 * (4 * (i % 2) - 2.5), f"c={(v @ u[:,i])**2:.2f}", color = 'black')
+    t.set_bbox(dict(facecolor='white', alpha=0.5, edgecolor=col))
+
+  plot_characteristic_polynomial(A, v, col)
+  plt.xlim(0, 5.5)
+  plt.ylim(-2, 2)
+  plt.legend()
+  plt.show()
+
+```
+
+The goal is to pick a $v$ such that all the eigenvalues are uniformly pushed forward so that they can stay between the new ranges $l^{(i+1)}$ and $u^{(i+1)}$. To get a sense, let's pick one of the $m$ vectors with uniform probability and add it to $A$. In that case, the expected charges can be written as:
+$$E[\langle v, u_j \rangle^2] = \frac{1}{m} \sum_{i=1}^m \langle v_i, u_j \rangle^2 = \frac{1}{m} u_j^T \left( \sum_{i=1}^m v_i v_i^T \right)u_j = \frac{||\Pi u_j||_2^2}{m} = \frac{1}{m}$$
+Hence, on expectation all the particles have charge $1/m$ and the expected deterministic polynomial is:
+$$
+\begin{align*}
+E[p_{A + v}(\lambda)] &= p_A(\lambda) E\left[1 - \sum_{i=1}^m \frac{\langle u_i, v\rangle^2}{\lambda - \lambda_i}\right] = p_A(\lambda) \left(1 - \sum_{i=1}^m \frac{E\langle u_i, v\rangle^2}{\lambda - \lambda_i}\right)\\
+& = p_A(\lambda) \left(1 - \sum_{i=1}^m \frac{1/m}{\lambda - \lambda_i}\right) = p_A(\lambda) - \frac{1}{m} \sum_{i=1}^m \frac{p_A(\lambda)}{\lambda - \lambda_i}\\
+& = p_A(\lambda) - \frac{1}{m} \sum_{i=1}^m \prod_{1 = j\neq i}^m (\lambda - \lambda_j)\\
+&= p_A(\lambda) - \frac{1}{m} p'_A(\lambda)\\
+\end{align*}
+$$
+Therefore, if we start off with the matrix $p_{A^{(0)}}(\lambda) = \lambda^n$, after $nd$ iterations the expected polynomial is a set of associate Laguerre polynomials that are well studied [@dette1995some], and in particular, it has been proven that the ratio between the largest and smallest root for these polynomials is bounded by the value below:
+
+$$\frac{d + 1 + 2\sqrt{d}}{d + 1 - 2\sqrt{d}} \xrightarrow{\epsilon = \frac{2\sqrt{d}}{d+1}} \frac{1 + \epsilon
+}{1 - \epsilon}$$
+
+Although this is just speculation and no $v_i$ values will necessarily exist with the expected behavior, we can still get an idea of the goal $\epsilon$ and come up with the following proposition:
+
+::: {#prp-final-form}
+For any matrix $A = \sum_{i=1}^m v_i v_i^T$ we can choose a subset $\mathcal{S}$ of $v_i$ and a set of coefficients $s_i$ with size $nd$ such that:
+$$\hat{A} = \sum_{i \in \mathcal{S}} s_i \cdot v_i v_i^T,~~ (1 - \frac{2\sqrt{d}}{d+1}) A \preceq \hat{A} \preceq (1 + \frac{2\sqrt{d}}{d+1}) A$$
+:::
+
+The graph formulation of @prp-final-form is as follows:
+
+::: {#cor-final-form}
+For any graph $G$ and any $\epsilon$ we can choose a subset of $\mathcal{O}(n/\epsilon^2)$ edges with arbitrary edge weights to obtain $H$ such that $H$ is an $\epsilon$-sparsifier of $G$: $L_G \approx_\epsilon L_H$.
+:::
+
+This is set using $\epsilon = \frac{2\sqrt{d}}{d + 1}$ where $\frac{n}{\epsilon^2} = \mathcal{O}(nd)$. In the next section, we will see how we can choose $v_i$ and $s_i$ at each step such that after $nd$ iterations this happens.
+
+### Potential Functions
 
 -- TODO: Quantizing the boundedness
 
 -- TODO: plotting the potential function
 
-## The Deterministic Algorithm
+### The Deterministic Algorithm
 For a demonstration of a line plot on a polar axis, see @fig-polar.
 
 ```{python}
@@ -116,6 +241,6 @@ ax.grid(True)
 plt.show()
 ```
 
-## Experimental Details
+### Experimental Details
 
 -- TODO: show the results of using the deterministic algorithm vs the randomized algorithm
