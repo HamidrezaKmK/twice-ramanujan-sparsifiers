@@ -93,7 +93,6 @@ class TwiceRamanujan:
                 s *= 2
 
             s_L, s_R = 0, s
-            # print("searching in ", s_L, s_R)
             for _ in range(100):
                 s = (s_L + s_R) / 2
                 if check(s):
@@ -172,6 +171,15 @@ class TwiceRamanujan:
                 ret = False
         return ret
 
+    def _check_in_range(self, A, B, C):
+        a1 = np.min(np.linalg.eigh(B - A)[0])
+        b1 = np.min(np.linalg.eigh(C - B)[0])
+        if self.verbose >= 1:
+            print("checking:")
+            print(f"\tminimum eigenvalue of LHS: {a1}")
+            print(f"\tminimum eigenvalue of RHS: {b1}")
+        return a1 >= 0 and b1 >= 0
+
     def sparsify(self):
         self.do_reduction()
 
@@ -199,19 +207,28 @@ class TwiceRamanujan:
             iterable = tqdm(range(d * n))
         else:
             iterable = range(d * n)
+
+        scaling_factor = (math.sqrt(d) - 1) / (n * (d + 1) * math.sqrt(d))
         for _ in iterable:
-            succ = False
+            cand = (_, _, _, _, -math.inf)
             for e, v in zip(self.edges, self.edge_vectors):
                 lb = self.lower_bound_function(A, l, delta_l, v)
                 ub = self.upper_bound_function(A, u, delta_u, v)
-
+                if ub - lb > 0 and ub - lb > cand[2]:
+                    cand = (v, e, lb, ub, ub - lb)
+                    if self.fast_settings:
+                        # if set on fast setting then just pick the first edge
+                        break
+            if cand[-1] < 0:
+                raise Exception("Cannot pick an edge!")
+            else:
+                v, e, lb, ub, _ = cand
                 if lb <= ub:
                     s = (lb + ub) / 2
-                    # s = ub - self.eps
                     A = A + s * v @ v.T
 
                     a, b = e
-                    w = self.graph[a][b]["weight"] * s / n / (d + 1)
+                    w = self.graph[a][b]["weight"] * s * scaling_factor
 
                     # if edge already exists, add the weight
                     if self.sparsified_graph.has_edge(a, b):
@@ -223,18 +240,15 @@ class TwiceRamanujan:
                         print(
                             f"picked the edge between {a} and {b} with weight {w:.2f}"
                         )
-                    succ = True
-                    break
-            # It should succeed at least once
-            # exit(0)
-            assert succ, "No edge was picked"
             l += delta_l
             u += delta_u
 
-        if self.verbose > 3:
-            print("Final edge weights:")
-            for a, b in self.sparsified_graph.edges:
-                print(a, b, self.sparsified_graph[a][b]["weight"])
+        # calculate the pseudo-inverse of self.L
+        eig_vals, eig_vecs = np.linalg.eigh(self.L)
+        eig_vals[eig_vals < self.eps] = 0
+        L_sqrt = eig_vecs @ np.diag(np.sqrt(eig_vals)) @ eig_vecs.T
+        self.accurate_laplacian = L_sqrt @ (scaling_factor * A) @ L_sqrt
+
         return self.sparsified_graph
 
     def juxtapose(self, with_verify=False):
@@ -242,7 +256,9 @@ class TwiceRamanujan:
         subax1 = plt.subplot(121)
         nx.draw(self.graph, pos, with_labels=True, font_weight="bold")
         for edge in self.graph.edges(data="weight"):
-            nx.draw_networkx_edges(self.graph, pos, edgelist=[edge], width=edge[2])
+            nx.draw_networkx_edges(
+                self.graph, pos, edgelist=[edge], width=2.2 * edge[2]
+            )
         if self.sparsified_graph is None:
             raise ValueError("Sparsify the graph first")
         subax2 = plt.subplot(122)
@@ -250,29 +266,34 @@ class TwiceRamanujan:
 
         for edge in self.sparsified_graph.edges(data="weight"):
             nx.draw_networkx_edges(
-                self.sparsified_graph, pos, edgelist=[edge], width=edge[2]
+                self.sparsified_graph, pos, edgelist=[edge], width=2.2 * edge[2]
             )
 
         plt.show()
 
-    def verify(self, eps=1e-3):
+    def verify(self, eps=1e-3, use_accurate_laplacian=True):
         # verify that the sparsified graph indeed approximates the laplacian
         # get the laplacian of self.graph
         L = nx.laplacian_matrix(self.graph).toarray()
+
         # get the laplacian of self.sparsified_graph
-        L_sparsified = nx.laplacian_matrix(self.sparsified_graph).toarray()
+        if use_accurate_laplacian:
+            L_sparsified = self.accurate_laplacian
+        else:
+            L_sparsified = nx.laplacian_matrix(self.sparsified_graph).todense()
 
         a1 = np.min(np.linalg.eigh(L_sparsified - (1 - eps) * L)[0])
         b1 = np.min(np.linalg.eigh((1 + eps) * L - L_sparsified)[0])
         if self.verbose >= 1:
+            print(f"eps = 2sqrt(d)/(d+1) = {eps:.4f}")
             print(
                 "LHS (1 - eps) * L_G <= L_H : we check the minimum eigenvalue of the difference:"
             )
-            print("Min eigenvalue = ", a1)
+            print(f"Min eigenvalue of [L_H - (1 - eps) L_G] = {a1:.2f} >= 0")
             print(
                 "RHS L_H <= (1 + eps) * L_G : we check the minimum eigenvalue of the difference:"
             )
-            print("Min eigenvalue = ", b1)
+            print(f"Min eigenvalue of [(1 + eps) L_G - L_H] = {b1:.2f} >= 0")
 
         return a1 > -self.eps and b1 > -self.eps
 
@@ -332,9 +353,10 @@ class TwiceRamanujan:
 if "__main__" == __name__:
     # L=Clique(3).laplacian()
     d = 2
-    g = nx.barbell_graph(5, 0)
-    TR = TwiceRamanujan(g, d=d, verbose=1)
+    # g = nx.barbell_graph(5, 0)
+    g = nx.complete_graph(7)
+    TR = TwiceRamanujan(g, d=d, verbose=2)
     L_s = TR.sparsify()
     # TR.ellipse()
     TR.juxtapose(with_verify=True)
-    TR.verify(eps=2 * math.sqrt(d) / (d + 1))
+    TR.verify(eps=2 * math.sqrt(d) / (d + 1), use_accurate_laplacian=False)
