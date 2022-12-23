@@ -48,34 +48,42 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="expander-graphs" class="level3">
 <h3 class="anchored" data-anchor-id="expander-graphs">Expander Graphs</h3>
-<p>The expander graph based on literary definition, are the graph have high connectivity or in other words, from every subset, the graph keeps on expanding.In many application like connected computing elements or communication networks,such highly connected components are required but it is always desirable that such connectedness is achieved with sparse constructions. So for example, the complete graph has great expansion, but lacks the sparsity. So when strictly defined, the expanders are the family of the graphs which keeps on expanding with high connectivity but with sparse number of edges.</p>
+<p>The expander graphs,based on literary definition, are the graphs have high connectivity.In other words, from every subset, the graph keeps on expanding.In many application like connected computing elements or communication networks,such highly connected components are required, but it is always desirable that such connectedness is achieved with sparse constructions.For example, the complete graphs have great expansion, but lacks the sparsity. So when strictly defined, the expanders are the family of the graphs which keeps on expanding with high connectivity but with sparse number of edges.</p>
 <p>There are different definitions which uses different parameters for quantifying expansion</p>
-<p><strong>A. Vertex Expansion</strong>- It uses the baselines concept that every vertex has high number of neighbors and quantifiable parameter is defined on the vertex set, having least average number of neighbors. Let <span class="math inline">\(\Gamma(v_i)\)</span> be total amount of neighborhood weight for a vertex and <span class="math inline">\(\Gamma(S)\)</span> is <span class="math inline">\(\cup^{v \in S} \Gamma(v)\)</span>. So the edge expansion is defined with respect below parameter.</p>
-<p><span class="math display">\[
-\underset{|S|&lt;n/2}{min} \Gamma(s)/|S|
-\]</span></p>
-<p><strong>B. Edge Expansion</strong> - It measures the connectivity in terms of edges such that number of edges crossing the vertex sets are high when compared with edges internal to both edges. Like Vertex expansion, the quantification is done based on the set having minimum value of measure. It is defined withrespect to cheeger’s constant. <span class="math display">\[
+<ol type="A">
+<li><p>Vertex Expansion- It uses the baselines concept that every vertex has high number of neighbors. The quantifiable parameter is defined on the vertex set, having least average number of neighbors. Let <span class="math inline">\(\Gamma(v_i)\)</span> be total amount of neighborhood weight for a vertex and <span class="math inline">\(\Gamma(S)\)</span> is <span class="math inline">\(\underset{v \in S}{\cup} \Gamma(v)\)</span>. So the edge expansion is defined with respect below parameter. <span class="math display">\[
+\underset{|S|&lt;n/2}{min} \frac{\Gamma(s)}{|S|}
+\]</span></p></li>
+<li><p>Edge Expansion - It measures the connectivity in terms of edges such that number of edges across the vertex sets are high when compared with edges internal to both edges. Like Vertex expansion, the quantification is done based on the set having minimum value of measure. It is defined withrespect to cheeger’s constant. <span class="math display">\[
 h(G) \overset{\Delta}{=} \underset{|S|&lt;n/2}{min}\frac{|\partial{S}|}{|S|}
-\]</span></p>
-<p><strong>C. Spectral Expansion</strong>- It defined on concept of random walks, which will converge faster if the graph is highly connected. Specifically it is defined in terms of adjacency matrix, where the <span class="math inline">\(\Lambda\)</span>- expander is defined as the one where are the all eigen values except for the largest are bounded <span class="math display">\[
+\]</span></p></li>
+<li><p>Spectral Expansion- It defined on the concept of random walks, which will converge faster if the graph is highly connected. Specifically it is defined in terms of adjacency matrix, where the <span class="math inline">\(\Lambda\)</span>- expander is defined as the one where are the all eigen values except for the largest are bounded <span class="math display">\[
 -\lambda \leq \underset{i\neq 1}{\lambda_i} \leq \lambda
-\]</span> Generally the expanders are defined using d-regular graph and finding graph with high expansion for a fixed d. ## Expander Mixing Lemma The expander mixing lemma suggest that the edges are evenly distributed across edges. In particular, it is associated with quasirandomness which states that edges going between every two sets S,T are closure to the average expected value. For the d-regular graph, the below formation holds <span class="math display">\[
+\]</span> Generally the expanders are defined using d-regular graph and finding graph with high expansion for a fixed degree d.</p></li>
+</ol>
+</section>
+<section id="expander-mixing-lemma" class="level2">
+<h2 class="anchored" data-anchor-id="expander-mixing-lemma">Expander Mixing Lemma</h2>
+<p>The expander mixing lemma suggest that the edges are evenly distributed across graph. In particular, it is associated with quasirandomness which states that edges going between every two sets S,T are closure to the average expected value. For the d-regular graph, the below formation holds <span class="math display">\[
   |E(S,T)-\frac{d|S||T|}{n}|\leq \lambda \sqrt{|d||n|}
 \]</span></p>
-</section>
 <section id="ramanujan-bounds" class="level3">
 <h3 class="anchored" data-anchor-id="ramanujan-bounds">Ramanujan Bounds</h3>
 <p>As seen in the expander mixing lemma, the lower the value of <span class="math inline">\(\lambda\)</span>, the cross edge weight more close to the average, which means edges are uniformly distributed. A bound known as alan-bopanna, states lower limit for second-eigenvalue of d-regular graph G_n.&nbsp;The bound is as given below <span class="math display">\[
     \lambda \geq 2\sqrt{d-1} − o(1)\:\text{ As n-&gt;} \infty
 \]</span> And a connected d-regular graph is Ramanujan graph. <span class="math display">\[
     \lambda \leq 2\sqrt{d-1} \
-\]</span> So ramanujan graph will be having lowest value for second largest eigenvalue. As shown in expander mixing lemma, the lower the value of second largest eigenvalue the more is uniform distribution of edges. So ramanujan graph will be best known expander. Thus as known as the d-regular expanders can approximate the complete graphs, the ramanujan graphs will be best sparsifiers as well.</p>
+\]</span> So ramanujan graph will be having lowest value for second largest eigenvalue. As shown in expander mixing lemma, the lower the value of second largest eigenvalue the more is uniform distribution of edges. So ramanujan graph will be best known expander. Thus, as the d-regular expanders can approximate the complete graphs, the ramanujan graphs will be best sparsifiers as well.</p>
 </section>
 <section id="the-twice-ramanujan-sparsifier" class="level3">
 <h3 class="anchored" data-anchor-id="the-twice-ramanujan-sparsifier">The Twice Ramanujan Sparsifier</h3>
-<p>The twice ramanujan sparsifier can approximate the complete graph with weaker but similar bound. First since the graph is non-regular, it will be proven that the graph has an approximate mixing lemma which describes edge distribution ::: {#Expander Mixing Property} Let <span class="math inline">\(L_h(V,E,w)\)</span> be a graph that <span class="math inline">\((1+\epsilon)\)</span> approximates the complete graph <span class="math inline">\(L_g\)</span> then for every pair of disjoint sets S and T, <span class="math display">\[
+<p>The twice ramanujan sparsifier can approximate the complete graph with weaker but similar bound. First since the graph is non-regular, it will be proven that the graph has an approximate mixing lemma which describes edge distribution</p>
+<section id="expander-mixing-property" class="level5">
+<h5 class="anchored" data-anchor-id="expander-mixing-property">Expander Mixing Property</h5>
+<p>Let <span class="math inline">\(L_H(V,E,w)\)</span> be a graph that <span class="math inline">\((1+\epsilon)\)</span> approximates the complete graph <span class="math inline">\(L_G\)</span> then for every pair of disjoint sets S and T, <span class="math display">\[
   |E(S,T)-(1+\epsilon/2)|S||T||\leq n(\epsilon/2) \sqrt{|d||n|}
-\]</span> #### Proof Through the definition we have <span class="math display">\[
+\]</span></p>
+<p><strong>Proof</strong> : Through the definition we have <span class="math display">\[
   -\frac{\epsilon}{2} L_G \preceq L_H-(1+\epsilon/2)L_G \preceq \frac{\epsilon}{2} L_G
 \]</span></p>
 <p>So it is possible to write it as <span class="math display">\[
@@ -83,14 +91,15 @@ h(G) \overset{\Delta}{=} \underset{|S|&lt;n/2}{min}\frac{|\partial{S}|}{|S|}
 \]</span> where <span class="math inline">\(X_M\)</span> is calculated based on the concept of norm with it having max norm as <span class="math inline">\(\frac{\epsilon}{2} ||L_G|| \leq n\epsilon/2\)</span> Now consider x,y as characterstic vectos of set S,T respectively. As we know <span class="math inline">\(-E(S,T) = x^TL_Hy\)</span> we will get the weight crossing the two sets. And we consider with complete graph, the weight is uniformly distributed <span class="math display">\[x^TL_Gy= -|S||T|\]</span> Substituting back <span class="math display">\[x^TL_Hy = (1+\frac{\epsilon}{2}x^TL_Gy+x^TX_my)\]</span> <span class="math display">\[x^TL_Hy = (1+\frac{\epsilon}{2}|S||T|+x^TX_my)\]</span> <span class="math display">\[-(E(S,T) -(1+\frac{\epsilon}{2}|S||T|)= x^TX_my)\]</span> Taking modulus on both sides <span class="math display">\[|E(S,T) -(1+\frac{\epsilon}{2})|S||T||= |x^TX_my|\]</span> Consider right side and apply cauchy-schwarz inequality <span class="math display">\[|x^TX_my|\leq||X_m||\:||x||\:||y||\leq n\frac{\epsilon}{2}\sqrt{|S||T|}\]</span> Substituting back <span class="math display">\[|E(S,T) -(1+\frac{\epsilon}{2})| \leq n\frac{\epsilon}{2}\sqrt{|S||T|}\]</span></p>
 <p>So the final aspect is the bound, which as stated earlier similar to ramanujan graph</p>
 </section>
+</section>
 <section id="bound" class="level3">
 <h3 class="anchored" data-anchor-id="bound">Bound</h3>
 <p>If G represents complete graph and H be a weighted graph with same number of vertex with one vertex with degree d. If H is a sparsifier for the graph and approximates the complete graph with <span class="math display">\[L_G \preceq L_H \preceq \kappa L_G\]</span> then <span class="math display">\[
 \kappa \geq 1+2/\sqrt{d}-O(\sqrt{d}/n)
 \]</span></p>
-<p><strong><em>Proof:</em></strong> The key aspect of the proof is around the fact that if we consider the rayleigh coefficient ratio of <span class="math inline">\(L_H\)</span> for two different vectors which are orthogonal to all 1 vector. It can be at max <span class="math inline">\(\kappa\)</span> due to sparsifier definition.</p>
-<p>Now for the construction,consider the d-degree vertex, be <span class="math inline">\(v_0\)</span> and its neighbours are <span class="math inline">\(v_1 ....v_n\)</span>. Now let weight of the edge connecting that neighbor to the <span class="math inline">\(v_0\)</span> be <span class="math inline">\(w_i\)</span> and weight to all the rest vertices excluding <span class="math inline">\(v_0\)</span> neighbors be <span class="math inline">\(\delta_i\)</span>.</p>
-<p>So if we define the characteristivectors</p>
+<p><strong><em>Proof:</em></strong> The key aspect of the proof is around the fact that if we consider the rayleigh coefficient ratio of <span class="math inline">\(L_H\)</span> for two different vectors, which are orthogonal to all 1 vector, it can be at max <span class="math inline">\(\kappa\)</span> due to sparsifier definition.</p>
+<p>Now for the construction, consider the d-degree vertex,let it be <span class="math inline">\(v_0\)</span>, and its neighbours are <span class="math inline">\(v_1 ....v_n\)</span>. Now let weight of the edge connecting that neighbor to the <span class="math inline">\(v_0\)</span> be <span class="math inline">\(w_i\)</span> and weight to all the rest vertices excluding <span class="math inline">\(v_0\)</span> neighbors be <span class="math inline">\(\delta_i\)</span>.</p>
+<p>So if we define the characteristic vectors</p>
 <p><span class="math display">\[ x(v_i)=\begin {cases}
       1 &amp; v_i\in v_0 \\
       \frac{1}{\sqrt{d}} &amp; v_i\in {v_1,...v_d} \\
@@ -105,15 +114,15 @@ h(G) \overset{\Delta}{=} \underset{|S|&lt;n/2}{min}\frac{|\partial{S}|}{|S|}
 \]</span> Now taking quadratic forms with respect to these and using edge definition of laplacian <span class="math display">\[
 x^TL_Hx = \sum^{d}_{i=1}w_i(1-1/\sqrt(d))^2+\sum^d_{i=1}\delta_i(1/\sqrt(d)-0)^2
 \]</span> <span class="math display">\[
-= \sum^{d}_{i=1}w_i-\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}-2\sum^d_{i=1}\frac{w_i}{\sqrt{d}}
+= \sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}-2\sum^d_{i=1}\frac{w_i}{\sqrt{d}}
 \]</span></p>
 <p>Similarly for y <span class="math display">\[
 y^TL_Hy = \sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}+2\sum^d_{i=1}\frac{w_i}{\sqrt{d}}
 \]</span> Now taking ratio <span class="math display">\[\frac{y^TL_Hy}{x^TL_Hx}=\frac{1+\frac{1}{\sqrt{d}}\frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}}{1-\frac{1}{\sqrt{d}}\frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}}\]</span></p>
-<p>Now consider the lowean bound L_H with respect. If we consider a vertex and its characteristic vector with respect to its neigbours. The quadratic form, which will be weighted degree of the graph, will be bounded between n <span class="math inline">\(n\kappa\)</span>. So applying <span class="math display">\[
+<p>Now consider the lowean bound for L_H defined earlier. Now consider a vertex and define characteristic vector with respect to its neigbours,i.e.&nbsp;only position corresponding to these neighbors be 1 and rest 0. The quadratic form, which will be weighted degree of the graph, will be bounded between n <span class="math inline">\(n\kappa\)</span>. So using this <span class="math display">\[
 \frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}= \frac{2}{1+\frac{\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}{\sum^d_{i=1}w_i}} \geq \frac{2}{1+\kappa}
 \]</span> thus <span class="math display">\[\frac{y^TL_Hy}{x^TL_Hx}\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}
-\]</span> Since quadratic form for L_H, lowest possible value n and highest possible value <span class="math inline">\(n\kappa\)</span> is only true for vector orthogonal to all single constant vector. So transforming variables <span class="math display">\[
+\]</span> Since the L_H’s quadratic form bound between lowest possible value n and highest possible value <span class="math inline">\(n\kappa\)</span> is only true for vector orthogonal to all single constant vector. So transforming variables to such space <span class="math display">\[
 ||x^*|| = ||x||^2-(&lt;x,1/\sqrt{n}&gt;)^2 = 2-\frac{(1-\sqrt{d})^2}{n}
 \]</span> <span class="math display">\[
 ||y^*|| = ||y||^2-(&lt;y,1/\sqrt{n}&gt;)^2 = 2-\frac{(1-\sqrt{d})^2}{n}
@@ -128,6 +137,7 @@ y^TL_Hy = \sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}+2\sum^d_{i=1}\f
 \]</span> which finally transforms to <span class="math display">\[
 \kappa \geq 1+2/\sqrt{d}-O(\sqrt{d}/n)
 \]</span></p>
+</section>
 </section>
 
 </main>
