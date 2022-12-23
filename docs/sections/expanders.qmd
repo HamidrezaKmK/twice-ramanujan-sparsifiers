@@ -1,20 +1,27 @@
 
 ### Expander Graphs
   The expander graph based on literary definition, are the graph have high connectivity or in other words, from every subset, the graph keeps on expanding.In many application like connected computing elements or communication networks,such highly connected components are required but it is always desirable that such connectedness is achieved with sparse constructions. So for example, the complete graph has great expansion, but lacks the sparsity. So when strictly defined, the expanders are the family of the graphs which keeps on expanding with high connectivity but with sparse number of edges. 
--- TODO: recap of expanders
+
 There are different definitions which uses different parameters for quantifying expansion
 
-A. Vertex Expansion- It uses the baselines concept that every vertex is has high number of neighbors and quantifiable parameter is defined on the vertex set, having least value.
+**A. Vertex Expansion**- It uses the baselines concept that every vertex  has high number of neighbors and quantifiable parameter is defined on the vertex set, having least average number of neighbors. Let $\Gamma(v_i)$ be total amount of neighborhood weight for a vertex and $\Gamma(S)$ is $\cup^{v \in S} \Gamma(v)$. So the edge expansion is defined with respect below parameter.
 
-B. Edge Expansion - It measures the connectivity in terms of edges such that number of edges crossing the vertex sets are high when compared with edges internal to both edges. Like Vertex expansion, the quantification is done based on the set having minimum value of measure.
+$$
+\underset{|S|<n/2}{min} \Gamma(s)/|S|
+$$
 
-C. Spectral Expansion- It defined on concept of random walks, which will converge faster if the graph is highly connected. Specifically it is defined in terms of adjacency matrix, where the \Lambda- expander is defined as the one where are the all eigen values except for the largest are bounded 
+**B. Edge Expansion** - It measures the connectivity in terms of edges such that number of edges crossing the vertex sets are high when compared with edges internal to both edges. Like Vertex expansion, the quantification is done based on the set having minimum value of measure. It is defined withrespect to cheeger's constant.
+$$
+h(G) \overset{\Delta}{=} \underset{|S|<n/2}{min}\frac{|\partial{S}|}{|S|}
+$$
+
+**C. Spectral Expansion**- It defined on concept of random walks, which will converge faster if the graph is highly connected. Specifically it is defined in terms of adjacency matrix, where the $\Lambda$- expander is defined as the one where are the all eigen values except for the largest are bounded 
 $$
 -\lambda \leq \underset{i\neq 1}{\lambda_i} \leq \lambda
 $$ 
-
-### Expander Mixing Lemma
-  The expander mixing lemma suggest that the edges are evenly distributed across edges. In particular, it is associated with quasirandomness which states that edges going between every two sets S,T are closure to the average expected value.
+    Generally the expanders are defined using d-regular graph and finding graph with high expansion for a fixed d.
+## Expander Mixing Lemma
+  The expander mixing lemma suggest that the edges are evenly distributed across edges. In particular, it is associated with quasirandomness which states that edges going between every two sets S,T are closure to the average expected value. For the d-regular graph, the below formation holds
 $$
   |E(S,T)-\frac{d|S||T|}{n}|\leq \lambda \sqrt{|d||n|}
 $$ 
@@ -37,10 +44,8 @@ Let $L_h(V,E,w)$ be a graph that  $(1+\epsilon)$ approximates the complete graph
 $$
   |E(S,T)-(1+\epsilon/2)|S||T||\leq n(\epsilon/2) \sqrt{|d||n|}
 $$ 
-:::
-
-:::Proof
- Thrugh the definition we have
+ #### Proof
+ Through the definition we have
 $$
   -\frac{\epsilon}{2} L_G \preceq L_H-(1+\epsilon/2)L_G \preceq \frac{\epsilon}{2} L_G
 $$
@@ -62,24 +67,23 @@ $$-(E(S,T) -(1+\frac{\epsilon}{2}|S||T|)= x^TX_my)$$
 Taking modulus on both sides 
 $$|E(S,T) -(1+\frac{\epsilon}{2})|S||T||= |x^TX_my|$$
 Consider right side and apply cauchy-schwarz inequality
-$$|x^TX_my|\leq||X_m||||x||||y||\leq n\frac{\epsilon}{2}\sqrt{|S||T|}$$
+$$|x^TX_my|\leq||X_m||\:||x||\:||y||\leq n\frac{\epsilon}{2}\sqrt{|S||T|}$$
 Substituting back
 $$|E(S,T) -(1+\frac{\epsilon}{2})| \leq n\frac{\epsilon}{2}\sqrt{|S||T|}$$
 
 So the final aspect is the bound, which as stated earlier similar to ramanujan graph
-:::
 
-::: {.Bound}
+### Bound
 If G represents complete graph and H be a weighted graph with same number of vertex with one vertex with degree d.
 If H is a sparsifier for the graph and approximates the complete graph with
 $$L_G \preceq L_H \preceq \kappa L_G$$ 
 then
 $$
-\kappa \geq 1+2/\sqrt(d)-O(\sqrt(d)/n)
+\kappa \geq 1+2/\sqrt{d}-O(\sqrt{d}/n)
 $$
 
-:::proof
-  The key aspect of the  proof is around the fact that if we consider the rayleigh coefficient ratio of $L_H$ for two different vectors. It can be at max $\kappa$ due to sparsifier definition.
+***Proof:***
+  The key aspect of the  proof is around the fact that if we consider the rayleigh coefficient ratio of $L_H$ for two different vectors which are orthogonal to all 1 vector. It can be at max $\kappa$ due to sparsifier definition.
 
   Now for the construction,consider the d-degree vertex, be $v_0$ and its neighbours are $v_1 ....v_n$. Now let weight of the edge connecting that neighbor to the $v_0$ be $w_i$ and weight to all the rest vertices excluding  $v_0$ neighbors be 
   $\delta_i$.
@@ -121,19 +125,16 @@ $$
 thus
 $$\frac{y^TL_Hy}{x^TL_Hx}\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}
 $$
-Since quadratic form for L_H, lowest possible value n and highest possible value $n\kappa$ is only true foor vecotr orthogonal to all single constant vector. So transforming variables
+Since quadratic form for L_H, lowest possible value n and highest possible value $n\kappa$ is only true for vector orthogonal to all single constant vector. So transforming variables
 $$
-||x^*|| = ||x||^2-(<x,1/\sqrt{n}>)^2 = 2+\frac{(1+\sqrt{d})^2}{n}
-$$
-$$
-||x^*|| = ||x||^2-(<x,1/\sqrt{n}>)^2 = 2+\frac{(1-\sqrt{d})^2}{n}
+||x^*|| = ||x||^2-(<x,1/\sqrt{n}>)^2 = 2-\frac{(1-\sqrt{d})^2}{n}
 $$
 $$
 ||y^*|| = ||y||^2-(<y,1/\sqrt{n}>)^2 = 2-\frac{(1-\sqrt{d})^2}{n}
 $$
-$$
+
 taking ratio 
-\frac{||x^*||}{||y^*||} = 1- \frac{4\sqrt{d}}{2-\frac{(1-\sqrt{d})^2}{n}}
+$$\frac{||x^*||}{||y^*||} = 1- \frac{4\sqrt{d}}{2-\frac{(1-\sqrt{d})^2}{n}}
 $$
 $$
 \frac{||x^*||}{||y^*||} = 1- O(\frac{\sqrt{d}}{n})
@@ -149,5 +150,5 @@ $$\frac{y^TL_Hy}{x^TL_Hx}\frac{||x^*||}{||y^*||}\geq \frac{1+\frac{1}{\sqrt{d}}\
 $$
 which finally transforms to
 $$
-\kappa \geq 1+2/\sqrt(d)-O(\sqrt(d)/n)
+\kappa \geq 1+2/\sqrt{d}-O(\sqrt{d}/n)
 $$
