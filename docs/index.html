@@ -148,11 +148,9 @@ div.csl-indent {
   <li><a href="#sparsification-of-complete-graphs" id="toc-sparsification-of-complete-graphs" class="nav-link" data-scroll-target="#sparsification-of-complete-graphs">Sparsification of Complete Graphs</a>
   <ul class="collapse">
   <li><a href="#expander-graphs" id="toc-expander-graphs" class="nav-link" data-scroll-target="#expander-graphs">Expander Graphs</a></li>
-  <li><a href="#expander-mixing-lemma" id="toc-expander-mixing-lemma" class="nav-link" data-scroll-target="#expander-mixing-lemma">Expander Mixing Lemma</a></li>
   <li><a href="#ramanujan-bounds" id="toc-ramanujan-bounds" class="nav-link" data-scroll-target="#ramanujan-bounds">Ramanujan Bounds</a></li>
-  <li><a href="#the-twice-ramanujan-sparsifier" id="toc-the-twice-ramanujan-sparsifier" class="nav-link" data-scroll-target="#the-twice-ramanujan-sparsifier">The Twice Ramanujan Sparsifier</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions">Conclusions</a></li>
   </ul>
 </nav>
 </div>
@@ -522,18 +520,21 @@ C = \begin{bmatrix}
 <span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'blue'</span>, <span class="st">'red'</span>]</span>
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col, v <span class="kw">in</span> <span class="bu">zip</span>(colors, vz):</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  plt.scatter(w, np.zeros(w.shape), color <span class="op">=</span> <span class="st">'black'</span>, marker <span class="op">=</span> <span class="st">'x'</span>, label<span class="op">=</span><span class="st">'previous eigenvalues'</span>)</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add text with textbox equal to np.sum(w) on top of each eigenvalue</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i, wi <span class="kw">in</span> <span class="bu">enumerate</span>(w):</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> plt.text(wi <span class="op">-</span> <span class="fl">0.5</span>, <span class="fl">0.1</span> <span class="op">*</span> (<span class="dv">4</span> <span class="op">*</span> (i <span class="op">%</span> <span class="dv">2</span>) <span class="op">-</span> <span class="fl">2.5</span>), <span class="op">\</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"c=</span><span class="sc">{</span>(v <span class="op">@</span> U[:,i])<span class="op">**</span><span class="dv">2</span><span class="sc">:.2f}</span><span class="ss">"</span>, color <span class="op">=</span> <span class="st">'black'</span>)</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    t.set_bbox(<span class="bu">dict</span>(facecolor<span class="op">=</span><span class="st">'white'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, edgecolor<span class="op">=</span>col))</span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  plot_characteristic_polynomial(w, U, v, col)</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  plt.xlim(<span class="dv">0</span>, <span class="fl">5.5</span>)</span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  plt.ylim(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  plt.legend()</span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  plt.scatter(w, np.zeros(w.shape), color <span class="op">=</span> <span class="st">'black'</span>, <span class="op">\</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    marker <span class="op">=</span> <span class="st">'x'</span>, label<span class="op">=</span><span class="st">'previous eigenvalues'</span>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add text with textbox equal to np.sum(w)</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># on top of each eigenvalue</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i, wi <span class="kw">in</span> <span class="bu">enumerate</span>(w):</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> plt.text(wi <span class="op">-</span> <span class="fl">0.5</span>, <span class="fl">0.1</span> <span class="op">*</span> (<span class="dv">4</span> <span class="op">*</span> (i <span class="op">%</span> <span class="dv">2</span>) <span class="op">-</span> <span class="fl">2.5</span>), <span class="op">\</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"c=</span><span class="sc">{</span>(v <span class="op">@</span> U[:,i])<span class="op">**</span><span class="dv">2</span><span class="sc">:.2f}</span><span class="ss">"</span>, color <span class="op">=</span> <span class="st">'black'</span>)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    t.set_bbox(<span class="bu">dict</span>(facecolor<span class="op">=</span><span class="st">'white'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, <span class="op">\</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>       edgecolor<span class="op">=</span>col))</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  plot_characteristic_polynomial(w, U, v, col)</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  plt.xlim(<span class="dv">0</span>, <span class="fl">5.5</span>)</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  plt.ylim(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  plt.legend()</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div id="fig-matrix-determinant" class="cell quarto-layout-panel" data-execution_count="3">
 <figure class="figure">
@@ -585,17 +586,19 @@ E[p_{X + v}(\lambda)] &amp;= p_X(\lambda) E\left[1 - \sum_{i=1}^m \frac{\langle 
 <p>In summary, the main idea is to choose <span class="math inline">\(v_i\)</span> and <span class="math inline">\(s_i\)</span> such that the potential for the matrix <span class="math inline">\(X^{(i)}\)</span> in the next iteration does not explode. To do so, we can ensure that the potentials remain monotonically decreasing:</p>
 <p><span class="math display">\[\infty \gg \Phi^{u^{(0)}}(X^{(0)}) \ge \Phi^{u^{(1)}}(X^{(1)}) \ge ... \ge \Phi^{u^{(nd)}}(X^{(nd)})\]</span> <span class="math display">\[\infty \gg \Phi_{\ell^{(0)}}(X^{(0)}) \ge \Phi_{\ell^{(1)}}(X^{(1)}) \ge ... \ge \Phi_{\ell^{(nd)}}(X^{(nd)})\]</span></p>
 <p>With that in mind, let’s assume we are going to assign <span class="math inline">\(s_k\)</span> to any vector <span class="math inline">\(v_k\)</span> such that after the increase in our upper and lower bound, the potential remains non-increasing. Now let us separately consider the upper and lower bound potentials.</p>
-<p>When increasing <span class="math inline">\(l^{(i)}\)</span>, the eigenvalues come closer to the lower bound, and hence, the potential of the lower bound will increase; therefore, for any vector <span class="math inline">\(v_k\)</span>, the coefficient <span class="math inline">\(s_k\)</span> should be bounded by some value <span class="math inline">\(L_{X^{(i)}}(v_k)\)</span> such that after adding <span class="math inline">\(s_k \cdot v_k v_k^T\)</span> to <span class="math inline">\(X^{(i)}\)</span>, spectrum shifts forward and the increase in the potential cancels out. That said, for any matrix <span class="math inline">\(X\)</span> and any vector <span class="math inline">\(v\)</span> we have: <span class="math display">\[
-\begin{align*}
+<p>When increasing <span class="math inline">\(l^{(i)}\)</span>, the eigenvalues come closer to the lower bound, and hence, the potential of the lower bound will increase; therefore, for any vector <span class="math inline">\(v_k\)</span>, the coefficient <span class="math inline">\(s_k\)</span> should be bounded by some value <span class="math inline">\(L_{X^{(i)}}(v_k)\)</span> such that after adding <span class="math inline">\(s_k \cdot v_k v_k^T\)</span> to <span class="math inline">\(X^{(i)}\)</span>, spectrum shifts forward and the increase in the potential cancels out. That said, for any matrix <span class="math inline">\(X\)</span> and any vector <span class="math inline">\(v\)</span> we have:</p>
+<p><span class="math display">\[\begin{align*}
 &amp;\Phi^{\overset{l'}{\overbrace{l + \delta_l}}}(X + s \cdot vv^T) \le \Phi^l(X)\\
-\Phi_{l'}(X + s \cdot vv^T) &amp; = Tr(X + s \cdot vv^T - l'I)^{-1}  \qquad \text{Sherman-Morrison}\\\
+\Phi_{l'}(X + s \cdot vv^T) &amp; = Tr(X + s \cdot vv^T - l'I)^{-1}  \qquad \text{Sherman-Morrison}\\
 &amp; = Tr\left((X - l'I)^{-1}\right) + Tr\left(\frac{s \cdot (X - l'I)^{-1} v v^T (X - l'I)^{-1}}{1 + s \cdot v^T (X - l' I)^{-1} v}\right)\\
-&amp;= \Phi_{l'}(X) - \frac{s \cdot v^T (X - l'I)^{-2}v}{1 + s \cdot v^T  (X - l'I)^{-1}v} \le \Phi^l(X)\\
+&amp;= \Phi_{l'}(X) - \frac{s \cdot v^T (X - l'I)^{-2}v}{1 + s \cdot v^T  (X - l'I)^{-1}v} \le \Phi^l(X)
+\end{align*}\]</span></p>
+<p><span class="math display">\[\begin{align*}
 \Leftrightarrow &amp;~ \underset{\Delta}{\underbrace{\Phi_{l'}(X) - \Phi^l(X)}} \le \frac{s \cdot v^T (X - l'I)^{-2}v}{1 + s \cdot v^T  (X - l'I)^{-1}v}\\
 \Leftrightarrow &amp;~ s\cdot \left[v^T (X - l'I)^{-2}v  - \Delta v^T(X - l' I)^{-1} v\right] \ge \Delta \\
 \Leftrightarrow &amp;~ s \ge \frac{\Delta}{v^T \left( (X - l'I)^{-2} - \Delta (X - l' I)^{-1} \right) v} = L_X(v)
-\end{align*}
-\]</span> which means,</p>
+\end{align*}\]</span></p>
+<p>which means,</p>
 <p><span class="math display">\[\begin{equation} \tag{1}\label{eq:lower-bound-potential}
 s \ge L_X(v) = \frac{\Delta}{v^T \left((X - l' I)^{-2} - \Delta (X - l' I)^{-1} \right) v}
 \end{equation}\]</span></p>
@@ -725,49 +728,50 @@ Min eigenvalue of [(1 + eps) L_G - L_H] = 0.00 &gt;= 0</code></pre>
 </section>
 <section id="sparsification-of-complete-graphs" class="level2">
 <h2 class="anchored" data-anchor-id="sparsification-of-complete-graphs">Sparsification of Complete Graphs</h2>
+<p>Now that we have illustrated the algorithm in its entirety, we will consider the case of running this sparsifier on the complete graph, after all, the whole reason behind this naming is its resemblance to the Ramanujan expanders. But first, let’s recap expanders and some of their properties and then we will see how the sparsifier shares a lot of these properties.</p>
 <section id="expander-graphs" class="level3">
 <h3 class="anchored" data-anchor-id="expander-graphs">Expander Graphs</h3>
-<p>The expander graph based on literary definition, are the graph have high connectivity or in other words, from every subset, the graph keeps on expanding.In many application like connected computing elements or communication networks,such highly connected components are required but it is always desirable that such connectedness is achieved with sparse constructions. So for example, the complete graph has great expansion, but lacks the sparsity. So when strictly defined, the expanders are the family of the graphs which keeps on expanding with high connectivity but with sparse number of edges. – TODO: recap of expanders There are different definitions which uses different parameters for quantifying expansion</p>
-<p>A. Vertex Expansion- It uses the baselines concept that every vertex is has high number of neighbors and quantifiable parameter is defined on the vertex set, having least value.</p>
-<p>B. Edge Expansion - It measures the connectivity in terms of edges such that number of edges crossing the vertex sets are high when compared with edges internal to both edges. Like Vertex expansion, the quantification is done based on the set having minimum value of measure.</p>
-<p>C. Spectral Expansion- It defined on concept of random walks, which will converge faster if the graph is highly connected. Specifically it is defined in terms of adjacency matrix, where the - expander is defined as the one where are the all eigen values except for the largest are bounded <span class="math display">\[
--\lambda \leq \underset{i\neq 1}{\lambda_i} \leq \lambda
+<p>In literature, expander graphs are regular graphs that have high connectivity; in other words, any random walk on such a graph expands fast. In many applications like connected computing elements or communication networks, such highly connected components are required, but it is always desirable that high connectivity is achieved with sparse constructions. For example, the complete graphs are an extreme case of highly connected graphs but are not sparse. Strictly defined, the expanders are the family of graphs that keep on expanding with high connectivity but with a sparse number of edges.</p>
+<p>Different definitions of expanders are defined using metrics such as vertex expansion, edge expansion and spectral expansion; we will only consider the case of spectral expansion here. A definition of <span class="math inline">\((d, \epsilon)\)</span>-spectral expanders with a tight connection to the sparsifiers is given below:</p>
+<div id="def-spectral-expander" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 3 </strong></span>A <span class="math inline">\(d\)</span>-regular graph <span class="math inline">\(G\)</span> is a <span class="math inline">\((d, \epsilon)\)</span>-spectral expander if it approximate the complete graph <span class="math inline">\(K_n\)</span> in a spectral sense, in other words, <span class="math display">\[(1 - \epsilon) L_{K_n} \preceq \frac{n}{d} L_G \preceq (1 + \epsilon) L_{K_n}\]</span></p>
+</div>
+<section id="expander-mixing-properties" class="level4">
+<h4 class="anchored" data-anchor-id="expander-mixing-properties">Expander Mixing Properties</h4>
+<p>A well-known theorem in the literature is the expander mixing lemma, which states that the edges of a spectral expander are distributed uniformly across the graph. This is a very important property of the expanders, as it allows us to use the sparsifiers to approximate the complete graph. The expander mixing lemma is given below:</p>
+<div id="thm-expander-mixing-lemma" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 1 </strong></span><strong>(Expander Mixing Lemma)</strong> Let <span class="math inline">\(G\)</span> be a <span class="math inline">\((d, \epsilon)\)</span>-spectral expander. Then for any two disjoint sets <span class="math inline">\(S\)</span> and <span class="math inline">\(T\)</span> of vertices, we have, <span class="math display">\[|E_G(S, T) - \frac{d}{n} |S| \cdot |T| | \le \epsilon \sqrt{|S| \cdot |T|}\]</span></p>
+</div>
+<p>This means that if we multiply the edges of an expander by <span class="math inline">\(n/d\)</span> so that it becomes a sparsifier of the complete graph and call it <span class="math inline">\(H\)</span>, then the following holds: <span class="math display">\[|E_H(S, T) - |S| \cdot |T|| \le \epsilon \frac{n}{d} \cdot \sqrt{|S| \cdot |T|}\]</span></p>
+<p>That said, even though twice Ramanujan sparsifiers are not expanders (they are not regular) we have the following lemma for spectral sparsifiers that bear resemblance to the expander mixing lemma:</p>
+<div id="thm-approx-mixing-lemma" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 2 </strong></span>Let <span class="math inline">\(L_H(V,E,w)\)</span> be a graph that <span class="math inline">\((1+\epsilon)\)</span> approximates the complete graph <span class="math inline">\(L_G\)</span> then for every pair of disjoint sets S and T, <span class="math display">\[
+|E(S,T)-(1+\epsilon/2)|S||T||\leq n(\epsilon/2) \sqrt{|d||n|}
 \]</span></p>
-</section>
-<section id="expander-mixing-lemma" class="level3">
-<h3 class="anchored" data-anchor-id="expander-mixing-lemma">Expander Mixing Lemma</h3>
-<p>The expander mixing lemma suggest that the edges are evenly distributed across edges. In particular, it is associated with quasirandomness which states that edges going between every two sets S,T are closure to the average expected value. <span class="math display">\[
-  |E(S,T)-\frac{d|S||T|}{n}|\leq \lambda \sqrt{|d||n|}
-\]</span></p>
-</section>
-<section id="ramanujan-bounds" class="level3">
-<h3 class="anchored" data-anchor-id="ramanujan-bounds">Ramanujan Bounds</h3>
-<p>As seen in the expander mixing lemma, the lower the value of <span class="math inline">\(\lambda\)</span>, the cross edge weight more close to the average, which means edges are uniformly distributed. A bound known as alan-bopanna, states lower limit for second-eigenvalue of d-regular graph G_n.&nbsp;The bound is as given below <span class="math display">\[
-    \lambda \geq 2\sqrt{d-1} − o(1)\:\text{ As n-&gt;} \infty
-\]</span> And a connected d-regular graph is Ramanujan graph. <span class="math display">\[
-    \lambda \leq 2\sqrt{d-1} \
-\]</span> So ramanujan graph will be having lowest value for second largest eigenvalue. As shown in expander mixing lemma, the lower the value of second largest eigenvalue the more is uniform distribution of edges. So ramanujan graph will be best known expander. Thus as known as the d-regular expanders can approximate the complete graphs, the ramanujan graphs will be best sparsifiers as well.</p>
-</section>
-<section id="the-twice-ramanujan-sparsifier" class="level3">
-<h3 class="anchored" data-anchor-id="the-twice-ramanujan-sparsifier">The Twice Ramanujan Sparsifier</h3>
-<p>The twice ramanujan sparsifier can approximate the complete graph with weaker but similar bound. First since the graph is non-regular, it will be proven that the graph has an approximate mixing lemma which describes edge distribution ::: {#Expander Mixing Property} Let <span class="math inline">\(L_h(V,E,w)\)</span> be a graph that <span class="math inline">\((1+\epsilon)\)</span> approximates the complete graph <span class="math inline">\(L_g\)</span> then for every pair of disjoint sets S and T, <span class="math display">\[
-  |E(S,T)-(1+\epsilon/2)|S||T||\leq n(\epsilon/2) \sqrt{|d||n|}
-\]</span> :::</p>
-<div class="Proof">
-<p>Thrugh the definition we have <span class="math display">\[
+</div>
+<div class="solution proof">
+<p><span class="proof-title"><em>Solution</em>. </span>Through the definition we have <span class="math display">\[
   -\frac{\epsilon}{2} L_G \preceq L_H-(1+\epsilon/2)L_G \preceq \frac{\epsilon}{2} L_G
 \]</span></p>
 <p>So it is possible to write it as <span class="math display">\[
   L_H=(1+\epsilon/2)L_G+X_M
-\]</span> where <span class="math inline">\(X_M\)</span> is calculated based on the concept of norm with it having max norm as <span class="math inline">\(\frac{\epsilon}{2} ||L_G|| \leq n\epsilon/2\)</span> Now consider x,y as characterstic vectos of set S,T respectively. As we know <span class="math inline">\(-E(S,T) = x^TL_Hy\)</span> we will get the weight crossing the two sets. And we consider with complete graph, the weight is uniformly distributed <span class="math display">\[x^TL_Gy= -|S||T|\]</span> Substituting back <span class="math display">\[x^TL_Hy = (1+\frac{\epsilon}{2}x^TL_Gy+x^TX_my)\]</span> <span class="math display">\[x^TL_Hy = (1+\frac{\epsilon}{2}|S||T|+x^TX_my)\]</span> <span class="math display">\[-(E(S,T) -(1+\frac{\epsilon}{2}|S||T|)= x^TX_my)\]</span> Taking modulus on both sides <span class="math display">\[|E(S,T) -(1+\frac{\epsilon}{2})|S||T||= |x^TX_my|\]</span> Consider right side and apply cauchy-schwarz inequality <span class="math display">\[|x^TX_my|\leq||X_m||||x||||y||\leq n\frac{\epsilon}{2}\sqrt{|S||T|}\]</span> Substituting back <span class="math display">\[|E(S,T) -(1+\frac{\epsilon}{2})| \leq n\frac{\epsilon}{2}\sqrt{|S||T|}\]</span></p>
-<p>So the final aspect is the bound, which as stated earlier similar to ramanujan graph</p>
+\]</span> where <span class="math inline">\(X_M\)</span> is calculated based on norms with it having max norm as <span class="math inline">\(\frac{\epsilon}{2} ||L_G|| \leq n\epsilon/2\)</span> Now consider <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> as characteristic vectors of set <span class="math inline">\(S\)</span> and <span class="math inline">\(T\)</span> respectively. As we know <span class="math inline">\(-E(S,T) = x^TL_Hy\)</span> we will get the weight crossing the two sets. And we consider with a complete graph, the weight is uniformly distributed <span class="math display">\[x^TL_Gy= -|S||T|\]</span> Substituting back <span class="math display">\[x^TL_Hy = (1+\frac{\epsilon}{2}x^TL_Gy+x^TX_my)\]</span> <span class="math display">\[x^TL_Hy = (1+\frac{\epsilon}{2}|S||T|+x^TX_my)\]</span> <span class="math display">\[-(E(S,T) -(1+\frac{\epsilon}{2}|S||T|)= x^TX_my)\]</span> Taking modulus on both sides <span class="math display">\[|E(S,T) -(1+\frac{\epsilon}{2})|S||T||= |x^TX_my|\]</span> Consider RHS and apply the Cauchy-Schwarz inequality <span class="math display">\[|x^TX_my|\leq||X_m||\:||x||\:||y||\leq n\frac{\epsilon}{2}\sqrt{|S||T|}\]</span> Substituting back <span class="math display">\[|E(S,T) -(1+\frac{\epsilon}{2})| \leq n\frac{\epsilon}{2}\sqrt{|S||T|}\]</span></p>
 </div>
-<p>::: {.Bound} If G represents complete graph and H be a weighted graph with same number of vertex with one vertex with degree d. If H is a sparsifier for the graph and approximates the complete graph with <span class="math display">\[L_G \preceq L_H \preceq \kappa L_G\]</span> then <span class="math display">\[
-\kappa \geq 1+2/\sqrt(d)-O(\sqrt(d)/n)
-\]</span></p>
-<p>:::proof The key aspect of the proof is around the fact that if we consider the rayleigh coefficient ratio of <span class="math inline">\(L_H\)</span> for two different vectors. It can be at max <span class="math inline">\(\kappa\)</span> due to sparsifier definition.</p>
-<p>Now for the construction,consider the d-degree vertex, be <span class="math inline">\(v_0\)</span> and its neighbours are <span class="math inline">\(v_1 ....v_n\)</span>. Now let weight of the edge connecting that neighbor to the <span class="math inline">\(v_0\)</span> be <span class="math inline">\(w_i\)</span> and weight to all the rest vertices excluding <span class="math inline">\(v_0\)</span> neighbors be <span class="math inline">\(\delta_i\)</span>.</p>
-<p>So if we define the characteristivectors</p>
+<p>That said, the twice Ramanujan can be a good approximate for the complete graph and any vertex set will expand. Now let’s move on to Ramanujan bounds.</p>
+</section>
+</section>
+<section id="ramanujan-bounds" class="level3">
+<h3 class="anchored" data-anchor-id="ramanujan-bounds">Ramanujan Bounds</h3>
+<p>For expanders, we know that the higher <span class="math inline">\(d\)</span> the more freedom we have to choose more dense graphs that give us better approximations resulting in lower values of <span class="math inline">\(\epsilon\)</span>. That said, given a specific value of <span class="math inline">\(d\)</span>, there exist some lower bounds on the accuracy metric <span class="math inline">\(\epsilon\)</span>. Intuitively, the lower the value of <span class="math inline">\(d\)</span>, the worst the accuracy gets and <span class="math inline">\(\epsilon\)</span> should increase. The Alan-Bopanna lemma bridges that gap between these two concepts and states a lower limit for the second eigenvalue for the Laplacians of <span class="math inline">\(d\)</span>-regular graphs: <span class="math display">\[
+    \lambda_i \geq 2\sqrt{d-1} − o_n(1),
+\]</span> and a connected <span class="math inline">\(d\)</span>-regular graph obtaining this bound is called a Ramanujan graph. Alternatively, the lemma can produce a bound on the accuracy metric <span class="math inline">\(\epsilon\)</span> as follows: <span class="math display">\[\frac{1 + \epsilon}{1 - \epsilon} \ge 1 + \frac{4}{\sqrt{d}} + o_n(1/d)\]</span> Therefore, Ramanujan graphs are the best-known expanders for a given value of <span class="math inline">\(d\)</span>. Following the theme of drawing connections between sparsification and expanders, we can also prove a lower bound for the accuracy metric <span class="math inline">\(\epsilon\)</span>. With this bound, we can get a sense of how well a sparsification algorithm acts.</p>
+<div id="thm-ramanujan-sparsifier-bounds" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 3 </strong></span>If <span class="math inline">\(H\)</span> is a graph that <span class="math inline">\(\epsilon\)</span>-approximates the graph <span class="math inline">\(G\)</span> such that <span class="math inline">\(L_H \approx_\epsilon L_G\)</span>, then we have, <span class="math display">\[\frac{1 + \epsilon}{1 - \epsilon} \ge 1 + \frac{2}{\sqrt{d}} - \mathcal{O}\left( \frac{\sqrt{d}}{n} \right)\]</span> if <span class="math inline">\(H\)</span> contains a vertex of degree <span class="math inline">\(d\)</span>.</p>
+</div>
+<div class="solution proof">
+<p><span class="proof-title"><em>Solution</em>. </span>The key aspect of the proof is the fact that if we consider the Rayleigh coefficient ratio of <span class="math inline">\(L_H\)</span> for two different vectors, which are orthogonal to all 1 vector, it can be at max <span class="math inline">\(\kappa = \frac{1 + \epsilon}{1 - \epsilon}\)</span> due to sparsifier definition.</p>
+<p>Now for the construction, consider the d-degree vertex, let it be <span class="math inline">\(v_0\)</span>, and its neighbors are <span class="math inline">\(v_1 ....v_n\)</span>. Now let the weight of the edge connecting that neighbor to the <span class="math inline">\(v_0\)</span> be <span class="math inline">\(w_i\)</span> and the weight to all the rest of vertices excluding <span class="math inline">\(v_0\)</span> neighbors be <span class="math inline">\(\delta_i\)</span>.</p>
+<p>So if we define the characteristic vectors</p>
 <p><span class="math display">\[ x(v_i)=\begin {cases}
       1 &amp; v_i\in v_0 \\
       \frac{1}{\sqrt{d}} &amp; v_i\in {v_1,...v_d} \\
@@ -779,39 +783,57 @@ Min eigenvalue of [(1 + eps) L_G - L_H] = 0.00 &gt;= 0</code></pre>
       -\frac{1}{\sqrt{d}} &amp; v_i\in {v_1,...v_d} \\
       0 &amp; v_i\notin {v_0,v_1...v_d}
    \end{cases}
-\]</span> Now taking quadratic forms with respect to these and using edge definition of laplacian <span class="math display">\[
+\]</span> Now taking quadratic forms concerning these and using the edge definition of laplacian <span class="math display">\[
 x^TL_Hx = \sum^{d}_{i=1}w_i(1-1/\sqrt(d))^2+\sum^d_{i=1}\delta_i(1/\sqrt(d)-0)^2
 \]</span> <span class="math display">\[
-= \sum^{d}_{i=1}w_i-\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}-2\sum^d_{i=1}\frac{w_i}{\sqrt{d}}
+= \sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}-2\sum^d_{i=1}\frac{w_i}{\sqrt{d}}
 \]</span></p>
 <p>Similarly for y <span class="math display">\[
 y^TL_Hy = \sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}+2\sum^d_{i=1}\frac{w_i}{\sqrt{d}}
 \]</span> Now taking ratio <span class="math display">\[\frac{y^TL_Hy}{x^TL_Hx}=\frac{1+\frac{1}{\sqrt{d}}\frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}}{1-\frac{1}{\sqrt{d}}\frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}}\]</span></p>
-<p>Now consider the lowean bound L_H with respect. If we consider a vertex and its characteristic vector with respect to its neigbours. The quadratic form, which will be weighted degree of the graph, will be bounded between n <span class="math inline">\(n\kappa\)</span>. So applying <span class="math display">\[
+<p>Now consider the lower bound for L_H defined earlier. Now consider a vertex and define a characteristic vector concerning its neighbors, i.e.&nbsp;only the position corresponding to these neighbors be 1 and the rest 0. The quadratic form, which will be the weighted degree of the graph, will be bounded between n <span class="math inline">\(n\kappa\)</span>. So using this <span class="math display">\[
 \frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}= \frac{2}{1+\frac{\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}{\sum^d_{i=1}w_i}} \geq \frac{2}{1+\kappa}
 \]</span> thus <span class="math display">\[\frac{y^TL_Hy}{x^TL_Hx}\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}
-\]</span> Since quadratic form for L_H, lowest possible value n and highest possible value <span class="math inline">\(n\kappa\)</span> is only true foor vecotr orthogonal to all single constant vector. So transforming variables <span class="math display">\[
-||x^*|| = ||x||^2-(&lt;x,1/\sqrt{n}&gt;)^2 = 2+\frac{(1+\sqrt{d})^2}{n}
-\]</span> <span class="math display">\[
-||x^*|| = ||x||^2-(&lt;x,1/\sqrt{n}&gt;)^2 = 2+\frac{(1-\sqrt{d})^2}{n}
+\]</span> Since the L_H’s quadratic form bound between the lowest possible value n and highest possible value <span class="math inline">\(n\kappa\)</span> is only true for vectors orthogonal to all single constant vectors. So transforming variables to such space <span class="math display">\[
+||x^*|| = ||x||^2-(&lt;x,1/\sqrt{n}&gt;)^2 = 2-\frac{(1-\sqrt{d})^2}{n}
 \]</span> <span class="math display">\[
 ||y^*|| = ||y||^2-(&lt;y,1/\sqrt{n}&gt;)^2 = 2-\frac{(1-\sqrt{d})^2}{n}
-\]</span> <span class="math display">\[
-taking ratio
-\frac{||x^*||}{||y^*||} = 1- \frac{4\sqrt{d}}{2-\frac{(1-\sqrt{d})^2}{n}}
+\]</span></p>
+<p>taking ratio <span class="math display">\[\frac{||x^*||}{||y^*||} = 1- \frac{4\sqrt{d}}{2-\frac{(1-\sqrt{d})^2}{n}}
 \]</span> <span class="math display">\[
 \frac{||x^*||}{||y^*||} = 1- O(\frac{\sqrt{d}}{n})
 \]</span> Changing variables for quadratic form ratio</p>
 <p><span class="math display">\[\frac{y^TL_Hy}{x^TL_Hx}\frac{||x^*||}{||y^*||}\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}(1- O(\frac{\sqrt{d}}{n}))
-\]</span> maximum value for left hand side due to lowean bound is <span class="math inline">\(\kappa\)</span> <span class="math display">\[\kappa\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}(1- O(\frac{\sqrt{d}}{n}))
+\]</span> maximum value for LHS due to lower bound is <span class="math inline">\(\kappa\)</span> <span class="math display">\[\kappa\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}(1- O(\frac{\sqrt{d}}{n}))
 \]</span> <span class="math display">\[\frac{y^TL_Hy}{x^TL_Hx}\frac{||x^*||}{||y^*||}\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}(1- O(\frac{\sqrt{d}}{n}))
 \]</span> which finally transforms to <span class="math display">\[
-\kappa \geq 1+2/\sqrt(d)-O(\sqrt(d)/n)
+\kappa \geq 1+2/\sqrt{d}-O(\sqrt{d}/n)
 \]</span></p>
+</div>
+<p>That said, the graphs obtained from the twice Ramanujan algorithm contain <span class="math inline">\(dn\)</span> edges, which means that using the pigeonhole principle at least one vertex with a degree at most <span class="math inline">\(d\)</span> exists. Therefore, any sparsifier should comply with the bound provided by <a href="#thm-ramanujan-sparsifier-bounds">Theorem&nbsp;3</a>. At the same time, this bound is somewhat tight as we know that the algorithm produces the following ratio: <span class="math display">\[\frac{1 + \epsilon}{1 - \epsilon} = \frac{1 + d + 2 \sqrt{d}}{1 + d - 2 \sqrt{d}} =1 + 4\frac{\sqrt{d}}{1 + d - 2\sqrt{d}} \approx 1 + \frac{4}{\sqrt{d}}\]</span> In addition, Ramanujan graphs in the expander regime have <span class="math inline">\(\frac{dn}{2}\)</span> edges while this sparsifier has <span class="math inline">\(dn\)</span> edges, hence, the naming convention is set like that.</p>
 </section>
-<section id="references" class="level3">
-<h3 class="anchored" data-anchor-id="references">References</h3>
-<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+</section>
+<section id="conclusions" class="level2">
+<h2 class="anchored" data-anchor-id="conclusions">Conclusions</h2>
+<p>With that said, we conclude this write-up. Through this, we covered the following key points:</p>
+<ol type="1">
+<li>Applications and background of sparsification</li>
+<li>Spectral sparsification</li>
+<li>Reduction from the sparsification problem to the matrix approximation problem</li>
+<li>The main method of twice Ramanujan sparsification</li>
+<li>Experimental details and introducing our package</li>
+<li>Drawing connections between sparsified complete graphs and expenders</li>
+<li>measuring how good the sparsifiers are in terms of Ramanujan-like bounds.</li>
+</ol>
+<!-- 
+## References -->
+<!-- 
+::: {#refs}
+::: -->
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-batson2009twice" class="csl-entry" role="doc-biblioentry">
 Batson, Joshua D, Daniel A Spielman, and Nikhil Srivastava. 2009. <span>“Twice-Ramanujan Sparsifiers.”</span> In <em>Proceedings of the Forty-First Annual ACM Symposium on Theory of Computing</em>, 255–62.
 </div>
@@ -848,11 +870,7 @@ Spielman, Daniel A, and Shang-Hua Teng. 2004. <span>“Nearly-Linear Time Algori
 <div id="ref-tat2015constructing" class="csl-entry" role="doc-biblioentry">
 Tat Lee, Yin, and He Sun. 2015. <span>“Constructing Linear-Sized Spectral Sparsification in Almost-Linear Time.”</span> <em>arXiv e-Prints</em>, arXiv–1508.
 </div>
-</div>
-</section>
-</section>
-
-</main>
+</div></section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

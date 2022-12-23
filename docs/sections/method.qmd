@@ -206,12 +206,15 @@ vz = [[0, 1, 1], [1, 1, 0]]
 colors = ['blue', 'red']
 
 for col, v in zip(colors, vz):
-  plt.scatter(w, np.zeros(w.shape), color = 'black', marker = 'x', label='previous eigenvalues')
-  # add text with textbox equal to np.sum(w) on top of each eigenvalue
+  plt.scatter(w, np.zeros(w.shape), color = 'black', \
+    marker = 'x', label='previous eigenvalues')
+  # add text with textbox equal to np.sum(w)
+  # on top of each eigenvalue
   for i, wi in enumerate(w):
     t = plt.text(wi - 0.5, 0.1 * (4 * (i % 2) - 2.5), \
       f"c={(v @ U[:,i])**2:.2f}", color = 'black')
-    t.set_bbox(dict(facecolor='white', alpha=0.5, edgecolor=col))
+    t.set_bbox(dict(facecolor='white', alpha=0.5, \
+       edgecolor=col))
 
   plot_characteristic_polynomial(w, U, v, col)
   plt.xlim(0, 5.5)
@@ -267,17 +270,21 @@ $$\infty \gg \Phi_{\ell^{(0)}}(X^{(0)}) \ge \Phi_{\ell^{(1)}}(X^{(1)}) \ge ... \
 With that in mind, let's assume we are going to assign $s_k$ to any vector $v_k$ such that after the increase in our upper and lower bound, the potential remains non-increasing. Now let us separately consider the upper and lower bound potentials.
 
 When increasing $l^{(i)}$, the eigenvalues come closer to the lower bound, and hence, the potential of the lower bound will increase; therefore, for any vector $v_k$, the coefficient $s_k$ should be bounded by some value $L_{X^{(i)}}(v_k)$ such that after adding $s_k \cdot v_k v_k^T$ to $X^{(i)}$, spectrum shifts forward and the increase in the potential cancels out. That said, for any matrix $X$ and any vector $v$ we have:
-$$
+
 \begin{align*}
 &\Phi^{\overset{l'}{\overbrace{l + \delta_l}}}(X + s \cdot vv^T) \le \Phi^l(X)\\
-\Phi_{l'}(X + s \cdot vv^T) & = Tr(X + s \cdot vv^T - l'I)^{-1}  \qquad \text{Sherman-Morrison}\\\
+\Phi_{l'}(X + s \cdot vv^T) & = Tr(X + s \cdot vv^T - l'I)^{-1}  \qquad \text{Sherman-Morrison}\\
 & = Tr\left((X - l'I)^{-1}\right) + Tr\left(\frac{s \cdot (X - l'I)^{-1} v v^T (X - l'I)^{-1}}{1 + s \cdot v^T (X - l' I)^{-1} v}\right)\\
-&= \Phi_{l'}(X) - \frac{s \cdot v^T (X - l'I)^{-2}v}{1 + s \cdot v^T  (X - l'I)^{-1}v} \le \Phi^l(X)\\
+&= \Phi_{l'}(X) - \frac{s \cdot v^T (X - l'I)^{-2}v}{1 + s \cdot v^T  (X - l'I)^{-1}v} \le \Phi^l(X)
+\end{align*}
+
+\begin{align*}
 \Leftrightarrow &~ \underset{\Delta}{\underbrace{\Phi_{l'}(X) - \Phi^l(X)}} \le \frac{s \cdot v^T (X - l'I)^{-2}v}{1 + s \cdot v^T  (X - l'I)^{-1}v}\\
 \Leftrightarrow &~ s\cdot \left[v^T (X - l'I)^{-2}v  - \Delta v^T(X - l' I)^{-1} v\right] \ge \Delta \\ 
 \Leftrightarrow &~ s \ge \frac{\Delta}{v^T \left( (X - l'I)^{-2} - \Delta (X - l' I)^{-1} \right) v} = L_X(v)
 \end{align*}
-$$
+
+
 which means,
 
 \begin{equation} \tag{1}\label{eq:lower-bound-potential}
