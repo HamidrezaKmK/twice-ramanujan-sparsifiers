@@ -579,36 +579,70 @@ s \le U_A(v) = \frac{\Delta}{v^T \left((u' I - A)^{-2} - \Delta (u' I - A)^{-1}\
 <section id="experimental-details" class="level3">
 <h3 class="anchored" data-anchor-id="experimental-details">Experimental Details</h3>
 <p>We implemented the algorithm in Python and tested it on a set of graphs. Our package is available <a href="https://github.com/HamidrezaKmK/twice-ramanujan-sparsifiers">here</a> and <a href="#fig-barbell">Figure&nbsp;3</a> demonstrates the results of the algorithm on a barbell graph.</p>
-<div class="cell" data-execution_count="3">
+<div id="fig-barbell" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preliminariy steps to include the package</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>sys.path.append(<span class="st">'..'</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># importing the package</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.TwiceRamanujan <span class="im">import</span> TwiceRamanujan</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># get the laplacian of a barbell graph</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>g<span class="op">=</span>nx.barbell_graph(<span class="dv">5</span>,<span class="dv">0</span>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> <span class="dv">2</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>eps <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> math.sqrt(d) <span class="op">/</span> (d <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># setup a twice-Ramanujan solver on the graph with d = 2</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>tr <span class="op">=</span> TwiceRamanujan(g, d<span class="op">=</span><span class="dv">2</span>, verbose<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>sparsified_laplacian <span class="op">=</span> tr.sparsify()</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># draw both graphs</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>tr.juxtapose()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>sys.path.append(<span class="st">'..'</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># importing the package</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.TwiceRamanujan <span class="im">import</span> TwiceRamanujan</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># get the laplacian of a barbell graph</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>graphs <span class="op">=</span> [nx.barbell_graph(<span class="dv">5</span>,<span class="dv">0</span>), nx.complete_graph(<span class="dv">7</span>)]</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> g, d <span class="kw">in</span> <span class="bu">zip</span>(graphs, ds):</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># calculate epsilon according to d</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  eps <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> math.sqrt(d) <span class="op">/</span> (d <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># setup a twice-Ramanujan solver on the graph with d = 2</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  tr <span class="op">=</span> TwiceRamanujan(g, d<span class="op">=</span>d, verbose<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  sparsified_laplacian <span class="op">=</span> tr.sparsify()</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># draw both graphs</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  tr.juxtapose()</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># verify</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  tr.verify(eps<span class="op">=</span>eps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<div id="fig-barbell" class="quarto-figure quarto-figure-center anchored">
+<div id="fig-barbell-1" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
-<p><img src="index_files/figure-html/fig-barbell-output-1.png" width="540" height="389" class="figure-img"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;3: The Twice-Ramanujan sparsifier in action, sparsifiying the barbel graph, edges with more strength correspond to larger weights.</figcaption><p></p>
+<p><img src="index_files/figure-html/fig-barbell-output-1.png" data-ref-parent="fig-barbell" width="540" height="389" class="figure-img"></p>
+<p></p><figcaption class="figure-caption">(a) Checking the algorithm on a barbell graph.</figcaption><p></p>
 </figure>
 </div>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code>eps = 2sqrt(d)/(d+1) = 0.9428
+LHS (1 - eps) * L_G &lt;= L_H : we check the minimum eigenvalue of the difference:
+Min eigenvalue of [L_H - (1 - eps) L_G] = 0.00 &gt;= 0
+RHS L_H &lt;= (1 + eps) * L_G : we check the minimum eigenvalue of the difference:
+Min eigenvalue of [(1 + eps) L_G - L_H] = 0.00 &gt;= 0</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-barbell-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="index_files/figure-html/fig-barbell-output-3.png" data-ref-parent="fig-barbell" width="540" height="389" class="figure-img"></p>
+<p></p><figcaption class="figure-caption">(b) Checking the algorithm on a complete graph.</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>eps = 2sqrt(d)/(d+1) = 0.8660
+LHS (1 - eps) * L_G &lt;= L_H : we check the minimum eigenvalue of the difference:
+Min eigenvalue of [L_H - (1 - eps) L_G] = -0.00 &gt;= 0
+RHS L_H &lt;= (1 + eps) * L_G : we check the minimum eigenvalue of the difference:
+Min eigenvalue of [(1 + eps) L_G - L_H] = 0.00 &gt;= 0</code></pre>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3: The Twice-Ramanujan sparsifier in action edges with more strength correspond to larger weights.</figcaption><p></p>
+</figure>
 </div>
 <p>There were some subtleties in the implementation when numerical issues were encountered. For example, in the algorithm, we need to compute the inverse of <span class="math inline">\(uI - A^{(i)}\)</span> and <span class="math inline">\(A^{(i)} - l I\)</span> for the upper and lower bound values. This introduced a lot of accuracy issues, to circumvent this, we also implemented a binary search-based implementation to find the upper and lower bound for each vector <span class="math inline">\(v_i\)</span>; this turned out to be far superior although it impeded the runtime. You can simply trigger this mode by setting <code>fast=True</code> in the constructor of <code>TwiceRamanujan</code> class.</p>
 </section>
@@ -617,15 +651,87 @@ s \le U_A(v) = \frac{\Delta}{v^T \left((u' I - A)^{-2} - \Delta (u' I - A)^{-1}\
 <h2 class="anchored" data-anchor-id="sparsification-of-complete-graphs">Sparsification of Complete Graphs</h2>
 <section id="expander-graphs" class="level3">
 <h3 class="anchored" data-anchor-id="expander-graphs">Expander Graphs</h3>
-<p>– TODO: recap of expanders</p>
-<p>– TODO: expander mixing lemma</p>
+<p>The expander graph based on literary definition, are the graph have high connectivity or in other words, from every subset, the graph keeps on expanding.In many application like connected computing elements or communication networks,such highly connected components are required but it is always desirable that such connectedness is achieved with sparse constructions. So for example, the complete graph has great expansion, but lacks the sparsity. So when strictly defined, the expanders are the family of the graphs which keeps on expanding with high connectivity but with sparse number of edges. – TODO: recap of expanders There are different definitions which uses different parameters for quantifying expansion</p>
+<p>A. Vertex Expansion- It uses the baselines concept that every vertex is has high number of neighbors and quantifiable parameter is defined on the vertex set, having least value.</p>
+<p>B. Edge Expansion - It measures the connectivity in terms of edges such that number of edges crossing the vertex sets are high when compared with edges internal to both edges. Like Vertex expansion, the quantification is done based on the set having minimum value of measure.</p>
+<p>C. Spectral Expansion- It defined on concept of random walks, which will converge faster if the graph is highly connected. Specifically it is defined in terms of adjacency matrix, where the - expander is defined as the one where are the all eigen values except for the largest are bounded <span class="math display">\[
+-\lambda \leq \underset{i\neq 1}{\lambda_i} \leq \lambda
+\]</span></p>
+</section>
+<section id="expander-mixing-lemma" class="level3">
+<h3 class="anchored" data-anchor-id="expander-mixing-lemma">Expander Mixing Lemma</h3>
+<p>The expander mixing lemma suggest that the edges are evenly distributed across edges. In particular, it is associated with quasirandomness which states that edges going between every two sets S,T are closure to the average expected value. <span class="math display">\[
+  |E(S,T)-\frac{d|S||T|}{n}|\leq \lambda \sqrt{|d||n|}
+\]</span></p>
 </section>
 <section id="ramanujan-bounds" class="level3">
 <h3 class="anchored" data-anchor-id="ramanujan-bounds">Ramanujan Bounds</h3>
+<p>As seen in the expander mixing lemma, the lower the value of <span class="math inline">\(\lambda\)</span>, the cross edge weight more close to the average, which means edges are uniformly distributed. A bound known as alan-bopanna, states lower limit for second-eigenvalue of d-regular graph G_n.&nbsp;The bound is as given below <span class="math display">\[
+    \lambda \geq 2\sqrt{d-1} − o(1)\:\text{ As n-&gt;} \infty
+\]</span> And a connected d-regular graph is Ramanujan graph. <span class="math display">\[
+    \lambda \leq 2\sqrt{d-1} \
+\]</span> So ramanujan graph will be having lowest value for second largest eigenvalue. As shown in expander mixing lemma, the lower the value of second largest eigenvalue the more is uniform distribution of edges. So ramanujan graph will be best known expander. Thus as known as the d-regular expanders can approximate the complete graphs, the ramanujan graphs will be best sparsifiers as well.</p>
 </section>
 <section id="the-twice-ramanujan-sparsifier" class="level3">
 <h3 class="anchored" data-anchor-id="the-twice-ramanujan-sparsifier">The Twice Ramanujan Sparsifier</h3>
-<p>– TODO: illustration of what happens in the algorithm iteratively on a complete graph.</p>
+<p>The twice ramanujan sparsifier can approximate the complete graph with weaker but similar bound. First since the graph is non-regular, it will be proven that the graph has an approximate mixing lemma which describes edge distribution ::: {#Expander Mixing Property} Let <span class="math inline">\(L_h(V,E,w)\)</span> be a graph that <span class="math inline">\((1+\epsilon)\)</span> approximates the complete graph <span class="math inline">\(L_g\)</span> then for every pair of disjoint sets S and T, <span class="math display">\[
+  |E(S,T)-(1+\epsilon/2)|S||T||\leq n(\epsilon/2) \sqrt{|d||n|}
+\]</span> :::</p>
+<div class="Proof">
+<p>Thrugh the definition we have <span class="math display">\[
+  -\frac{\epsilon}{2} L_G \preceq L_H-(1+\epsilon/2)L_G \preceq \frac{\epsilon}{2} L_G
+\]</span></p>
+<p>So it is possible to write it as <span class="math display">\[
+  L_H=(1+\epsilon/2)L_G+X_M
+\]</span> where <span class="math inline">\(X_M\)</span> is calculated based on the concept of norm with it having max norm as <span class="math inline">\(\frac{\epsilon}{2} ||L_G|| \leq n\epsilon/2\)</span> Now consider x,y as characterstic vectos of set S,T respectively. As we know <span class="math inline">\(-E(S,T) = x^TL_Hy\)</span> we will get the weight crossing the two sets. And we consider with complete graph, the weight is uniformly distributed <span class="math display">\[x^TL_Gy= -|S||T|\]</span> Substituting back <span class="math display">\[x^TL_Hy = (1+\frac{\epsilon}{2}x^TL_Gy+x^TX_my)\]</span> <span class="math display">\[x^TL_Hy = (1+\frac{\epsilon}{2}|S||T|+x^TX_my)\]</span> <span class="math display">\[-(E(S,T) -(1+\frac{\epsilon}{2}|S||T|)= x^TX_my)\]</span> Taking modulus on both sides <span class="math display">\[|E(S,T) -(1+\frac{\epsilon}{2})|S||T||= |x^TX_my|\]</span> Consider right side and apply cauchy-schwarz inequality <span class="math display">\[|x^TX_my|\leq||X_m||||x||||y||\leq n\frac{\epsilon}{2}\sqrt{|S||T|}\]</span> Substituting back <span class="math display">\[|E(S,T) -(1+\frac{\epsilon}{2})| \leq n\frac{\epsilon}{2}\sqrt{|S||T|}\]</span></p>
+<p>So the final aspect is the bound, which as stated earlier similar to ramanujan graph</p>
+</div>
+<p>::: {.Bound} If G represents complete graph and H be a weighted graph with same number of vertex with one vertex with degree d. If H is a sparsifier for the graph and approximates the complete graph with <span class="math display">\[L_G \preceq L_H \preceq \kappa L_G\]</span> then <span class="math display">\[
+\kappa \geq 1+2/\sqrt(d)-O(\sqrt(d)/n)
+\]</span></p>
+<p>:::proof The key aspect of the proof is around the fact that if we consider the rayleigh coefficient ratio of <span class="math inline">\(L_H\)</span> for two different vectors. It can be at max <span class="math inline">\(\kappa\)</span> due to sparsifier definition.</p>
+<p>Now for the construction,consider the d-degree vertex, be <span class="math inline">\(v_0\)</span> and its neighbours are <span class="math inline">\(v_1 ....v_n\)</span>. Now let weight of the edge connecting that neighbor to the <span class="math inline">\(v_0\)</span> be <span class="math inline">\(w_i\)</span> and weight to all the rest vertices excluding <span class="math inline">\(v_0\)</span> neighbors be <span class="math inline">\(\delta_i\)</span>.</p>
+<p>So if we define the characteristivectors</p>
+<p><span class="math display">\[ x(v_i)=\begin {cases}
+      1 &amp; v_i\in v_0 \\
+      \frac{1}{\sqrt{d}} &amp; v_i\in {v_1,...v_d} \\
+      0 &amp; v_i\notin {v_0,v_1...v_d}
+   \end{cases}
+\]</span></p>
+<p><span class="math display">\[ y(v_i)=\begin {cases}
+      1 &amp; v_i\in v_0 \\
+      -\frac{1}{\sqrt{d}} &amp; v_i\in {v_1,...v_d} \\
+      0 &amp; v_i\notin {v_0,v_1...v_d}
+   \end{cases}
+\]</span> Now taking quadratic forms with respect to these and using edge definition of laplacian <span class="math display">\[
+x^TL_Hx = \sum^{d}_{i=1}w_i(1-1/\sqrt(d))^2+\sum^d_{i=1}\delta_i(1/\sqrt(d)-0)^2
+\]</span> <span class="math display">\[
+= \sum^{d}_{i=1}w_i-\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}-2\sum^d_{i=1}\frac{w_i}{\sqrt{d}}
+\]</span></p>
+<p>Similarly for y <span class="math display">\[
+y^TL_Hy = \sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}+2\sum^d_{i=1}\frac{w_i}{\sqrt{d}}
+\]</span> Now taking ratio <span class="math display">\[\frac{y^TL_Hy}{x^TL_Hx}=\frac{1+\frac{1}{\sqrt{d}}\frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}}{1-\frac{1}{\sqrt{d}}\frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}}\]</span></p>
+<p>Now consider the lowean bound L_H with respect. If we consider a vertex and its characteristic vector with respect to its neigbours. The quadratic form, which will be weighted degree of the graph, will be bounded between n <span class="math inline">\(n\kappa\)</span>. So applying <span class="math display">\[
+\frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}= \frac{2}{1+\frac{\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}{\sum^d_{i=1}w_i}} \geq \frac{2}{1+\kappa}
+\]</span> thus <span class="math display">\[\frac{y^TL_Hy}{x^TL_Hx}\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}
+\]</span> Since quadratic form for L_H, lowest possible value n and highest possible value <span class="math inline">\(n\kappa\)</span> is only true foor vecotr orthogonal to all single constant vector. So transforming variables <span class="math display">\[
+||x^*|| = ||x||^2-(&lt;x,1/\sqrt{n}&gt;)^2 = 2+\frac{(1+\sqrt{d})^2}{n}
+\]</span> <span class="math display">\[
+||x^*|| = ||x||^2-(&lt;x,1/\sqrt{n}&gt;)^2 = 2+\frac{(1-\sqrt{d})^2}{n}
+\]</span> <span class="math display">\[
+||y^*|| = ||y||^2-(&lt;y,1/\sqrt{n}&gt;)^2 = 2-\frac{(1-\sqrt{d})^2}{n}
+\]</span> <span class="math display">\[
+taking ratio
+\frac{||x^*||}{||y^*||} = 1- \frac{4\sqrt{d}}{2-\frac{(1-\sqrt{d})^2}{n}}
+\]</span> <span class="math display">\[
+\frac{||x^*||}{||y^*||} = 1- O(\frac{\sqrt{d}}{n})
+\]</span> Changing variables for quadratic form ratio</p>
+<p><span class="math display">\[\frac{y^TL_Hy}{x^TL_Hx}\frac{||x^*||}{||y^*||}\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}(1- O(\frac{\sqrt{d}}{n}))
+\]</span> maximum value for left hand side due to lowean bound is <span class="math inline">\(\kappa\)</span> <span class="math display">\[\kappa\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}(1- O(\frac{\sqrt{d}}{n}))
+\]</span> <span class="math display">\[\frac{y^TL_Hy}{x^TL_Hx}\frac{||x^*||}{||y^*||}\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}(1- O(\frac{\sqrt{d}}{n}))
+\]</span> which finally transforms to <span class="math display">\[
+\kappa \geq 1+2/\sqrt(d)-O(\sqrt(d)/n)
+\]</span></p>
 </section>
 <section id="references" class="level3">
 <h3 class="anchored" data-anchor-id="references">References</h3>

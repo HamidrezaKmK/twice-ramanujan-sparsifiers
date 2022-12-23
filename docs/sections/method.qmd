@@ -337,27 +337,38 @@ We implemented the algorithm in Python and tested it on a set of graphs. Our pac
 
 ```{python}
 #| label: fig-barbell
-#| fig-cap: "The Twice-Ramanujan sparsifier in action, sparsifiying the barbel graph, edges with more strength correspond to larger weights."
-
+#| fig-cap: "The Twice-Ramanujan sparsifier in action edges with more strength correspond to larger weights."
+#| fig-subcap: 
+#|  - "Checking the algorithm on a barbell graph."
+#|  - "Checking the algorithm on a complete graph."
 
 # preliminariy steps to include the package
 import sys
 import math
+import networkx as nx
 sys.path.append('..')
 
 # importing the package
 from src.TwiceRamanujan import TwiceRamanujan
 
 # get the laplacian of a barbell graph
-g=nx.barbell_graph(5,0)
-d = 2
-eps = 2 * math.sqrt(d) / (d + 1)
-# setup a twice-Ramanujan solver on the graph with d = 2
-tr = TwiceRamanujan(g, d=2, verbose=1)
-sparsified_laplacian = tr.sparsify()
+graphs = [nx.barbell_graph(5,0), nx.complete_graph(7)]
+ds = [2, 3]
 
-# draw both graphs
-tr.juxtapose()
+for g, d in zip(graphs, ds):
+  
+  # calculate epsilon according to d
+  eps = 2 * math.sqrt(d) / (d + 1)
+
+  # setup a twice-Ramanujan solver on the graph with d = 2
+  tr = TwiceRamanujan(g, d=d, verbose=1)
+  sparsified_laplacian = tr.sparsify()
+
+  # draw both graphs
+  tr.juxtapose()
+
+  # verify
+  tr.verify(eps=eps)
 ```
 
 There were some subtleties in the implementation when numerical issues were encountered. For example, in the algorithm, we need to compute the inverse of $uI - A^{(i)}$ and $A^{(i)} - l I$ for the upper and lower bound values. This introduced a lot of accuracy issues, to circumvent this, we also implemented a binary search-based implementation to find the upper and lower bound for each vector $v_i$; this turned out to be far superior although it impeded the runtime. You can simply trigger this mode by setting `fast=True` in the constructor of `TwiceRamanujan` class.
