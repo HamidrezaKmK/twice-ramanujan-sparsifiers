@@ -1,9 +1,9 @@
 
-Here we will cover some preliminaries on spectral sparsification and then we will discuss the effective resistance-based algorithm for spectral sparsification. We will also discuss an important reduction to the matrix problem that was first formalized in [@batson2009twice] which lays the groundwork for the final algorithm.
+Here we will cover some preliminaries on spectral sparsification and then we will discuss the effective resistance-based algorithm for spectral sparsification. We will also discuss an important reduction to the matrix problem which lays the groundwork for the final algorithm.
 
 ### Spectral Sparsification
 
-Before everything, we should define what a spectral sparsifier is. A spectral sparsifier is a sparse graph that approximates the Laplacian of a graph with high accuracy. In other words, a sparsifier is a graph that has a lot of the same properties as the original graph.
+Before everything, we should define what a spectral sparsifier is. A spectral sparsifier is a sparse graph that approximates the Laplacian of a graph with high accuracy. In other words, a sparsifier is a graph that has a lot of the same properties as the original graph; formally,
 
 ::: {#def-spectral-sparsification}
 A $(k, \epsilon)$-spectral sparsifier of a graph $G = (V, E, w)$ is a graph $H$ with $k$ edges such that,
@@ -17,10 +17,10 @@ where $L_G$ is the Laplacian of $G$ and $L_H$ is the Laplacian of $H$.
 Here, we will present an analog problem for the sparsification of matrices that is tightly connected to the spectral sparsification problem. The problem is as follows:
 
 ::: {#def-matrix-approximation}
-**$(k, \epsilon)$-approximation of matrices** Given a set of $m$ vectors $v_1, \ldots, v_m \in \mathbb{R}^n$ if $A = \sum_{i=1}^m v_iv_i^T$ is a positive semi-definite matrix, then we intend to find a subset of vectors $\mathcal{S} \subseteq \{1, \ldots, m\}$ of size $k$ and a set of coefficients $s_i \in \mathbb{R}^+$ such that $\hat{A} = \sum_{i \in \mathcal{S}} s_i v_i v_i^T \approx_\epsilon A$.
+**$(k, \epsilon)$-approximation of matrices** Given a set of $m$ vectors $v_1, \ldots, v_m \in \mathbb{R}^n$ if $A = \sum_{i=1}^m v_iv_i^T$ is a positive semi-definite matrix, then we intend to find a subset of vectors $\mathcal{S} \subseteq \{1, \ldots, m\}$ of size $k$ and a set of coefficients $s_i \in \mathbb{R}^+$ such that $\hat{A} = \sum_{i \in \mathcal{S}} s_i \cdot v_i v_i^T$ and $A \approx_\epsilon \hat{A}$.
 :::
 
-Now we will show that one can solve the $(k, \epsilon)$ problem in @def-matrix-approximation then it can plug into the graph sparsification problem and obtain a $(k, \epsilon)$-spectral sparsifier. To do so, observe that if we set $A = L_G$ and $v_{ab} = \sqrt{w_G(a,b)} (\chi_a - \chi_b)$ and $s_{ab} = \frac{w_H(a,b)}{w_G(a,b)}$, then the problem in @def-matrix-approximation is equivalent to the spectral sparsification problem:
+Now we will show that one can solve the $(k, \epsilon)$ problem in @def-matrix-approximation then plug it into the graph sparsification problem and obtain a $(k, \epsilon)$-spectral sparsifier. To do so, observe that if we set $A = L_G$ and $v_{ab} = \sqrt{w_G(a,b)} (\chi_a - \chi_b)$ and $s_{ab} = \frac{w_H(a,b)}{w_G(a,b)}$, then the problem in @def-matrix-approximation is equivalent to the spectral sparsification problem:
 
 \begin{align*}
 A = L_G &= \sum_{(a,b) \in E(G)} w_G(a,b) L_{ab} \\
@@ -33,19 +33,21 @@ A = L_G &= \sum_{(a,b) \in E(G)} w_G(a,b) L_{ab} \\
 
 ### Sampling-based Sparsification
 
-As alluded to previously, the problem of spectral sparsification can be approached from an edge-sampling perspective. In particular, one can assign importance weights to each edge and then come up with a sampling scheme that samples edges according to their importance. For example, an edge that is crucial for the connectivity of the graph has high importance for cut-sparsifiers or spectral sparsifiers. To that end, a set of edges can be independently sampled according to this scheme and after sampling each edge the graph becomes more and more similar to the original graph. However, since this sampling is done according to the measure of importance, even after sampling a small number of edges, the graph becomes a good approximation of the original graph.
+As alluded to previously, the problem of spectral sparsification can be approached from an edge-sampling perspective. In particular, one can assign importance weights to each edge and then come up with a sampling scheme that samples edges according to their importance. For example, an edge that is crucial for the connectivity of the graph has high importance for spectral sparsifiers. To that end, a set of edges can be independently sampled according to this scheme and after sampling each edge the graph becomes more and more similar to the original one. However, since this sampling is done according to the measure of importance, even after sampling a small number of edges, the graph always tends to be a good approximation of the original graph.
 
-One can also formulate the same thing for the matrix approximation problem. Assume that for each vector $i$, we have a corresponding matrix $X_i = s_i v_i v_i^T$ which will be picked with probability $p_i$ and we will consider $\hat{A} = \sum_{i \in \mathcal{S}} X_i$ where $\mathcal{S}$ is the set of indices of the sampled vectors. One can bound the number of sampled vectors by coming up with good probabilities $p_i$ such that $\sum p_i$ is bounded by $k$ and can also bound the error of the approximation by using matrix concentration bounds. However, these algorithms tend to have the following problems:
+One can also formulate the same thing for the matrix approximation problem. Assume that for each vector $i$, we have a corresponding matrix $X_i = s_i v_i v_i^T$ which will be picked with probability $p_i$ and we will consider $\hat{A} = \sum_{i \in \mathcal{S}} X_i$ where $\mathcal{S}$ is the set of indices of the sampled vectors. This directly entails the following:
+$$E[\hat{A}] = \sum_{i=1}^m p_i X_i$$
+One can bound the number of sampled vectors by coming up with good probabilities $p_i$ such that $E[|\mathcal{S}|] = \sum_{i=1}^m p_i$ is bounded. Bounding the error of the approximation is typically done using matrix concentration bounds. However, these algorithms tend to have the following problems:
 
 1. The algorithm is not deterministic meaning that there is a very low chance of producing a large set $\mathcal{S}$.
 2. The algorithm is not deterministic meaning that there is a very low chance of producing an approximate $\hat{A}$ which is not close to $A$.
-3. Because these algorithms rely on exponential concentration bounds, typically they require to sample $\mathcal{O}(n \cdot polylog(n))$ vectors to achieve a good approximation.
+3. Because these algorithms rely on exponential concentration bounds, typically they require to sample $\mathcal{O}(n \cdot polylog(n))$ vectors to achieve a good approximation -- this is the greatest problem of these algorithms.
 
-Although flawed, these solutions are easy and using this idea, a set of sampling techniques have been proposed to tackle the problem of sparsification with the most famous among them being the **effective-resistance** based sparsifiers [@spielman2008graph]. We will briefly cover the main idea and intuition behind this and redirect the reader to other resources for further detailed reading.
+Although flawed, these solutions are easy to use and a set of sampling techniques have been proposed to tackle sparsification with the most famous among them being the **effective-resistance** based sparsifiers [@spielman2008graph]. We will briefly cover the main idea and intuition behind this and redirect the reader to other resources for further detailed reading.
 
 The effective resistance between two nodes $a$ and $b$ is the equivalent resistance if we assume that the rest of the nodes are harmonic and only one external current is given to $a$ and one external current is taken from $b$; then, the measured voltage difference between these two nodes will denote the effective resistance which can be written as $(\chi_a - \chi_b)^T L^+_G (\chi_a - \chi_b)$ using Laplacians. Moreover, effective resistances have a combinatorial interpretation as well. If we assume we sample spanning trees proportional to their weight products, then the effective resistance between two nodes is proportional to the probability of the edge between those two nodes appearing. This means that a crucial edge in the connectivity, will have a high probability of appearing in the sampled spanning trees and thus will have a high effective resistance; that said, this will yield a high importance weight for that edge and thus it will be sampled more often:
 
-**Effective-resistance based sparsifier**   For each edge $(a, b) \in E$, sample $(a,b)$ with probability $p(a,b) = \min\left(1, C\cdot (\log n) \epsilon^{-2} w(a,b) R_{eff}(a, b)\right)$. Where $R_{eff}(a, b)$ is the effective resistance between $a$ and $b$. Using Rudelson concentration lemma [@rudelson1999random], [@spielman2008graph] shows that for a certain constant $C$ after picking $\mathcal{O}(n\log n /\epsilon)$ edges the resulting graph is a $\epsilon$-spectral sparsifier with high probability.
+**Effective-resistance based sparsifier**   For each edge $(a, b) \in E$, sample $(a,b)$ with probability $p(a,b) = \min\left(1, C \cdot (\log n) \epsilon^{-2} w(a,b) R_{eff}(a, b)\right)$. Where $R_{eff}(a, b)$ is the effective resistance between $a$ and $b$. Using Rudelson concentration lemma [@rudelson1999random], [@spielman2008graph] shows that for a certain constant $C \approx 4$ after picking $\mathcal{O}(n\log n /\epsilon)$ edges the resulting graph is a $\epsilon$-spectral sparsifier with high probability.
 
 <!-- To show that, we use the following concentration-bound theorem:
 

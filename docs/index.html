@@ -120,10 +120,42 @@ div.csl-indent {
 
 </head>
 
-<body class="fullcontent">
+<body>
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Overview</h2>
+   
+  <ul>
+  <li><a href="#recap-and-preliminaries" id="toc-recap-and-preliminaries" class="nav-link active" data-scroll-target="#recap-and-preliminaries">Recap and Preliminaries</a>
+  <ul class="collapse">
+  <li><a href="#spectral-sparsification" id="toc-spectral-sparsification" class="nav-link" data-scroll-target="#spectral-sparsification">Spectral Sparsification</a></li>
+  <li><a href="#reduction-to-the-matrix-problem" id="toc-reduction-to-the-matrix-problem" class="nav-link" data-scroll-target="#reduction-to-the-matrix-problem">Reduction to the Matrix Problem</a></li>
+  <li><a href="#sampling-based-sparsification" id="toc-sampling-based-sparsification" class="nav-link" data-scroll-target="#sampling-based-sparsification">Sampling-based Sparsification</a></li>
+  </ul></li>
+  <li><a href="#main-method" id="toc-main-method" class="nav-link" data-scroll-target="#main-method">Main Method</a>
+  <ul class="collapse">
+  <li><a href="#geometric-interpretation" id="toc-geometric-interpretation" class="nav-link" data-scroll-target="#geometric-interpretation">Geometric interpretation</a></li>
+  </ul></li>
+  <li><a href="#physical-view-and-the-expected-behavior" id="toc-physical-view-and-the-expected-behavior" class="nav-link" data-scroll-target="#physical-view-and-the-expected-behavior">Physical View and the Expected behavior</a>
+  <ul class="collapse">
+  <li><a href="#potential-functions" id="toc-potential-functions" class="nav-link" data-scroll-target="#potential-functions">Potential Functions</a></li>
+  <li><a href="#the-existence-of-a-good-vector" id="toc-the-existence-of-a-good-vector" class="nav-link" data-scroll-target="#the-existence-of-a-good-vector">The Existence of a good Vector</a></li>
+  <li><a href="#the-deterministic-algorithm" id="toc-the-deterministic-algorithm" class="nav-link" data-scroll-target="#the-deterministic-algorithm">The Deterministic Algorithm</a></li>
+  <li><a href="#experimental-details" id="toc-experimental-details" class="nav-link" data-scroll-target="#experimental-details">Experimental Details</a></li>
+  </ul></li>
+  <li><a href="#sparsification-of-complete-graphs" id="toc-sparsification-of-complete-graphs" class="nav-link" data-scroll-target="#sparsification-of-complete-graphs">Sparsification of Complete Graphs</a>
+  <ul class="collapse">
+  <li><a href="#expander-graphs" id="toc-expander-graphs" class="nav-link" data-scroll-target="#expander-graphs">Expander Graphs</a></li>
+  <li><a href="#expander-mixing-lemma" id="toc-expander-mixing-lemma" class="nav-link" data-scroll-target="#expander-mixing-lemma">Expander Mixing Lemma</a></li>
+  <li><a href="#ramanujan-bounds" id="toc-ramanujan-bounds" class="nav-link" data-scroll-target="#ramanujan-bounds">Ramanujan Bounds</a></li>
+  <li><a href="#the-twice-ramanujan-sparsifier" id="toc-the-twice-ramanujan-sparsifier" class="nav-link" data-scroll-target="#the-twice-ramanujan-sparsifier">The Twice Ramanujan Sparsifier</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -150,7 +182,7 @@ div.csl-indent {
 </header>
 
 <p>For any graph <span class="math inline">\(G\)</span> a sparsifier <span class="math inline">\(H\)</span> is a graph with far fewer edges that is similar to <span class="math inline">\(G\)</span> in some useful way. While <span class="math inline">\(H\)</span> is much easier to do computation on, it holds the same properties as <span class="math inline">\(G\)</span>, and therefore, it is a reliable way of doing approximate computation on <span class="math inline">\(G\)</span>. For example, if we are dealing with path-finding problems on a dense large graph <span class="math inline">\(G\)</span>, the set of sparsifiers used in <span class="citation" data-cites="chew1989there">(<a href="#ref-chew1989there" role="doc-biblioref">Chew 1989</a>)</span> can be used because they are guaranteed to have almost the same shortest path properties as <span class="math inline">\(G\)</span>.</p>
-<p>For illustration, consider the following graph <span class="math inline">\(G\)</span> with four vertices. The new graph obtained has far fewer edges but has the same set of shortest paths between any pair of vertices. This is a simple sparsifier that can be used for shortest path-finding problems and can be obtained via removing trivial edges <span class="math inline">\(w(u,v)\)</span> such that the shortest distance between <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> is smaller than <span class="math inline">\(w(u,v)\)</span>.</p>
+<p>For illustration, consider the following graph <span class="math inline">\(G\)</span> with four vertices. The new graph obtained has far fewer edges but has the same set of shortest paths between any pair of vertices. This is a simple sparsifier that can be used for shortest path-finding problems and can be obtained via removing trivial edges <span class="math inline">\(w(u,v)\)</span> such that the shortest distance between <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> is smaller than or equal to <span class="math inline">\(w(u,v)\)</span>.</p>
 <div>
 <details>
 <summary>Code</summary>
@@ -225,15 +257,16 @@ div.csl-indent {
 </figure>
 </div>
 </div>
-<p>On the other hand, <span class="citation" data-cites="benczur1996approximating">(<a href="#ref-benczur1996approximating" role="doc-biblioref">Benczúr and Karger 1996</a>)</span> for example introduces the cut-sparsifiers which are a class of sparsifiers that have almost identical cut weights for any set <span class="math inline">\(S \subset V\)</span>. In this report, we cover spectral graph sparsifiers which are a certain class of sparsifiers that have a tight connection with expander graphs and can approximate the Laplacian of a graph with high accuracy. Because of the close connection between graph spectral connectivity and edge connectivity introduced by Cheeger <span class="citation" data-cites="cheeger1970lower">(<a href="#ref-cheeger1970lower" role="doc-biblioref">Cheeger 1970</a>)</span> spectral sparsifiers were introduced by <span class="citation" data-cites="spielman2004nearly">(<a href="#ref-spielman2004nearly" role="doc-biblioref">Spielman and Teng 2004</a>)</span> and <span class="citation" data-cites="spielman2011spectral">(<a href="#ref-spielman2011spectral" role="doc-biblioref">Spielman and Teng 2011</a>)</span>. Conventionally, these graphs are constructed using randomized algorithms where we pick a certain edge of an original graph with a probability. For example, if an edge is crucial to the connectivity of our graph, then it has high importance and should be picked with high probability. However, in this report, we will show that we can construct a sparsifier with a deterministic algorithm introduced in <span class="citation" data-cites="batson2009twice">(<a href="#ref-batson2009twice" role="doc-biblioref">Batson, Spielman, and Srivastava 2009</a>)</span> that has a tight connection with the Ramanujan bounds.</p>
-<p>Furthermore, we will cover an important reduction from the graph sparsification problem to a matrix approximation problem which has been further exploder in many follow-up papers <span class="citation" data-cites="tat2015constructing">(<a href="#ref-tat2015constructing" role="doc-biblioref">Tat Lee and Sun 2015</a>)</span> and <span class="citation" data-cites="lee2017sdp">(<a href="#ref-lee2017sdp" role="doc-biblioref">Lee and Sun 2017</a>)</span>. Moreover, this will give us the first deterministic algorithm for obtaining sparsifiers with linear edge count. That said, we have implemented the algorithm in Python and have tested it on a few graphs for illustration purposes.</p>
+<p>On the other hand, <span class="citation" data-cites="benczur1996approximating">(<a href="#ref-benczur1996approximating" role="doc-biblioref">Benczúr and Karger 1996</a>)</span> for example introduces the cut-sparsifiers which are a class of sparsifiers that have almost identical cut weights for any set <span class="math inline">\(S \subset V\)</span> meaning that <span class="math inline">\(E_G(S, \bar{S}) \approx E_H(S, \bar{S})\)</span>. In this write-up, we cover spectral graph sparsifiers which are a certain class of sparsifiers that have a tight connection with expander graphs and can approximate the Laplacian of a graph with high accuracy. These sparsifiers preserve random walk properties as well and can be used as a substitute for original graphs in many applications such as recently in Graph Neural Networks (GNNs) <span class="citation" data-cites="li2020sgcn">(<a href="#ref-li2020sgcn" role="doc-biblioref">Li et al. 2020</a>)</span>.</p>
+<p>Because of the close connection between graph spectral connectivity and edge connectivity introduced by Cheeger <span class="citation" data-cites="cheeger1970lower">(<a href="#ref-cheeger1970lower" role="doc-biblioref">Cheeger 1970</a>)</span>, spectral sparsifiers were introduced by <span class="citation" data-cites="spielman2004nearly">(<a href="#ref-spielman2004nearly" role="doc-biblioref">Spielman and Teng 2004</a>)</span> and <span class="citation" data-cites="spielman2011spectral">(<a href="#ref-spielman2011spectral" role="doc-biblioref">Spielman and Teng 2011</a>)</span> as an important tool. Conventionally, these graphs are constructed using randomized algorithms where we pick a certain edge of an original graph with a probability and sample edges until we obtain a good approximation. For example, if an edge is crucial to the connectivity of our graph, then it has high importance and should be picked with high probability. However, in this write-up, we will show that we can construct a sparsifier with a deterministic algorithm introduced in <span class="citation" data-cites="batson2009twice">(<a href="#ref-batson2009twice" role="doc-biblioref">Batson, Spielman, and Srivastava 2009</a>)</span> that has a tight connection with the Ramanujan bounds.</p>
+<p>Furthermore, we will cover an important reduction from the graph sparsification problem to a matrix approximation problem which has been further exploder in many follow-up papers <span class="citation" data-cites="tat2015constructing">(<a href="#ref-tat2015constructing" role="doc-biblioref">Tat Lee and Sun 2015</a>)</span> and <span class="citation" data-cites="lee2017sdp">(<a href="#ref-lee2017sdp" role="doc-biblioref">Lee and Sun 2017</a>)</span>. Moreover, this will give us the first deterministic algorithm for obtaining sparsifiers with a linear number of edges. That said, we have implemented the algorithm in Python and have tested it on a few graphs for illustration purposes and our package is available in our <a href="https://github.com/HamidrezaKmK/twice-ramanujan-sparsifiers">Github repository</a>.</p>
 <p>Finally, we will focus our attention on running the algorithm on complete graphs. The sparsifier obtained from the complete graph will have high connectivity which resembles similarities with the expander graphs. Although the graph obtained from the algorithm is not regular, we will show that it has a lot of expander-like properties and we will draw a close connection with Ramanujan graphs.</p>
 <section id="recap-and-preliminaries" class="level2">
 <h2 class="anchored" data-anchor-id="recap-and-preliminaries">Recap and Preliminaries</h2>
-<p>Here we will cover some preliminaries on spectral sparsification and then we will discuss the effective resistance-based algorithm for spectral sparsification. We will also discuss an important reduction to the matrix problem that was first formalized in <span class="citation" data-cites="batson2009twice">(<a href="#ref-batson2009twice" role="doc-biblioref">Batson, Spielman, and Srivastava 2009</a>)</span> which lays the groundwork for the final algorithm.</p>
+<p>Here we will cover some preliminaries on spectral sparsification and then we will discuss the effective resistance-based algorithm for spectral sparsification. We will also discuss an important reduction to the matrix problem which lays the groundwork for the final algorithm.</p>
 <section id="spectral-sparsification" class="level3">
 <h3 class="anchored" data-anchor-id="spectral-sparsification">Spectral Sparsification</h3>
-<p>Before everything, we should define what a spectral sparsifier is. A spectral sparsifier is a sparse graph that approximates the Laplacian of a graph with high accuracy. In other words, a sparsifier is a graph that has a lot of the same properties as the original graph.</p>
+<p>Before everything, we should define what a spectral sparsifier is. A spectral sparsifier is a sparse graph that approximates the Laplacian of a graph with high accuracy. In other words, a sparsifier is a graph that has a lot of the same properties as the original graph; formally,</p>
 <div id="def-spectral-sparsification" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 1 </strong></span>A <span class="math inline">\((k, \epsilon)\)</span>-spectral sparsifier of a graph <span class="math inline">\(G = (V, E, w)\)</span> is a graph <span class="math inline">\(H\)</span> with <span class="math inline">\(k\)</span> edges such that, <span class="math display">\[L_G \approx_\epsilon L_H : (1 - \epsilon) L_G \preceq L_H \preceq (1 + \epsilon) L_G\]</span> where <span class="math inline">\(L_G\)</span> is the Laplacian of <span class="math inline">\(G\)</span> and <span class="math inline">\(L_H\)</span> is the Laplacian of <span class="math inline">\(H\)</span>.</p>
 </div>
@@ -242,9 +275,9 @@ div.csl-indent {
 <h3 class="anchored" data-anchor-id="reduction-to-the-matrix-problem">Reduction to the Matrix Problem</h3>
 <p>Here, we will present an analog problem for the sparsification of matrices that is tightly connected to the spectral sparsification problem. The problem is as follows:</p>
 <div id="def-matrix-approximation" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 2 </strong></span><strong><span class="math inline">\((k, \epsilon)\)</span>-approximation of matrices</strong> Given a set of <span class="math inline">\(m\)</span> vectors <span class="math inline">\(v_1, \ldots, v_m \in \mathbb{R}^n\)</span> if <span class="math inline">\(A = \sum_{i=1}^m v_iv_i^T\)</span> is a positive semi-definite matrix, then we intend to find a subset of vectors <span class="math inline">\(\mathcal{S} \subseteq \{1, \ldots, m\}\)</span> of size <span class="math inline">\(k\)</span> and a set of coefficients <span class="math inline">\(s_i \in \mathbb{R}^+\)</span> such that <span class="math inline">\(\hat{A} = \sum_{i \in \mathcal{S}} s_i v_i v_i^T \approx_\epsilon A\)</span>.</p>
+<p><span class="theorem-title"><strong>Definition 2 </strong></span><strong><span class="math inline">\((k, \epsilon)\)</span>-approximation of matrices</strong> Given a set of <span class="math inline">\(m\)</span> vectors <span class="math inline">\(v_1, \ldots, v_m \in \mathbb{R}^n\)</span> if <span class="math inline">\(A = \sum_{i=1}^m v_iv_i^T\)</span> is a positive semi-definite matrix, then we intend to find a subset of vectors <span class="math inline">\(\mathcal{S} \subseteq \{1, \ldots, m\}\)</span> of size <span class="math inline">\(k\)</span> and a set of coefficients <span class="math inline">\(s_i \in \mathbb{R}^+\)</span> such that <span class="math inline">\(\hat{A} = \sum_{i \in \mathcal{S}} s_i \cdot v_i v_i^T\)</span> and <span class="math inline">\(A \approx_\epsilon \hat{A}\)</span>.</p>
 </div>
-<p>Now we will show that one can solve the <span class="math inline">\((k, \epsilon)\)</span> problem in <a href="#def-matrix-approximation">Definition&nbsp;2</a> then it can plug into the graph sparsification problem and obtain a <span class="math inline">\((k, \epsilon)\)</span>-spectral sparsifier. To do so, observe that if we set <span class="math inline">\(A = L_G\)</span> and <span class="math inline">\(v_{ab} = \sqrt{w_G(a,b)} (\chi_a - \chi_b)\)</span> and <span class="math inline">\(s_{ab} = \frac{w_H(a,b)}{w_G(a,b)}\)</span>, then the problem in <a href="#def-matrix-approximation">Definition&nbsp;2</a> is equivalent to the spectral sparsification problem:</p>
+<p>Now we will show that one can solve the <span class="math inline">\((k, \epsilon)\)</span> problem in <a href="#def-matrix-approximation">Definition&nbsp;2</a> then plug it into the graph sparsification problem and obtain a <span class="math inline">\((k, \epsilon)\)</span>-spectral sparsifier. To do so, observe that if we set <span class="math inline">\(A = L_G\)</span> and <span class="math inline">\(v_{ab} = \sqrt{w_G(a,b)} (\chi_a - \chi_b)\)</span> and <span class="math inline">\(s_{ab} = \frac{w_H(a,b)}{w_G(a,b)}\)</span>, then the problem in <a href="#def-matrix-approximation">Definition&nbsp;2</a> is equivalent to the spectral sparsification problem:</p>
 <p><span class="math display">\[\begin{align*}
 A = L_G &amp;= \sum_{(a,b) \in E(G)} w_G(a,b) L_{ab} \\
 &amp;= \sum_{(a,b) \in E(G)} \sqrt{w_G(a,b)}^2 (\chi_a - \chi_b) (\chi_a - \chi_b)^T\\
@@ -256,16 +289,16 @@ A = L_G &amp;= \sum_{(a,b) \in E(G)} w_G(a,b) L_{ab} \\
 </section>
 <section id="sampling-based-sparsification" class="level3">
 <h3 class="anchored" data-anchor-id="sampling-based-sparsification">Sampling-based Sparsification</h3>
-<p>As alluded to previously, the problem of spectral sparsification can be approached from an edge-sampling perspective. In particular, one can assign importance weights to each edge and then come up with a sampling scheme that samples edges according to their importance. For example, an edge that is crucial for the connectivity of the graph has high importance for cut-sparsifiers or spectral sparsifiers. To that end, a set of edges can be independently sampled according to this scheme and after sampling each edge the graph becomes more and more similar to the original graph. However, since this sampling is done according to the measure of importance, even after sampling a small number of edges, the graph becomes a good approximation of the original graph.</p>
-<p>One can also formulate the same thing for the matrix approximation problem. Assume that for each vector <span class="math inline">\(i\)</span>, we have a corresponding matrix <span class="math inline">\(X_i = s_i v_i v_i^T\)</span> which will be picked with probability <span class="math inline">\(p_i\)</span> and we will consider <span class="math inline">\(\hat{A} = \sum_{i \in \mathcal{S}} X_i\)</span> where <span class="math inline">\(\mathcal{S}\)</span> is the set of indices of the sampled vectors. One can bound the number of sampled vectors by coming up with good probabilities <span class="math inline">\(p_i\)</span> such that <span class="math inline">\(\sum p_i\)</span> is bounded by <span class="math inline">\(k\)</span> and can also bound the error of the approximation by using matrix concentration bounds. However, these algorithms tend to have the following problems:</p>
+<p>As alluded to previously, the problem of spectral sparsification can be approached from an edge-sampling perspective. In particular, one can assign importance weights to each edge and then come up with a sampling scheme that samples edges according to their importance. For example, an edge that is crucial for the connectivity of the graph has high importance for spectral sparsifiers. To that end, a set of edges can be independently sampled according to this scheme and after sampling each edge the graph becomes more and more similar to the original one. However, since this sampling is done according to the measure of importance, even after sampling a small number of edges, the graph always tends to be a good approximation of the original graph.</p>
+<p>One can also formulate the same thing for the matrix approximation problem. Assume that for each vector <span class="math inline">\(i\)</span>, we have a corresponding matrix <span class="math inline">\(X_i = s_i v_i v_i^T\)</span> which will be picked with probability <span class="math inline">\(p_i\)</span> and we will consider <span class="math inline">\(\hat{A} = \sum_{i \in \mathcal{S}} X_i\)</span> where <span class="math inline">\(\mathcal{S}\)</span> is the set of indices of the sampled vectors. This directly entails the following: <span class="math display">\[E[\hat{A}] = \sum_{i=1}^m p_i X_i\]</span> One can bound the number of sampled vectors by coming up with good probabilities <span class="math inline">\(p_i\)</span> such that <span class="math inline">\(E[|\mathcal{S}|] = \sum_{i=1}^m p_i\)</span> is bounded. Bounding the error of the approximation is typically done using matrix concentration bounds. However, these algorithms tend to have the following problems:</p>
 <ol type="1">
 <li>The algorithm is not deterministic meaning that there is a very low chance of producing a large set <span class="math inline">\(\mathcal{S}\)</span>.</li>
 <li>The algorithm is not deterministic meaning that there is a very low chance of producing an approximate <span class="math inline">\(\hat{A}\)</span> which is not close to <span class="math inline">\(A\)</span>.</li>
-<li>Because these algorithms rely on exponential concentration bounds, typically they require to sample <span class="math inline">\(\mathcal{O}(n \cdot polylog(n))\)</span> vectors to achieve a good approximation.</li>
+<li>Because these algorithms rely on exponential concentration bounds, typically they require to sample <span class="math inline">\(\mathcal{O}(n \cdot polylog(n))\)</span> vectors to achieve a good approximation – this is the greatest problem of these algorithms.</li>
 </ol>
-<p>Although flawed, these solutions are easy and using this idea, a set of sampling techniques have been proposed to tackle the problem of sparsification with the most famous among them being the <strong>effective-resistance</strong> based sparsifiers <span class="citation" data-cites="spielman2008graph">(<a href="#ref-spielman2008graph" role="doc-biblioref">Spielman and Srivastava 2008</a>)</span>. We will briefly cover the main idea and intuition behind this and redirect the reader to other resources for further detailed reading.</p>
+<p>Although flawed, these solutions are easy to use and a set of sampling techniques have been proposed to tackle sparsification with the most famous among them being the <strong>effective-resistance</strong> based sparsifiers <span class="citation" data-cites="spielman2008graph">(<a href="#ref-spielman2008graph" role="doc-biblioref">Spielman and Srivastava 2008</a>)</span>. We will briefly cover the main idea and intuition behind this and redirect the reader to other resources for further detailed reading.</p>
 <p>The effective resistance between two nodes <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> is the equivalent resistance if we assume that the rest of the nodes are harmonic and only one external current is given to <span class="math inline">\(a\)</span> and one external current is taken from <span class="math inline">\(b\)</span>; then, the measured voltage difference between these two nodes will denote the effective resistance which can be written as <span class="math inline">\((\chi_a - \chi_b)^T L^+_G (\chi_a - \chi_b)\)</span> using Laplacians. Moreover, effective resistances have a combinatorial interpretation as well. If we assume we sample spanning trees proportional to their weight products, then the effective resistance between two nodes is proportional to the probability of the edge between those two nodes appearing. This means that a crucial edge in the connectivity, will have a high probability of appearing in the sampled spanning trees and thus will have a high effective resistance; that said, this will yield a high importance weight for that edge and thus it will be sampled more often:</p>
-<p><strong>Effective-resistance based sparsifier</strong> For each edge <span class="math inline">\((a, b) \in E\)</span>, sample <span class="math inline">\((a,b)\)</span> with probability <span class="math inline">\(p(a,b) = \min\left(1, C\cdot (\log n) \epsilon^{-2} w(a,b) R_{eff}(a, b)\right)\)</span>. Where <span class="math inline">\(R_{eff}(a, b)\)</span> is the effective resistance between <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>. Using Rudelson concentration lemma <span class="citation" data-cites="rudelson1999random">(<a href="#ref-rudelson1999random" role="doc-biblioref">Rudelson 1999</a>)</span>, <span class="citation" data-cites="spielman2008graph">(<a href="#ref-spielman2008graph" role="doc-biblioref">Spielman and Srivastava 2008</a>)</span> shows that for a certain constant <span class="math inline">\(C\)</span> after picking <span class="math inline">\(\mathcal{O}(n\log n /\epsilon)\)</span> edges the resulting graph is a <span class="math inline">\(\epsilon\)</span>-spectral sparsifier with high probability.</p>
+<p><strong>Effective-resistance based sparsifier</strong> For each edge <span class="math inline">\((a, b) \in E\)</span>, sample <span class="math inline">\((a,b)\)</span> with probability <span class="math inline">\(p(a,b) = \min\left(1, C \cdot (\log n) \epsilon^{-2} w(a,b) R_{eff}(a, b)\right)\)</span>. Where <span class="math inline">\(R_{eff}(a, b)\)</span> is the effective resistance between <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>. Using Rudelson concentration lemma <span class="citation" data-cites="rudelson1999random">(<a href="#ref-rudelson1999random" role="doc-biblioref">Rudelson 1999</a>)</span>, <span class="citation" data-cites="spielman2008graph">(<a href="#ref-spielman2008graph" role="doc-biblioref">Spielman and Srivastava 2008</a>)</span> shows that for a certain constant <span class="math inline">\(C \approx 4\)</span> after picking <span class="math inline">\(\mathcal{O}(n\log n /\epsilon)\)</span> edges the resulting graph is a <span class="math inline">\(\epsilon\)</span>-spectral sparsifier with high probability.</p>
 <!-- To show that, we use the following concentration-bound theorem:
 
 ::: {#thm-rudelson}
@@ -306,76 +339,123 @@ Hence, since $\Pi$ has only eigenvalues equal to one or zero, then we can apply 
 ::: -->
 </section>
 </section>
-<section id="method" class="level2">
-<h2 class="anchored" data-anchor-id="method">Method</h2>
-<p>We will now discuss the deterministic algorithm for approximating the matrix <span class="math inline">\(A\)</span>. The algorithm takes an iterative approach and follows <span class="math inline">\(k\)</span> iterations. At each iteration, it will pick a vector <span class="math inline">\(v_i\)</span> which corresponds to an edge and will add <span class="math inline">\(s_i v_i v_i^T\)</span> to the current accumulated matrix. After <span class="math inline">\(k\)</span> iterations it will give a good approximation for the matrix <span class="math inline">\(A\)</span>. But before we present the bulk of the algorithm, let’s start by laying some groundwork by presenting some useful intuitions.</p>
+<section id="main-method" class="level2">
+<h2 class="anchored" data-anchor-id="main-method">Main Method</h2>
+<p>We will now discuss the deterministic algorithm for approximating the matrix <span class="math inline">\(A\)</span>. The algorithm takes an iterative approach and follows <span class="math inline">\(N\)</span> iterations. At each iteration, it will pick a vector <span class="math inline">\(v_i\)</span> which corresponds to an edge and will add <span class="math inline">\(s_i v_i v_i^T\)</span> to the current accumulated matrix. After <span class="math inline">\(k\)</span> iterations it will give a good approximation for the matrix <span class="math inline">\(A\)</span>. But before we present the bulk of the algorithm, let’s start by laying some groundwork and presenting some useful intuitions.</p>
 <section id="geometric-interpretation" class="level3">
 <h3 class="anchored" data-anchor-id="geometric-interpretation">Geometric interpretation</h3>
-<p>Note that for any pair of matrices <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>, having the same null-space we have that <span class="math inline">\(A \succeq B \Longleftrightarrow I \succeq A^{+/2} B A^{+/2}\)</span>. Hence, <span class="math display">\[(1 - \epsilon) A \approx_\epsilon B \Longleftrightarrow \Pi \approx_\epsilon A^{+/2} B A^{+/2}\]</span> where <span class="math inline">\(\Pi = A^{+/2} A A^{+/2}\)</span> is the identity in the subspace orthogonal to the null space of <span class="math inline">\(A\)</span> and is an <em>idempotent</em> matrix. In other words, <span class="math inline">\(\Pi^2 = \Pi\)</span>. Therefore, without loss of generality, we may assume that <span class="math inline">\(A\)</span> in <a href="#def-matrix-approximation">Definition&nbsp;2</a> is an idempotent matrix <span class="math inline">\(\Pi\)</span> via the transformation described where <span class="math inline">\(A\)</span> is replaced by <span class="math inline">\(A^{+/2} A A^{+/2}\)</span> and <span class="math inline">\(v_i = A^{+/2} v_i\)</span> for all <span class="math inline">\(1 \le i \le m\)</span>.</p>
+<p>Note that for any pair of matrices <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>, having the same null-space we have that <span class="math inline">\(A \succeq B \Longleftrightarrow I \succeq A^{+/2} B A^{+/2}\)</span>. Hence, <span class="math display">\[A \approx_\epsilon B \Longleftrightarrow \Pi \approx_\epsilon A^{+/2} B A^{+/2}\]</span> where <span class="math inline">\(\Pi = A^{+/2} A A^{+/2}\)</span> is the identity in the subspace orthogonal to the null space of <span class="math inline">\(A\)</span> and is an <em>idempotent</em> matrix. In other words, <span class="math inline">\(\Pi^2 = \Pi\)</span>. Therefore, without loss of generality, we may assume that <span class="math inline">\(A\)</span> in <a href="#def-matrix-approximation">Definition&nbsp;2</a> is an idempotent matrix <span class="math inline">\(\Pi\)</span> via the transformation described where <span class="math inline">\(A\)</span> is replaced by <span class="math inline">\(A^{+/2} A A^{+/2}\)</span> and <span class="math inline">\(v_i = A^{+/2} v_i\)</span> for all <span class="math inline">\(1 \le i \le m\)</span>.</p>
 <p>With that in mind, thinking about idempotent matrices yields nice intuitions on how to think about the problem geometrically. Furthermore, for any positive semi-definite matrix <span class="math inline">\(M\)</span> we can define an ellipsoid <span class="math inline">\(\{x | x^T M x = 1\}\)</span> and for <span class="math inline">\(M = \Pi\)</span> being an idempotent matrix the ellipsoid corresponds to the sphere in the linearly transformed subspace of <span class="math inline">\(\Pi\)</span>: <span class="math display">\[x^T \Pi x = x^T \Pi \Pi x = ||\Pi x||_2^2 = 1.\]</span></p>
 <p>Therefore, if we consider everything in the mapped subspace, i.e., replacing every vector <span class="math inline">\(x\)</span> with <span class="math inline">\(\Pi x\)</span> automatically, then we want to find a linear combination of their cross product such that the ellipsoid corresponding to that combination approximates a regular spherical shape. In other words, <span class="math display">\[\begin{align*}
-&amp;\hat{A} = \sum s_i v_i v_i^T \approx_\epsilon A \\
-\Longleftrightarrow &amp; ~ \hat{\Pi} = \sum s_i (A^{+/2}) v_i (A^{+/2} v_i)^T  \approx_\epsilon A^{+/2} A A^{+/2} = \Pi\\
+&amp;A \approx_\epsilon \sum s_i v_i v_i^T = \hat{A}  \\
+\Longleftrightarrow &amp; ~ \Pi =  A^{+/2} A A^{+/2} \approx_\epsilon \sum s_i (A^{+/2}) v_i (A^{+/2} v_i)^T = \hat{\Pi}\\
 \Longleftrightarrow &amp; ~ (1 - \epsilon) \Pi \preceq \hat{\Pi} \preceq (1 + \epsilon) \Pi \\
 \Longleftrightarrow &amp; ~ \forall x : (1 - \epsilon) ||\Pi x||_2^2 \le [\Pi x]^T \hat{\Pi} [\Pi x] \le (1 + \epsilon) ||\Pi x||_2^2 \\
 \end{align*}\]</span></p>
-<p>Therefore, the ellipsoid projected using <span class="math inline">\(\Pi\)</span> is sandwiched between two spheres off by <span class="math inline">\(\epsilon\)</span> in their radius. Therefore, the algorithm takes an iterative approach to solve this geometric problem. It first starts of with <span class="math inline">\(\hat{A}^{(0)} = \emptyset\)</span> and then iteratively picks a vector <span class="math inline">\(v_i\)</span> and assigns a weight <span class="math inline">\(s_i\)</span> to it such that the ellipsoid <span class="math inline">\(\hat{A}^{(i)} = \hat{A}^{(i+1)} + s_i v_i v_i^T\)</span> becomes iteratively more like a sphere. To formalize this, the algorithm always bounds the corresponding ellipsoid between two spheres of radius <span class="math inline">\(l^{(i)}\)</span> and <span class="math inline">\(u^{(i)}\)</span>. At the beginning of each iteration, the lower bound <span class="math inline">\(l^{(i)}\)</span> will be increased by some <span class="math inline">\(\delta_l\)</span> and the lower bound <span class="math inline">\(u^{(i)}\)</span> will be increased by some <span class="math inline">\(\delta_u\)</span> and the algorithm will try to find a vector <span class="math inline">\(v_i\)</span> and a weight <span class="math inline">\(s_i\)</span> such that the new ellipsoid <span class="math inline">\(\hat{A}^{(i+1)}\)</span>. Moreover, the key idea here is to cleverly pick <span class="math inline">\(\delta_l\)</span> and <span class="math inline">\(\delta_u\)</span> values such that after <span class="math inline">\(k\)</span> iterations the gap between the two spheres is off by <span class="math inline">\(\epsilon\)</span>. In other words, the following should hold: <span class="math display">\[\frac{u^{(0)} + k \delta_u}{l^{(k)} + k \delta_l} = \frac{u^{(k)}}{l^{(k)}} \le \frac{1 + \epsilon}{1 - \epsilon}.\]</span> This will ensure that the shape of the ellipsoid becomes more and more spherical as the algorithm progresses, and finally, a simple scaling will yield an approximate unit sphere which is what we want.</p>
-<p>For illustration, the following shows the algorithm in action. The algorithm starts with an initial ellipsoid that is not spherical and then iteratively picks a vector <span class="math inline">\(v_i\)</span> and a weight <span class="math inline">\(s_i\)</span> such that it still remains sandwiched between two spheres of radius <span class="math inline">\(l^{(i)}\)</span> and <span class="math inline">\(u^{(i)}\)</span>. Note that in this example <span class="math inline">\(\delta_l\)</span> and <span class="math inline">\(\delta_u\)</span> are equal, therefore, for a large enough <span class="math inline">\(k\)</span> the ellipsoid will become spherical because although the radius is growing the gap remains the same, further limiting the range of the ellipsoid.</p>
-<!-- ![The algorithm in action.](figs/algorithm.gif){fig-alt="The schematic of the algorithm in action."} -->
-<!-- ```{python}
-#| label: fig-ellipsoid
-#| fig-cap: "A dummy algorithm that approximates a unit sphere"
-#| fig-alt: "A dummy algorithm that approximates a unit sphere"
-#| fig-size: 400
-
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
-
-def plot_ellipse(ax, A, color, alpha):
-  w, v = np.linalg.eig(A)
-  w = np.sqrt(w)
-  ell = Ellipse(
-    xy = (0, 0), 
-    width = 2 * w[0], 
-    height = 2 * w[1], 
-    angle = np.rad2deg(np.arccos(v[0, 0])), 
-    color = color, 
-    alpha = alpha
-  )
-  ax.add_artist(ell)
-  ax.set_xlim(-10, 10)
-  ax.set_ylim(-10, 10)
-  ax.set_aspect('equal')
-
-chiz = [[[10, 1], [1, 10]], [[3, -1], [-1, 3]], [[5, 2], [2, 3]]]
-for i, chi in enumerate(chiz):
-  plt.figure(i)
-  plot_ellipse(ax, np.array(chi), 'blue', 0.2)
-  plt.show()
-``` -->
+<p>Therefore, the ellipsoid projected using <span class="math inline">\(\Pi\)</span> is sandwiched between two spheres off by <span class="math inline">\(\epsilon\)</span> in their radius. In turn, the algorithm takes an iterative approach to solve this geometric problem and instead of approximating matrix <span class="math inline">\(A\)</span>, it tries to approximate the matrix <span class="math inline">\(\Pi\)</span> and then obtains <span class="math inline">\(\hat{A}\)</span> by <span class="math inline">\(A^{1/2} \hat{\Pi} A^{1/2}\)</span>. It first starts off with <span class="math inline">\(X^{(0)} = \emptyset\)</span> and then iteratively picks a vector <span class="math inline">\(v_i\)</span> and assigns a weight <span class="math inline">\(s_i\)</span> to it such that the ellipsoid <span class="math inline">\(X^{(i+1)} = X^{(i)} + s_i v_i v_i^T\)</span> becomes iteratively more like a sphere (for example, by pushing on the directions that are more contracted).</p>
+<p>To formalize the algorithm, it always bounds <span class="math inline">\(X^{(i)}\)</span> the corresponding ellipsoid between two spheres of radius <span class="math inline">\(l^{(i)}\)</span> and <span class="math inline">\(u^{(i)}\)</span>. At each iteration, the lower bound <span class="math inline">\(l^{(i)}\)</span> will be increased by some <span class="math inline">\(\delta_l\)</span> and the lower bound <span class="math inline">\(u^{(i)}\)</span> will be increased by some <span class="math inline">\(\delta_u\)</span> and the algorithm will try to find a vector <span class="math inline">\(v_i\)</span> and a weight <span class="math inline">\(s_i\)</span> such that the new ellipsoid <span class="math inline">\(\hat{A}^{(i+1)}\)</span> stays sandwiched between <span class="math inline">\(l^{(i+1)} = l^{(i)} + \delta_l\)</span> and <span class="math inline">\(u^{(i+1)} = u^{(i)} + \delta_u\)</span>. Moreover, a key idea here is to cleverly pick <span class="math inline">\(\delta_l\)</span> and <span class="math inline">\(\delta_u\)</span> values such that after <span class="math inline">\(k\)</span> iterations the gap between the two spheres is close and the ratio of their radius is off by at most <span class="math inline">\(\epsilon\)</span>. In other words, the following should hold: <span class="math display">\[\frac{u^{(0)} + k \delta_u}{l^{(k)} + k \delta_l} = \frac{u^{(k)}}{l^{(k)}} \le \frac{1 + \epsilon}{1 - \epsilon}.\]</span> This will ensure that the shape of the ellipsoid becomes more and more spherical as the algorithm progresses, and finally, a simple scaling on <span class="math inline">\(X^{(N)}\)</span> will yield an approximate unit sphere <span class="math inline">\(\hat{P}\)</span> which approximates <span class="math inline">\(\Pi\)</span>.</p>
+<p>For illustration, <a href="#fig-ellipsoid">Figure&nbsp;2</a> shows the algorithm in action. The algorithm starts with an initial ellipsoid that is not spherical and then iteratively picks a vector <span class="math inline">\(v_i\)</span> and a weight <span class="math inline">\(s_i\)</span> such that it remains sandwiched between the two spheres. Note that in this example <span class="math inline">\(\delta_l\)</span> and <span class="math inline">\(\delta_u\)</span> are equal (but this is not the case for the final algorithm), therefore, for a large enough <span class="math inline">\(k\)</span> the ellipsoid will become more and more spherical because their radius grows while the gap between them remains constant.</p>
+<div class="cell" data-execution_count="2">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Ellipse</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># set a seed for reproducibility</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>random.seed(<span class="dv">42</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># a function to plot an ellipse</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_ellipse(ax, A, color, alpha):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="bu">len</span>(A.shape) <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> np.diag(A)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  w, v <span class="op">=</span> np.linalg.eig(A)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  w <span class="op">=</span> np.sqrt(w)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  ell <span class="op">=</span> Ellipse(</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    xy <span class="op">=</span> (<span class="dv">0</span>, <span class="dv">0</span>), </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    width <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> w[<span class="dv">0</span>], </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    height <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> w[<span class="dv">1</span>], </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    angle <span class="op">=</span> np.rad2deg(np.arccos(v[<span class="dv">0</span>, <span class="dv">0</span>])), </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> color, </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> alpha</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot the ellipse no fill</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  ell.set_facecolor(<span class="st">'none'</span>)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  ax.add_artist(ell)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>level <span class="op">=</span> <span class="dv">6</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>eps <span class="op">=</span> <span class="fl">1e-1</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># create 6 plots in a 2 by 3 grid</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">6</span>))</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>lower_ellipse <span class="op">=</span> np.array([<span class="fl">0.25</span>, <span class="fl">0.25</span>])</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>upper_ellipse <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">1</span>])</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>middle_ellipse <span class="op">=</span> np.array([<span class="fl">0.25</span> <span class="op">+</span> eps, <span class="dv">1</span><span class="op">-</span>eps])</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(level):</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># get the axs object</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  ax <span class="op">=</span> axs[i <span class="op">//</span> <span class="dv">3</span>, i <span class="op">%</span> <span class="dv">3</span>] <span class="cf">if</span> i <span class="op">//</span> <span class="dv">3</span> <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> axs[i <span class="op">//</span> <span class="dv">3</span>, <span class="dv">2</span> <span class="op">-</span> i <span class="op">%</span> <span class="dv">3</span>]</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  ax.set_title(<span class="ss">f'Iteration </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">'</span> <span class="cf">if</span> i <span class="op">&lt;</span> level <span class="op">-</span> <span class="dv">1</span> <span class="cf">else</span> <span class="st">'after rescaling'</span>)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  ax.set_xlim(<span class="op">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>)</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  ax.set_ylim(<span class="op">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  ax.set_aspect(<span class="st">'equal'</span>)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  plot_ellipse(ax, lower_ellipse, <span class="st">'blue'</span>, <span class="dv">1</span>)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  plot_ellipse(ax, upper_ellipse, <span class="st">'blue'</span>, <span class="dv">1</span>)</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  plot_ellipse(ax, middle_ellipse, <span class="st">'red'</span>, <span class="dv">1</span>)</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  lower_ellipse <span class="op">+=</span> np.array([<span class="dv">1</span>, <span class="dv">1</span>])</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  upper_ellipse <span class="op">+=</span> np.array([<span class="dv">1</span>, <span class="dv">1</span>])</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  <span class="co"># flip a coin to decide which direction to push</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> random.random() <span class="op">&gt;</span> <span class="fl">0.5</span>:</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    middle_ellipse[<span class="dv">0</span>] <span class="op">=</span> lower_ellipse[<span class="dv">0</span>] <span class="op">+</span> eps</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    middle_ellipse[<span class="dv">1</span>] <span class="op">=</span> upper_ellipse[<span class="dv">1</span>] <span class="op">-</span> eps</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span>:</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    middle_ellipse[<span class="dv">0</span>] <span class="op">=</span> upper_ellipse[<span class="dv">0</span>] <span class="op">-</span> eps</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    middle_ellipse[<span class="dv">1</span>] <span class="op">=</span> lower_ellipse[<span class="dv">1</span>] <span class="op">+</span> eps</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> i <span class="op">==</span> level <span class="op">-</span> <span class="dv">2</span>:</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    <span class="co"># do rescaling</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    lower_ellipse <span class="op">=</span> lower_ellipse <span class="op">/</span> (level <span class="op">-</span> <span class="fl">1.0</span>)</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    upper_ellipse <span class="op">=</span> upper_ellipse <span class="op">/</span> (level <span class="op">-</span> <span class="fl">1.0</span>)</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    middle_ellipse <span class="op">=</span> middle_ellipse <span class="op">/</span> (level <span class="op">-</span> <span class="fl">1.0</span>)</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-ellipsoid" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="index_files/figure-html/fig-ellipsoid-output-1.png" width="718" height="500" class="figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2: The geometric intuition behind the algorithm.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="physical-view-and-the-expected-behavior" class="level2">
 <h2 class="anchored" data-anchor-id="physical-view-and-the-expected-behavior">Physical View and the Expected behavior</h2>
-<p>The fact that <span class="math inline">\(\hat{A}^{(i)}\)</span> should be bounded between two spheres translates into all the eigenvalues of <span class="math inline">\(\hat{A}^{(i)}\)</span> being bounded between the two radiuses. Therefore, an important observation is to monitor what happens to the eigenvalues of <span class="math inline">\(\hat{A}^{(i)}\)</span> when <span class="math inline">\(vv^T\)</span> is being added at each iteration. To do so, we consider the characteristic polynomial of <span class="math inline">\(A\)</span> at each iteration written as <span class="math inline">\(p_A(\lambda) = \det(\lambda I - A)\)</span>. There are two important lemmas when analyzing <span class="math inline">\(A + vv^T\)</span> matrices, one is the Sherman-Morrison lemma which states that:</p>
-<div id="lemma-sherman-morrison">
-<p>Suppose <span class="math inline">\(A\)</span> is an invertible square matrix and <span class="math inline">\(u, v\)</span> are column vectors. Then <span class="math inline">\(A + uv^T\)</span> is invertible iff <span class="math inline">\(1 + v^T A^{-1} u \neq 0\)</span>. In this case, <span class="math display">\[(A + uv^T)^{-1} = A^{-1} - \frac{A^{-1}uv^TA^{-1}}{1 + v^TA^{-1}u}\]</span></p>
+<p>The fact that <span class="math inline">\(X^{(i)}\)</span> should be bounded between two spheres translates into all the eigenvalues of <span class="math inline">\(X^{(i)}\)</span> being bounded between the two radiuses except for the trivial eigenvalues that their corresponding eigenvector is in the null-space of <span class="math inline">\(\Pi\)</span>. For Laplacians, this corresponds to the all one’s vector which is in the null-space of <span class="math inline">\(L_G\)</span> and <span class="math inline">\(\Pi = L_G^{+/2} L_G L_G^{+/2}\)</span>. For simplicity, we assume that all the matrices are full rank and <span class="math inline">\(\Pi = I\)</span>. Using this, we can establish theories that easily generalize to the case where <span class="math inline">\(\Pi\)</span> is not the identity matrix via projection.</p>
+<p>An important observation is to monitor what happens to the eigenvalues of <span class="math inline">\(X^{(i)}\)</span> when <span class="math inline">\(vv^T\)</span> is being added at each iteration. To do so, we consider the characteristic polynomial of <span class="math inline">\(X\)</span> at each iteration written as <span class="math inline">\(p_X(\lambda) = \det(\lambda I - X)\)</span>. There are two important lemmas when analyzing <span class="math inline">\(A + vv^T\)</span> matrices, one is the Sherman-Morrison lemma which states that:</p>
+<div id="lem-sherman-morrison" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 1 </strong></span>Suppose <span class="math inline">\(A\)</span> is an invertible square matrix and <span class="math inline">\(u, v\)</span> are column vectors. Then <span class="math inline">\(A + uv^T\)</span> is invertible iff <span class="math inline">\(1 + v^T A^{-1} u \neq 0\)</span>. In this case, <span class="math display">\[(A + uv^T)^{-1} = A^{-1} - \frac{A^{-1}uv^TA^{-1}}{1 + v^TA^{-1}u}\]</span></p>
 </div>
 <p>The other is the matrix determinant lemma which states that:</p>
-<div id="lemma-matrix-determinant">
-<p>Suppose <span class="math inline">\(A\)</span> is an invertible square matrix and <span class="math inline">\(u, v\)</span> are column vectors. Then <span class="math display">\[\det(A + uv^T) = \det(A) (1 + v^T A^{-1} u)\]</span></p>
+<div id="lem-matrix-determinant" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 2 </strong></span>Suppose <span class="math inline">\(A\)</span> is an invertible square matrix and <span class="math inline">\(u, v\)</span> are column vectors. Then <span class="math display">\[\det(A + uv^T) = \det(A) (1 + v^T A^{-1} u)\]</span></p>
 </div>
-<p>Moreover, plugging these into the characteristic polynomial of <span class="math inline">\(A + vv^T\)</span> yields the following:</p>
+<p>Moreover, plugging these into the characteristic polynomial of <span class="math inline">\(X + vv^T\)</span> yields the following:</p>
 <p><span class="math display">\[\begin{align*}
-p_{A + vv^T}(\lambda) &amp;= \det(\lambda I - A - vv^T) \\
-&amp; = \det(\lambda I - A) (1 - v^T \left(\lambda I - A \right)^{-1}u) \\
-&amp; = \det (\lambda I - A) \left(1 - v^T \left[\sum_{i=1}^n \frac{1}{\lambda - \lambda_i} u_i u_i^T\right] v\right)\\
-&amp; = p_A(\lambda) \left(1 -  \sum_{i=1}^n \frac{(v^Tu_i)^2}{\lambda - \lambda_i}\right)\\
+p_{X + vv^T}(\lambda) &amp;= \det(\lambda I - X - vv^T) \\
+&amp; = \det(\lambda I - X) (1 - v^T \left(\lambda I - X \right)^{-1}u) \\
+&amp; = \det (\lambda I - X) \left(1 - v^T \left[\sum_{i=1}^n \frac{1}{\lambda - \lambda_i} u_i u_i^T\right] v\right)\\
+&amp; = p_X(\lambda) \left(1 -  \sum_{i=1}^n \frac{(v^Tu_i)^2}{\lambda - \lambda_i}\right)\\
 \end{align*}\]</span></p>
-<p>Therefore, we can assume particles being set on each of the <span class="math inline">\(\lambda_i\)</span> values with the <span class="math inline">\(i\)</span>th one on <span class="math inline">\(\lambda_i\)</span> with charge <span class="math inline">\(v^Tu_i\)</span>. The new set of equilibrium points for this particle set will entail the new eigenvalues of <span class="math inline">\(A + vv^T\)</span> which are the roots of <span class="math inline">\(p_{A + vv^T}(\lambda)\)</span>. Note that for <span class="math inline">\(u_i\)</span> values such that <span class="math inline">\(v^Tu_i=0\)</span> the charge is zero and therefore, the new eigenvalues will be the same as the old ones.</p>
-<p>The following figure illustrates the matrix case <span class="math inline">\(A\)</span> with three different vectors <span class="math inline">\(v_1\)</span>, <span class="math inline">\(v_2\)</span> and <span class="math inline">\(v_3\)</span>. Each color corresponds to the characteristic polynomial for different <span class="math inline">\(v\)</span> values where,</p>
-<p><span class="math display">\[A = \lambda_1 u_1 u_1^T + \lambda_2 u_2 u_2^T + \lambda_3 u_3 u_3^T
+<p>Furthermore, we can assume particles being set on certain points of the <span class="math inline">\(x\)</span>-axis with the <span class="math inline">\(i\)</span>th one on <span class="math inline">\(\lambda_i\)</span> having a charge equal to <span class="math inline">\((v^Tu_i)^2\)</span>. The new set of equilibrium points for this particle set will entail the new eigenvalues of <span class="math inline">\(X + vv^T\)</span> which are the roots of <span class="math inline">\(p_{X + vv^T}(\lambda)\)</span>. Note that for <span class="math inline">\(u_i\)</span> values such that <span class="math inline">\(v^Tu_i=0\)</span> the charge is zero and therefore, the new eigenvalues will be the same as the old ones.</p>
+<p>The following figure illustrates the matrix case <span class="math inline">\(X\)</span> with three different vectors <span class="math inline">\(v_1\)</span>, <span class="math inline">\(v_2\)</span> and <span class="math inline">\(v_3\)</span>. Each color corresponds to the characteristic polynomial for different <span class="math inline">\(v\)</span> values where,</p>
+<p><span class="math display">\[X = \lambda_1 u_1 u_1^T + \lambda_2 u_2 u_2^T + \lambda_3 u_3 u_3^T
 = \begin{bmatrix}
 1.6 &amp; -0.2 &amp; -0.33\\
 -0.2 &amp; 3.4 &amp; -0.33\\
@@ -392,7 +472,7 @@ p_{A + vv^T}(\lambda) &amp;= \det(\lambda I - A - vv^T) \\
 0.08\\
 -0.99\\
 0.12\\
-\end{bmatrix}\]</span> We note that <span class="math inline">\(\langle v_i, u_j \rangle^2\)</span> is the charge of particle <span class="math inline">\(j\)</span> when adding <span class="math inline">\(v_i\)</span> to <span class="math inline">\(A\)</span> and we can summarize all the charged particles in the following matrix: <span class="math display">\[v_1 = \begin{bmatrix}
+\end{bmatrix}\]</span> We note that <span class="math inline">\(\langle v_i, u_j \rangle^2\)</span> is the charge of particle <span class="math inline">\(j\)</span> when adding <span class="math inline">\(v_i\)</span> to <span class="math inline">\(X\)</span> and we can summarize all the charged particles in the following matrix: <span class="math display">\[v_1 = \begin{bmatrix}
 0\\
 1\\
 1\\
@@ -408,64 +488,61 @@ C = \begin{bmatrix}
 <div>
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_characteristic_polynomial(A, v, color):</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  x <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">1000</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  w, u <span class="op">=</span> np.linalg.eig(A)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot the determinant of xI - A</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  y <span class="op">=</span> []</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  roots <span class="op">=</span> []</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  prv <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i <span class="kw">in</span> x:</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    val <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> np.<span class="bu">sum</span>(<span class="dv">1</span><span class="op">/</span>(i <span class="op">-</span> w) <span class="op">*</span> (v <span class="op">@</span> u)<span class="op">**</span><span class="dv">2</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> prv <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">and</span> val <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>      roots.append(i)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    prv <span class="op">=</span> val</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    y.append(val)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  plt.plot(x, y, color <span class="op">=</span> color, label<span class="op">=</span><span class="st">'characteristic polynomial of A + vv^T'</span>)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  plt.scatter(roots, np.zeros(<span class="bu">len</span>(roots)), color <span class="op">=</span> color, marker <span class="op">=</span> <span class="st">'o'</span>, label<span class="op">=</span><span class="st">'new-eigenvalues'</span>)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># create an orthonormal 3 by 3 matrix U</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>U <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>], [<span class="dv">1</span>, <span class="dv">1</span>, <span class="op">-</span><span class="dv">2</span>], [<span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>]])</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>U <span class="op">=</span> U <span class="op">/</span> np.linalg.norm(U, axis <span class="op">=</span> <span class="dv">0</span>)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> U <span class="op">@</span> np.diag([<span class="dv">1</span> , <span class="dv">2</span>, <span class="dv">3</span>]) <span class="op">@</span> U.T</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>vz <span class="op">=</span> [[<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>], [<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>]]</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'blue'</span>, <span class="st">'red'</span>]</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the eigenvalues of A</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>w, u <span class="op">=</span> np.linalg.eig(A)</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co"># sort according to w and reorder u</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>w, u <span class="op">=</span> <span class="bu">zip</span>(<span class="op">*</span><span class="bu">sorted</span>(<span class="bu">zip</span>(w, u.T)))</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> np.array(u).T</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> np.array(w)</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col, v <span class="kw">in</span> <span class="bu">zip</span>(colors, vz):</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  plt.scatter(w, np.zeros(w.shape), color <span class="op">=</span> <span class="st">'black'</span>, marker <span class="op">=</span> <span class="st">'x'</span>, label<span class="op">=</span><span class="st">'previous eigenvalues'</span>)</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add text with textbox equal to np.sum(w) on top of each eigenvalue</span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i, wi <span class="kw">in</span> <span class="bu">enumerate</span>(w):</span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> plt.text(wi <span class="op">-</span> <span class="fl">0.5</span>, <span class="fl">0.1</span> <span class="op">*</span> (<span class="dv">4</span> <span class="op">*</span> (i <span class="op">%</span> <span class="dv">2</span>) <span class="op">-</span> <span class="fl">2.5</span>), <span class="ss">f"c=</span><span class="sc">{</span>(v <span class="op">@</span> u[:,i])<span class="op">**</span><span class="dv">2</span><span class="sc">:.2f}</span><span class="ss">"</span>, color <span class="op">=</span> <span class="st">'black'</span>)</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    t.set_bbox(<span class="bu">dict</span>(facecolor<span class="op">=</span><span class="st">'white'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, edgecolor<span class="op">=</span>col))</span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  plot_characteristic_polynomial(A, v, col)</span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  plt.xlim(<span class="dv">0</span>, <span class="fl">5.5</span>)</span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  plt.ylim(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  plt.legend()</span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_characteristic_polynomial(w, u, v, color):</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  x <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">1000</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot the determinant of xI - (X + vv^T)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># for X = u w u^T</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  y <span class="op">=</span> []</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  roots <span class="op">=</span> []</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  prv <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i <span class="kw">in</span> x:</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    val <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> np.<span class="bu">sum</span>(<span class="dv">1</span><span class="op">/</span>(i <span class="op">-</span> w) <span class="op">*</span> (v <span class="op">@</span> u)<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> prv <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">and</span> val <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>      roots.append(i)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    prv <span class="op">=</span> val</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    y.append(val)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  plt.plot(x, y, color <span class="op">=</span> color, <span class="op">\</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">'characteristic polynomial of X + vv^T'</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  plt.scatter(roots, np.zeros(<span class="bu">len</span>(roots)), color <span class="op">=</span> color,<span class="op">\</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    marker <span class="op">=</span> <span class="st">'o'</span>, label<span class="op">=</span><span class="st">'new-eigenvalues'</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co"># create an orthonormal 3 by 3 matrix U</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>U <span class="op">=</span> np.array([[<span class="op">-</span><span class="fl">0.41</span>, <span class="op">-</span><span class="fl">0.15</span>, <span class="op">-</span><span class="fl">0.9</span>],</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>              [<span class="op">-</span><span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.03</span>, <span class="fl">0.42</span>], </span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>              [<span class="fl">0.08</span>, <span class="op">-</span><span class="fl">0.99</span>, <span class="fl">0.12</span>]]).T</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> np.array([<span class="fl">0.79</span>, <span class="fl">1.75</span>, <span class="fl">3.46</span>])</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> U <span class="op">@</span> np.diag(w) <span class="op">@</span> U.T</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>vz <span class="op">=</span> [[<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>], [<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>]]</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co"># plot two different graphs</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'blue'</span>, <span class="st">'red'</span>]</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col, v <span class="kw">in</span> <span class="bu">zip</span>(colors, vz):</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  plt.scatter(w, np.zeros(w.shape), color <span class="op">=</span> <span class="st">'black'</span>, marker <span class="op">=</span> <span class="st">'x'</span>, label<span class="op">=</span><span class="st">'previous eigenvalues'</span>)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add text with textbox equal to np.sum(w) on top of each eigenvalue</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i, wi <span class="kw">in</span> <span class="bu">enumerate</span>(w):</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> plt.text(wi <span class="op">-</span> <span class="fl">0.5</span>, <span class="fl">0.1</span> <span class="op">*</span> (<span class="dv">4</span> <span class="op">*</span> (i <span class="op">%</span> <span class="dv">2</span>) <span class="op">-</span> <span class="fl">2.5</span>), <span class="op">\</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"c=</span><span class="sc">{</span>(v <span class="op">@</span> U[:,i])<span class="op">**</span><span class="dv">2</span><span class="sc">:.2f}</span><span class="ss">"</span>, color <span class="op">=</span> <span class="st">'black'</span>)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    t.set_bbox(<span class="bu">dict</span>(facecolor<span class="op">=</span><span class="st">'white'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, edgecolor<span class="op">=</span>col))</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  plot_characteristic_polynomial(w, U, v, col)</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  plt.xlim(<span class="dv">0</span>, <span class="fl">5.5</span>)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  plt.ylim(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  plt.legend()</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="fig-matrix-determinant" class="cell quarto-layout-panel" data-execution_count="2">
+<div id="fig-matrix-determinant" class="cell quarto-layout-panel" data-execution_count="3">
 <figure class="figure">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
 <div id="fig-matrix-determinant-1" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="index_files/figure-html/fig-matrix-determinant-output-1.png" class="img-fluid figure-img" data-ref-parent="fig-matrix-determinant" width="582"></p>
-<p></p><figcaption class="figure-caption">(a) The characteristic polynomial after adding <span class="math inline">\(v_1\)</span> to A.</figcaption><p></p>
+<p></p><figcaption class="figure-caption">(a) The characteristic polynomial after adding <span class="math inline">\(v_1\)</span> to X.</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -473,23 +550,23 @@ C = \begin{bmatrix}
 <div id="fig-matrix-determinant-2" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="index_files/figure-html/fig-matrix-determinant-output-2.png" class="img-fluid figure-img" data-ref-parent="fig-matrix-determinant" width="582"></p>
-<p></p><figcaption class="figure-caption">(b) The characteristic polynomial after adding <span class="math inline">\(v_2\)</span> to A.</figcaption><p></p>
+<p></p><figcaption class="figure-caption">(b) The characteristic polynomial after adding <span class="math inline">\(v_2\)</span> to X.</figcaption><p></p>
 </figure>
 </div>
 </div>
 </div>
-<p></p><figcaption class="figure-caption">Figure&nbsp;2: The characteristic polynomial of <span class="math inline">\(A + vv^T\)</span> for different <span class="math inline">\(v\)</span> values, the higher the charge the more it will repel the new eigenvalues from the old ones.</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3: The characteristic polynomial of <span class="math inline">\(X + vv^T\)</span> for different <span class="math inline">\(v\)</span> values, the higher the charge the more it will repel the new eigenvalues from the old ones.</figcaption><p></p>
 </figure>
 </div>
 </div>
-<p>The goal is to pick a <span class="math inline">\(v\)</span> such that all the eigenvalues are uniformly pushed forward so that they can stay between the new ranges <span class="math inline">\(l^{(i+1)}\)</span> and <span class="math inline">\(u^{(i+1)}\)</span>. To get a sense, let’s pick one of the <span class="math inline">\(m\)</span> vectors with uniform probability and add it to <span class="math inline">\(A\)</span>. In that case, the expected charges can be written as: <span class="math display">\[E[\langle v, u_j \rangle^2] = \frac{1}{m} \sum_{i=1}^m \langle v_i, u_j \rangle^2 = \frac{1}{m} u_j^T \left( \sum_{i=1}^m v_i v_i^T \right)u_j = \frac{||\Pi u_j||_2^2}{m} = \frac{1}{m}\]</span> Hence, on expectation all the particles have charge <span class="math inline">\(1/m\)</span> and the expected deterministic polynomial is:</p>
+<p>The goal is to pick a <span class="math inline">\(v\)</span> such that the particles are set in a way that all the eigenvalues are uniformly pushed forward so that they can stay between the new ranges <span class="math inline">\(l^{(i+1)}\)</span> and <span class="math inline">\(u^{(i+1)}\)</span>. To get a sense, let’s pick one of the <span class="math inline">\(m\)</span> vectors with uniform probability and add it to <span class="math inline">\(X\)</span>. In that case, the expected charges can be written as: <span class="math display">\[E[\langle v, u_j \rangle^2] = \frac{1}{m} \sum_{i=1}^m \langle v_i, u_j \rangle^2 = \frac{1}{m} u_j^T \left( \sum_{i=1}^m v_i v_i^T \right)u_j = \frac{||\Pi u_j||_2^2}{m} = \frac{1}{m}\]</span> Hence, on expectation, all the particles have a charge of <span class="math inline">\(1/m\)</span> and the expected deterministic polynomial is:</p>
 <p><span class="math display">\[\begin{align*}
-E[p_{A + v}(\lambda)] &amp;= p_A(\lambda) E\left[1 - \sum_{i=1}^m \frac{\langle u_i, v\rangle^2}{\lambda - \lambda_i}\right] = p_A(\lambda) \left(1 - \sum_{i=1}^m \frac{E\langle u_i, v\rangle^2}{\lambda - \lambda_i}\right)\\
-&amp; = p_A(\lambda) \left(1 - \sum_{i=1}^m \frac{1/m}{\lambda - \lambda_i}\right) = p_A(\lambda) - \frac{1}{m} \sum_{i=1}^m \frac{p_A(\lambda)}{\lambda - \lambda_i}\\
-&amp; = p_A(\lambda) - \frac{1}{m} \sum_{i=1}^m \prod_{1 = j\neq i}^m (\lambda - \lambda_j)\\
-&amp;= p_A(\lambda) - \frac{1}{m} p'_A(\lambda)\\
+E[p_{X + v}(\lambda)] &amp;= p_X(\lambda) E\left[1 - \sum_{i=1}^m \frac{\langle u_i, v\rangle^2}{\lambda - \lambda_i}\right] = p_X(\lambda) \left(1 - \sum_{i=1}^m \frac{E\langle u_i, v\rangle^2}{\lambda - \lambda_i}\right)\\
+&amp; = p_X(\lambda) \left(1 - \sum_{i=1}^m \frac{1/m}{\lambda - \lambda_i}\right) = p_X(\lambda) - \frac{1}{m} \sum_{i=1}^m \frac{p_X(\lambda)}{\lambda - \lambda_i}\\
+&amp; = p_X(\lambda) - \frac{1}{m} \sum_{i=1}^m \prod_{1 = j\neq i}^m (\lambda - \lambda_j)\\
+&amp;= p_X(\lambda) - \frac{1}{m} p'_X(\lambda)\\
 \end{align*}\]</span></p>
-<p>Therefore, if we start off with the matrix <span class="math inline">\(p_{A^{(0)}}(\lambda) = \lambda^n\)</span>, after <span class="math inline">\(nd\)</span> iterations the expected polynomial is a set of associate Laguerre polynomials that are well studied <span class="citation" data-cites="dette1995some">(<a href="#ref-dette1995some" role="doc-biblioref">Dette and Studden 1995</a>)</span>, and in particular, it has been proven that the ratio between the largest and smallest root for these polynomials is bounded by the value below:</p>
+<p>Therefore, if we start with the matrix <span class="math inline">\(p_{X^{(0)}}(\lambda) = \lambda^n\)</span>, after <span class="math inline">\(nd\)</span> iterations the expected polynomial is a set of associate Laguerre polynomials that are well studied <span class="citation" data-cites="dette1995some">(<a href="#ref-dette1995some" role="doc-biblioref">Dette and Studden 1995</a>)</span>, and in particular, it has been proven that the ratio between the largest and smallest root for these polynomials is bounded by the value below:</p>
 <p><span class="math display">\[\frac{d + 1 + 2\sqrt{d}}{d + 1 - 2\sqrt{d}} \xrightarrow{\epsilon = \frac{2\sqrt{d}}{d+1}} \frac{1 + \epsilon
 }{1 - \epsilon}\]</span></p>
 <p>Although this is just speculation and no <span class="math inline">\(v_i\)</span> values will necessarily exist with the expected behavior, we can still get an idea of the goal <span class="math inline">\(\epsilon\)</span> and come up with the following proposition:</p>
@@ -503,113 +580,112 @@ E[p_{A + v}(\lambda)] &amp;= p_A(\lambda) E\left[1 - \sum_{i=1}^m \frac{\langle 
 <p>This is set using <span class="math inline">\(\epsilon = \frac{2\sqrt{d}}{d + 1}\)</span> where <span class="math inline">\(\frac{n}{\epsilon^2} = \mathcal{O}(nd)\)</span>. In the next section, we will see how we can choose <span class="math inline">\(v_i\)</span> and <span class="math inline">\(s_i\)</span> at each step such that after <span class="math inline">\(nd\)</span> iterations this happens.</p>
 <section id="potential-functions" class="level3">
 <h3 class="anchored" data-anchor-id="potential-functions">Potential Functions</h3>
-<p>The big question is, how can we quantize the boundedness of the matrix <span class="math inline">\(A\)</span> at each step? We want <span class="math inline">\(A^{(i)}\)</span> to have eigenvalues that are bounded by <span class="math inline">\(l^{(i+1)}\)</span> and <span class="math inline">\(u^{(i+1)}\)</span>; and so, we use a family of <strong>potential functions</strong> that explode when the eigenvalues approach the bounds. A set of such potentials can be chosen using the fact that <span class="math inline">\(uI - A\)</span> or <span class="math inline">\(A - lI\)</span> will have infinitely small eigenvalues when the eigenvalues of <span class="math inline">\(A\)</span> approach <span class="math inline">\(u\)</span> or <span class="math inline">\(l\)</span> respectively; therefore, their inverse will be ill-conditioned and have infinitely large eigenvalues. We can use the following potential functions:</p>
-<p><span class="math display">\[\Phi^u_l(A) = \Phi^u(A) + \Phi_l(A) = Tr[(uI - A)^{-1}] + Tr[(A - l I)^{-1}]\]</span></p>
-<p>In summary, the main idea is to choose <span class="math inline">\(v_i\)</span> and <span class="math inline">\(s_i\)</span> such that the potential for the matrix <span class="math inline">\(A^{(i)}\)</span> in the next iteration does not explode. To do so, we ensure that the potentials remain monotonically decreasing:</p>
-<p><span class="math display">\[\infty \gg \Phi^{u^{(0)}}(A^{(0)}) \ge \Phi^{u^{(1)}}(A^{(1)}) \ge ... \ge \Phi^{u^{(nd)}}(A^{(nd)})\]</span> <span class="math display">\[\infty \gg \Phi_{\ell^{(0)}}(A^{(0)}) \ge \Phi_{\ell^{(1)}}(A^{(1)}) \ge ... \ge \Phi_{\ell^{(nd)}}(A^{(nd)})\]</span></p>
+<p>The big question is, how can we quantize the boundedness of the matrix <span class="math inline">\(X\)</span> at each step? We want <span class="math inline">\(X^{(i)}\)</span> to have eigenvalues that are bounded by <span class="math inline">\(l^{(i+1)}\)</span> and <span class="math inline">\(u^{(i+1)}\)</span>; and so, we use a family of <strong>potential functions</strong> that explode when the eigenvalues approach the bounds. A set of such potentials can be chosen using the fact that <span class="math inline">\(uI - X\)</span> or <span class="math inline">\(A - lX\)</span> will have infinitely small eigenvalues when the eigenvalues of <span class="math inline">\(X\)</span> approach <span class="math inline">\(u\)</span> or <span class="math inline">\(l\)</span> respectively; therefore, their inverse will be ill-conditioned and have infinitely large eigenvalues. We can use the following potential functions:</p>
+<p><span class="math display">\[\Phi^u_l(X) = \Phi^u(X) + \Phi_l(X) = Tr[(uI - X)^{-1}] + Tr[(X - l I)^{-1}]\]</span></p>
+<p>In summary, the main idea is to choose <span class="math inline">\(v_i\)</span> and <span class="math inline">\(s_i\)</span> such that the potential for the matrix <span class="math inline">\(X^{(i)}\)</span> in the next iteration does not explode. To do so, we can ensure that the potentials remain monotonically decreasing:</p>
+<p><span class="math display">\[\infty \gg \Phi^{u^{(0)}}(X^{(0)}) \ge \Phi^{u^{(1)}}(X^{(1)}) \ge ... \ge \Phi^{u^{(nd)}}(X^{(nd)})\]</span> <span class="math display">\[\infty \gg \Phi_{\ell^{(0)}}(X^{(0)}) \ge \Phi_{\ell^{(1)}}(X^{(1)}) \ge ... \ge \Phi_{\ell^{(nd)}}(X^{(nd)})\]</span></p>
 <p>With that in mind, let’s assume we are going to assign <span class="math inline">\(s_k\)</span> to any vector <span class="math inline">\(v_k\)</span> such that after the increase in our upper and lower bound, the potential remains non-increasing. Now let us separately consider the upper and lower bound potentials.</p>
-<p>When increasing <span class="math inline">\(l^{(i)}\)</span>, the eigenvalues come closer to the lower bound, and hence, the potential of the lower bound will increase; therefore, for any vector <span class="math inline">\(v_k\)</span>, the coefficient <span class="math inline">\(s_k\)</span> should be bounded by some value <span class="math inline">\(L_{A^{(i)}}(v_k)\)</span> such that after adding <span class="math inline">\(s_k \cdot v_k v_k^T\)</span> to <span class="math inline">\(A^{(i)}\)</span>, spectrum shifts forward and the increase in the potential cancels out. That said, for any matrix <span class="math inline">\(A\)</span> and any vector <span class="math inline">\(v\)</span> we have: <span class="math display">\[
+<p>When increasing <span class="math inline">\(l^{(i)}\)</span>, the eigenvalues come closer to the lower bound, and hence, the potential of the lower bound will increase; therefore, for any vector <span class="math inline">\(v_k\)</span>, the coefficient <span class="math inline">\(s_k\)</span> should be bounded by some value <span class="math inline">\(L_{X^{(i)}}(v_k)\)</span> such that after adding <span class="math inline">\(s_k \cdot v_k v_k^T\)</span> to <span class="math inline">\(X^{(i)}\)</span>, spectrum shifts forward and the increase in the potential cancels out. That said, for any matrix <span class="math inline">\(X\)</span> and any vector <span class="math inline">\(v\)</span> we have: <span class="math display">\[
 \begin{align*}
-&amp;\Phi^{\overset{l'}{\overbrace{l + \delta_l}}}(A + s \cdot vv^T) \le \Phi^l(A)\\
-\Phi_{l'}(A + s \cdot vv^T) &amp; = Tr(A + s \cdot vv^T - l'I)^{-1}  \qquad \text{Sherman-Morrison}\\\
-&amp; = Tr\left((A - l'I)^{-1}\right) + Tr\left(\frac{s \cdot (A - l'I)^{-1} v v^T (A - l'I)^{-1}}{1 + s \cdot v^T (A - l' I)^{-1} v}\right)\\
-&amp;= \Phi_{l'}(A) - \frac{s \cdot v^T (A - l'I)^{-2}v}{1 + s \cdot v^T  (A - l'I)^{-1}v} \le \Phi^l(A)\\
-\Leftrightarrow &amp;~ \underset{\Delta}{\underbrace{\Phi_{l'}(A) - \Phi^l(A)}} \le \frac{s \cdot v^T (A - l'I)^{-2}v}{1 + s \cdot v^T  (A - l'I)^{-1}v}\\
-\Leftrightarrow &amp;~ s\cdot \left[v^T (A - l'I)^{-2}v  - \Delta v^T(A - l' I)^{-1} v\right] \ge \Delta \\
-\Leftrightarrow &amp;~ s \ge \frac{\Delta}{v^T \left( (A - l'I)^{-2} - \Delta (A - l' I)^{-1} \right) v} = L_A(v)
+&amp;\Phi^{\overset{l'}{\overbrace{l + \delta_l}}}(X + s \cdot vv^T) \le \Phi^l(X)\\
+\Phi_{l'}(X + s \cdot vv^T) &amp; = Tr(X + s \cdot vv^T - l'I)^{-1}  \qquad \text{Sherman-Morrison}\\\
+&amp; = Tr\left((X - l'I)^{-1}\right) + Tr\left(\frac{s \cdot (X - l'I)^{-1} v v^T (X - l'I)^{-1}}{1 + s \cdot v^T (X - l' I)^{-1} v}\right)\\
+&amp;= \Phi_{l'}(X) - \frac{s \cdot v^T (X - l'I)^{-2}v}{1 + s \cdot v^T  (X - l'I)^{-1}v} \le \Phi^l(X)\\
+\Leftrightarrow &amp;~ \underset{\Delta}{\underbrace{\Phi_{l'}(X) - \Phi^l(X)}} \le \frac{s \cdot v^T (X - l'I)^{-2}v}{1 + s \cdot v^T  (X - l'I)^{-1}v}\\
+\Leftrightarrow &amp;~ s\cdot \left[v^T (X - l'I)^{-2}v  - \Delta v^T(X - l' I)^{-1} v\right] \ge \Delta \\
+\Leftrightarrow &amp;~ s \ge \frac{\Delta}{v^T \left( (X - l'I)^{-2} - \Delta (X - l' I)^{-1} \right) v} = L_X(v)
 \end{align*}
 \]</span> which means,</p>
 <p><span class="math display">\[\begin{equation} \tag{1}\label{eq:lower-bound-potential}
-s \ge L_A(v) = \frac{\Delta}{v^T \left((A - l' I)^{-2} - \Delta (A - l' I)^{-1} \right) v}
+s \ge L_X(v) = \frac{\Delta}{v^T \left((X - l' I)^{-2} - \Delta (X - l' I)^{-1} \right) v}
 \end{equation}\]</span></p>
-<p>On the other hand, a similar thing can be said for the upper-bound potential. when increasing <span class="math inline">\(u^{(i)}\)</span>, the eigenvalues are further away from the upper bound which gives us the freedom to shift the eigenvalues forward. However, this shifting should not be so extreme that the potential at most increases offset the decrease introduced after adding <span class="math inline">\(\delta_u\)</span> to the potential.</p>
-<p><span class="math display">\[
-\Phi^{\overset{u'}{\overbrace{u + \delta_u}}}(A + s \cdot vv^T) \le \Phi^u(A)
-\]</span></p>
-<p>Similar to <span class="math inline">\(\eqref{eq:lower-bound-potential}\)</span>, if we negate <span class="math inline">\(s\)</span> and <span class="math inline">\(A\)</span> then the upper-bound potential will act similarly to the lower-bound potential. Therefore, we can write the following:</p>
+<p>On the other hand, a similar thing can be said for the upper-bound potential. when increasing <span class="math inline">\(u^{(i)}\)</span>, the eigenvalues are further away from the upper bound which gives us the freedom to shift the eigenvalues forward. However, this shifting should not be so extreme that the potential at most increases to offset the decrease introduced after adding <span class="math inline">\(\delta_u\)</span> to <span class="math inline">\(u^{(i)}\)</span>: <span class="math display">\[
+\Phi^{\overset{u'}{\overbrace{u + \delta_u}}}(A + s \cdot vv^T) \le \Phi^u(A).
+\]</span> Similar to <span class="math inline">\(\eqref{eq:lower-bound-potential}\)</span>, if we negate <span class="math inline">\(s\)</span> and <span class="math inline">\(A\)</span> then the upper-bound potential will act similarly to the lower-bound potential. Therefore, we can write the following:</p>
 <p><span class="math display">\[\begin{equation} \tag{2}\label{eq:upper-bound-potential}
-s \le U_A(v) = \frac{\Delta}{v^T \left((u' I - A)^{-2} - \Delta (u' I - A)^{-1}\right)v}
+s \le U_X(v) = \frac{\Delta}{v^T \left((u' I - X)^{-2} - \Delta (u' I - X)^{-1}\right)v}
 \end{equation}\]</span></p>
-<p>Where <span class="math inline">\(\Delta\)</span> is the difference between <span class="math inline">\(\Phi^u(A)\)</span> and <span class="math inline">\(\Phi^{u'}(A)\)</span>.</p>
-<p>Finally, for every vector <span class="math inline">\(v_i\)</span> at each step, we can introduce an upper and lower bound for the coefficient corresponding to that vector. However, this is not enough to ensure that at least one <span class="math inline">\(v_i\)</span> exists such that <span class="math inline">\(L_A\)</span>; in other words, it might be the case that for each vector the upper and lower bounds are contradictory which will put the algorithm in a stale-mate state. To avoid this, we pick the values <span class="math inline">\(\delta_u\)</span> and <span class="math inline">\(\delta_l\)</span> carefully and introduce a nice lemma in the next section that ensures always such a vector exists.</p>
+<p>Where <span class="math inline">\(\Delta\)</span> is the difference between <span class="math inline">\(\Phi^u(X)\)</span> and <span class="math inline">\(\Phi^{u'}(X)\)</span>.</p>
+<p>Finally, for every vector <span class="math inline">\(v_i\)</span> at each step, we can introduce an upper and lower bound for the coefficient corresponding to that vector. However, this is not enough to ensure that at least one <span class="math inline">\(v_i\)</span> exists such that <span class="math inline">\(L_X(v_i) \le U_X(v_i)\)</span>; in other words, it might be the case that for each vector the upper and lower bounds are contradictory which will put the algorithm in a stale-mate state. To avoid this, we pick the values <span class="math inline">\(\delta_u\)</span> and <span class="math inline">\(\delta_l\)</span> carefully and introduce a nice lemma in the next section that ensures such a vector always exists.</p>
 </section>
 <section id="the-existence-of-a-good-vector" class="level3">
 <h3 class="anchored" data-anchor-id="the-existence-of-a-good-vector">The Existence of a good Vector</h3>
 <p>We will now present the following lemma, that for the potentials having a certain condition, a good vector <span class="math inline">\(v_k\)</span> and a good coefficient <span class="math inline">\(s_k\)</span> always exist. This is the meat and bones of the algorithm:</p>
 <div id="lem-good-vector-existance" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 1 </strong></span>For any set of vectors <span class="math inline">\(\langle v_1, v_2, ..., v_m \rangle\)</span> that sum up to an idempotent matrix <span class="math inline">\(\Pi = \sum v_i v_i^T\)</span> and a matrix <span class="math inline">\(A\)</span> being an arbitrary linear combination of their rank one cross product, if <span class="math inline">\(\Phi^u(A) \le \epsilon_U\)</span> and <span class="math inline">\(\Phi_l(A) \le \epsilon_L\)</span> and <span class="math inline">\(\epsilon_u, \epsilon_l, \delta_u, \delta_l\)</span> satisfy the following conditions: <span class="math display">\[0 \le \delta_u^{-1} + \epsilon_u \le \delta_l^{-1} - \epsilon_l,\]</span> Then, there exists a vector <span class="math inline">\(v_k\)</span> such that: <span class="math display">\[L_A(v_k) \le U_A(v_k)\]</span> , and hence, by adding an <span class="math inline">\(A\)</span> with <span class="math inline">\(s \cdot v_k v_k\)</span> for <span class="math inline">\(s \in [L_A(v_k), U_A(v_k)]\)</span> we can ensure that <span class="math inline">\(\Phi^{u + \delta_u}(A + s \cdot v_k v_k) \le \Phi^{u}(A)\)</span> and <span class="math inline">\(\Phi_{l + \delta_l}(A + s \cdot v_k v_k) \le \Phi_l(A)\)</span>.</p>
+<p><span class="theorem-title"><strong>Lemma 3 </strong></span>For any set of vectors <span class="math inline">\(\langle v_1, v_2, ..., v_m \rangle\)</span> that sum up to an idempotent matrix <span class="math inline">\(\Pi = \sum v_i v_i^T\)</span> and a matrix <span class="math inline">\(X\)</span> being an arbitrary linear combination of their rank one cross product, if <span class="math inline">\(\Phi^u(X) \le \epsilon_U\)</span> and <span class="math inline">\(\Phi_l(X) \le \epsilon_L\)</span> and <span class="math inline">\(\epsilon_u, \epsilon_l, \delta_u, \delta_l\)</span> satisfy the following conditions: <span class="math display">\[0 \le \delta_u^{-1} + \epsilon_u \le \delta_l^{-1} - \epsilon_l,\]</span> Then, there exists a vector <span class="math inline">\(v_k\)</span> such that: <span class="math display">\[L_X(v_k) \le U_X(v_k)\]</span> , and hence, by adding <span class="math inline">\(s \cdot v_k v_k^T\)</span> to <span class="math inline">\(X\)</span> for <span class="math inline">\(s \in [L_A(v_k), U_A(v_k)]\)</span>, we can ensure that <span class="math inline">\(\Phi^{u + \delta_u}(X + s \cdot v_k v_k^T) \le \Phi^{u}(X)\)</span> and <span class="math inline">\(\Phi_{l + \delta_l}(X + s \cdot v_k v_k^T) \le \Phi_l(X)\)</span>.</p>
 </div>
 <div class="solution proof">
-<p><span class="proof-title"><em>Solution</em>. </span>The proof idea is to show that the sum of all the lower bound values for all the vectors <span class="math inline">\(v_k\)</span> is less than or equal to the sum of all the upper bounds for all vectors <span class="math inline">\(v_k\)</span>. In other words, <span class="math display">\[\sum_{k=1}^m L_A(v_k) \le \sum_{k=1}^m U_A(v_k)\]</span> The proof in <span class="citation" data-cites="batson2009twice">(<a href="#ref-batson2009twice" role="doc-biblioref">Batson, Spielman, and Srivastava 2009</a>)</span> shows that the left-hand-side is bounded by <span class="math inline">\(\frac{1}{\delta_l^{-1} - \epsilon_l}\)</span> and the right-hand-side is bounded by <span class="math inline">\(\frac{1}{\delta_u^{-1} + \epsilon_u}\)</span>. Therefore, the lemma is proven using the conditions mentioned.</p>
+<p><span class="proof-title"><em>Solution</em>. </span>The proof idea is to show that the sum of all the lower bound values for all the vectors <span class="math inline">\(v_k\)</span> is less than or equal to the sum of all the upper bounds for all vectors <span class="math inline">\(v_k\)</span>. In other words, <span class="math display">\[\sum_{k=1}^m L_X(v_k) \le \sum_{k=1}^m U_X(v_k)\]</span> The proof in <span class="citation" data-cites="batson2009twice">(<a href="#ref-batson2009twice" role="doc-biblioref">Batson, Spielman, and Srivastava 2009</a>)</span> shows that the left-hand-side is bounded by <span class="math inline">\(\frac{1}{\delta_l^{-1} - \epsilon_l}\)</span> and the right-hand-side is bounded by <span class="math inline">\(\frac{1}{\delta_u^{-1} + \epsilon_u}\)</span>. Therefore, the lemma is proven using the conditions mentioned.</p>
 <p>To show these two bounds, a lot of algebra is required. The proof is hidden here for brevity but you can check out the proof of Lemma 3.5 and Claim 3.6 in <span class="citation" data-cites="batson2009twice">(<a href="#ref-batson2009twice" role="doc-biblioref">Batson, Spielman, and Srivastava 2009</a>)</span> for more details; although, they have used a different notation and instead of bounding <span class="math inline">\(s_k\)</span> values they bound their reciprocals.</p>
 </div>
 <p>Now we should pick values that adhere to the conditions: <span class="math display">\[\delta_l = 1, \delta_u = \frac{\sqrt{d} + 1}{ \sqrt{d} - 1}, l^{(0)} = -n \sqrt{d}, u^{(0)} = \frac{n(d+\sqrt{d})}{(\sqrt{d} -1)}\]</span></p>
-<p>Note that in this case, in the first step (starting off with <span class="math inline">\(A^{(0)} = 0\)</span>, the upper and lower potentials are upper bounded as follows: <span class="math display">\[\Phi^u(A^{(0)}) = Tr(u^{(0)}I)^{-1} = \frac{n}{u^{0}} = \frac{\sqrt{d} - 1}{\sqrt{d} + d} = \epsilon_u\]</span> <span class="math display">\[\Phi_l(A^{(0)}) = Tr(-l^{(0)} I)^{-1} = \frac{n}{l^{0}} = \frac{1}{\sqrt{d}} = \epsilon_l\]</span></p>
+<p>Note that in this case, in the first step (starting off with <span class="math inline">\(X^{(0)} = 0\)</span>), the upper and lower potentials are upper-bounded as follows: <span class="math display">\[\Phi^u(X^{(0)}) = Tr(u^{(0)}I)^{-1} = \frac{n}{u^{0}} = \frac{\sqrt{d} - 1}{\sqrt{d} + d} = \epsilon_u\]</span> <span class="math display">\[\Phi_l(X^{(0)}) = Tr(-l^{(0)} I)^{-1} = \frac{n}{l^{0}} = \frac{1}{\sqrt{d}} = \epsilon_l\]</span></p>
 <p>Hence, if we plug in the criteria we have, <span class="math display">\[
 0 \le
 \frac{d-1}{d + \sqrt{d}} = \underset{\delta_u^{-1}}{\underbrace{\frac{\sqrt{d} - 1}{\sqrt{d} + 1}}} + \underset{\epsilon_u}{\underbrace{\frac{\sqrt{d}-1}{\sqrt{d}+d}}} = \underset{\delta_l^{-1}}{\underbrace{1}} - \underset{\epsilon_l}{\underbrace{\frac{1}{\sqrt{d}}}} = \frac{\sqrt{d} - 1}{\sqrt{d}}
 \]</span> which is satisfactory.</p>
-<p>Finally, we know that after <span class="math inline">\(nd\)</span> iterations <span class="math inline">\(A^{(nd)}\)</span> will be bounded between the two following spheres:</p>
+<p>Finally, we know that after <span class="math inline">\(nd\)</span> iterations <span class="math inline">\(X^{(nd)}\)</span> will be bounded between the two following spheres:</p>
 <p><span class="math display">\[\begin{align*}
-&amp;~~(l^{(0)} + nd \cdot \delta_l) I \preceq A^{(nd)} \preceq (u^{(0)} + nd \cdot \delta_u) I\\
-\Leftrightarrow &amp; ~~ (nd - n \sqrt{d}) I \preceq A^{(nd)} \preceq \left(\frac{nd (\sqrt{d} + 1)}{\sqrt{d} - 1} + \frac{n(d + \sqrt{d})}{\sqrt{d} - 1}\right) I\\
-\Leftrightarrow &amp; ~~ n \cdot (d - 2 \sqrt{d} + 1) I \preceq A^{(nd)} \preceq n \cdot (d + 2 \sqrt{d} + 1) I\\
+&amp;~~(l^{(0)} + nd \cdot \delta_l) I \preceq X^{(nd)} \preceq (u^{(0)} + nd \cdot \delta_u) I\\
+\Leftrightarrow &amp; ~~ (nd - n \sqrt{d}) I \preceq X^{(nd)} \preceq \left(\frac{nd (\sqrt{d} + 1)}{\sqrt{d} - 1} + \frac{n(d + \sqrt{d})}{\sqrt{d} - 1}\right) I
 \end{align*}\]</span></p>
-<p>Then by rescaling, we have that,</p>
+<p>Then by rescaling both sides of the equations by <span class="math inline">\(\gamma = \frac{\sqrt{d} - 1}{n(d+1)\sqrt{d}}\)</span>, we have that,</p>
 <p><span class="math display">\[\begin{equation} \tag{3} \label{eq:rescaling}
-(1 - \frac{2\sqrt{d}}{d+1}) I \preceq \frac{n}{d+1}A^{(nd)} \preceq (1 + \frac{2\sqrt{d}}{d+1}) I
-\end{equation}\]</span></p>
+(1 - \frac{2\sqrt{d}}{d+1}) I \preceq \gamma \cdot X^{(nd)} \preceq (1 + \frac{2\sqrt{d}}{d+1}) I
+\end{equation}\]</span> If we multiply both sides with <span class="math inline">\(A^{+/2}\)</span> and setting <span class="math inline">\(\epsilon = \frac{2\sqrt{d}}{d + 1}\)</span>, we get that, <span class="math display">\[
+(1 - \epsilon) A \preceq \gamma \cdot A^{1/2} X^{(nd)} A^{1/2} \preceq (1 + \epsilon) A
+\]</span> In turn, <span class="math inline">\(A^{1/2} X^{(nd)} A^{1/2}\)</span> would give us the Laplacian <span class="math inline">\(L_H\)</span> in the original problem.</p>
 </section>
 <section id="the-deterministic-algorithm" class="level3">
 <h3 class="anchored" data-anchor-id="the-deterministic-algorithm">The Deterministic Algorithm</h3>
 <p>Now that we have a general sense of the algorithm, we can do a recap of what the algorithm does:</p>
 <ol type="1">
-<li><p>We will first map each edge to a vector <span class="math inline">\(v_i = \sqrt{w_i} L_G^{+/2} L_i\)</span> where <span class="math inline">\(L_i\)</span> is the laplacian for a single edge <span class="math inline">\(i\)</span>.</p></li>
-<li><p>We start with the all-zeros matrix <span class="math inline">\(A\)</span> which is intended to approximate the spherically shaped idempotent matrix <span class="math inline">\(\Pi = L_G^{+/2} L_G L_G^{+/2}\)</span>.</p></li>
+<li><p>We will first map each edge to a vector <span class="math inline">\(v_e = \sqrt{w_e} L_G^{+/2} (\chi_{e_1} - \chi_{e_2})\)</span> where <span class="math inline">\(w_e\)</span> is the weight of the edge and <span class="math inline">\(\chi_{e_i}\)</span> is the indicator vector of the vertex <span class="math inline">\(e_i\)</span>.</p></li>
+<li><p>We start with the all-zeros matrix <span class="math inline">\(X\)</span> which is intended to approximate the spherically shaped idempotent matrix <span class="math inline">\(\Pi = L_G^{+/2} L_G L_G^{+/2}\)</span>.</p></li>
 <li><p>To do so, we run <span class="math inline">\(nd\)</span> iterations and pick an edge corresponding to a vector <span class="math inline">\(v_i\)</span> in each iteration such that the potentials remain monotonically non-increasing.</p>
 <ol type="i">
 <li>For that, we compute the lower and upper bounds for the coefficients. For all the potential computations, we consider the edges in the <span class="math inline">\(n-1\)</span>-dimensional subspace after applying <span class="math inline">\(L_G^{+/2}\)</span> to both sides.</li>
 <li>We pick a vector <span class="math inline">\(v_i\)</span> such that the lower bound for that vector is less than the upper bound and pick a coefficient between those two bounds.</li>
 </ol></li>
-<li><p>We add <span class="math inline">\(A\)</span> with <span class="math inline">\(s \cdot v_i v_i\)</span> and rescale by <span class="math inline">\(\frac{n}{d+1}\)</span> according to <span class="math inline">\(\eqref{eq:rescaling}\)</span>. We Repeat the process until we reach the desired number of iterations. Adding <span class="math inline">\(v_i v_i^T\)</span> corresponds to adding the edge <span class="math inline">\(v_i\)</span> and multiplying its weight by <span class="math inline">\(s \cdot \frac{n}{d+1}\)</span>.</p></li>
-<li><p>Finally, after <span class="math inline">\(nd\)</span> iterations we know that the following holds: <span class="math display">\[(d + 1 - 2 \sqrt{d}) \Pi \preceq A^{(nd)} \preceq (d + 1 + 2\sqrt{d}) \Pi\]</span> therefore, by dividing <span class="math inline">\(A^{(nd)}\)</span> by <span class="math inline">\((d + 1)\)</span> we can obtain an approximate <span class="math inline">\(\hat{\Pi}\)</span> that is close to <span class="math inline">\(\Pi\)</span> off by <span class="math inline">\(\frac{2\sqrt{d}}{d+1}\)</span>.</p></li>
+<li><p>We add <span class="math inline">\(X\)</span> with <span class="math inline">\(s \cdot v_i v_i\)</span> each step to get a large spherical matrix <span class="math inline">\(X^{(nd)}\)</span>.</p></li>
+<li><p>Finally we multiply <span class="math inline">\(L_G^{1/2}\)</span> to both sides of <span class="math inline">\(X^{(nd)}\)</span> and do a rescale to obtain the Laplacian <span class="math inline">\(L_H\)</span>.</p></li>
 </ol>
-<p><strong>Complexity Analysis</strong> For analyzing the time complexity, we note that the reduction takes <span class="math inline">\(\mathcal{O}(n^3)\)</span> times to compute <span class="math inline">\(L^{+/2}\)</span> and <span class="math inline">\(\mathcal{O}(m \cdot n^2)\)</span> to compute <span class="math inline">\(v_i = \sqrt{w_i} L_G^{+/2} L_i\)</span>. Then, the algorithm takes <span class="math inline">\(\mathcal{O}(nd)\)</span> time to run the iterations and at each iteration upper bound and lower bound values should be computed for all vectors <span class="math inline">\(v_i\)</span>. To compute these upper and lower bounds, recall that in both <span class="math inline">\(\eqref{eq:upper-bound-potential}\)</span> and <span class="math inline">\(\eqref{eq:lower-bound-potential}\)</span> we need to compute the inverse of <span class="math inline">\(uI - A^{(i)}\)</span> and <span class="math inline">\(A^{(i)} - l I\)</span>. As a precompute step, we calculate both of them using <span class="math inline">\(\mathcal{O}(n^3)\)</span> algorithm and then compute every upper and lower bound by <span class="math inline">\(m \times \mathcal{O}(n^2)\)</span> operations for finding the quadratic form. Therefore, the total time complexity of the algorithm is <span class="math inline">\(\mathcal{O}(n^3 + m \cdot n^2 + nd \cdot m \cdot n^2) = \mathcal{O}(m n^3 d)\)</span>. Although the algorithm is not fast in particular, it is the first approach that gives near-linear edge counts. Other follow-up works have produced faster results with <span class="citation" data-cites="tat2015constructing">(<a href="#ref-tat2015constructing" role="doc-biblioref">Tat Lee and Sun 2015</a>)</span> giving an almost linear algorithm to find almost linear sparsifiers.</p>
+<p><strong>Complexity Analysis</strong> For analyzing the time complexity, we note that the reduction takes <span class="math inline">\(\mathcal{O}(n^3)\)</span> times to compute <span class="math inline">\(L^{+/2}\)</span> and <span class="math inline">\(\mathcal{O}(m \cdot n^2)\)</span> to compute <span class="math inline">\(v_i = \sqrt{w_i} L_G^{+/2} L_i\)</span>. Then, the algorithm takes <span class="math inline">\(\mathcal{O}(nd)\)</span> time to run the iterations and at each iteration upper bound and lower bound values should be computed for all vectors <span class="math inline">\(v_i\)</span>. To compute these upper and lower bounds, recall that in both <span class="math inline">\(\eqref{eq:upper-bound-potential}\)</span> and <span class="math inline">\(\eqref{eq:lower-bound-potential}\)</span> we need to compute the inverse of <span class="math inline">\(uI - X^{(i)}\)</span> and <span class="math inline">\(X^{(i)} - l I\)</span>. As a precompute step, we calculate both of them using <span class="math inline">\(\mathcal{O}(n^3)\)</span> algorithm and then compute every upper and lower bound by <span class="math inline">\(m \times \mathcal{O}(n^2)\)</span> operations for finding the quadratic form. Therefore, the total time complexity of the algorithm is <span class="math inline">\(\mathcal{O}(n^3 + m \cdot n^2 + nd \cdot m \cdot n^2) = \mathcal{O}(m n^3 d)\)</span>. Although the algorithm is not fast in particular, it is the first approach that gives near-linear edge counts. Other follow-up works have produced faster results with <span class="citation" data-cites="tat2015constructing">(<a href="#ref-tat2015constructing" role="doc-biblioref">Tat Lee and Sun 2015</a>)</span> giving an almost linear algorithm to find almost linear sparsifiers.</p>
 </section>
 <section id="experimental-details" class="level3">
 <h3 class="anchored" data-anchor-id="experimental-details">Experimental Details</h3>
-<p>We implemented the algorithm in Python and tested it on a set of graphs. Our package is available <a href="https://github.com/HamidrezaKmK/twice-ramanujan-sparsifiers">here</a> and <a href="#fig-barbell">Figure&nbsp;3</a> demonstrates the results of the algorithm on a barbell graph.</p>
+<p>We implemented the algorithm in Python and tested it on a set of graphs. Our package is available <a href="https://github.com/HamidrezaKmK/twice-ramanujan-sparsifiers">here</a> and <a href="#fig-barbell">Figure&nbsp;4</a> demonstrates the results of the algorithm on a barbell graph.</p>
 <div id="fig-barbell" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preliminariy steps to include the package</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>sys.path.append(<span class="st">'..'</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># importing the package</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.TwiceRamanujan <span class="im">import</span> TwiceRamanujan</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># get the laplacian of a barbell graph</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>graphs <span class="op">=</span> [nx.barbell_graph(<span class="dv">5</span>,<span class="dv">0</span>), nx.complete_graph(<span class="dv">7</span>)]</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">3</span>]</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> g, d <span class="kw">in</span> <span class="bu">zip</span>(graphs, ds):</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># calculate epsilon according to d</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  eps <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> math.sqrt(d) <span class="op">/</span> (d <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># setup a twice-Ramanujan solver on the graph with d = 2</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  tr <span class="op">=</span> TwiceRamanujan(g, d<span class="op">=</span>d, verbose<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  sparsified_laplacian <span class="op">=</span> tr.sparsify()</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># draw both graphs</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  tr.juxtapose()</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># verify</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  tr.verify(eps<span class="op">=</span>eps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preliminariy steps to include the package</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>sys.path.append(<span class="st">'..'</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># importing the package</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.TwiceRamanujan <span class="im">import</span> TwiceRamanujan</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># get the laplacian of a barbell graph</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>graphs <span class="op">=</span> [nx.barbell_graph(<span class="dv">5</span>,<span class="dv">0</span>), nx.complete_graph(<span class="dv">7</span>)]</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> g, d <span class="kw">in</span> <span class="bu">zip</span>(graphs, ds):</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># calculate epsilon according to d</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  eps <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> math.sqrt(d) <span class="op">/</span> (d <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># setup a twice-Ramanujan solver on the graph with d = 2</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  tr <span class="op">=</span> TwiceRamanujan(g, d<span class="op">=</span>d, verbose<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  sparsified_laplacian <span class="op">=</span> tr.sparsify()</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># draw both graphs</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  tr.juxtapose()</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># verify</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  tr.verify(eps<span class="op">=</span>eps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-barbell-1" class="quarto-figure quarto-figure-center anchored">
@@ -641,10 +717,10 @@ Min eigenvalue of [L_H - (1 - eps) L_G] = -0.00 &gt;= 0
 RHS L_H &lt;= (1 + eps) * L_G : we check the minimum eigenvalue of the difference:
 Min eigenvalue of [(1 + eps) L_G - L_H] = 0.00 &gt;= 0</code></pre>
 </div>
-<p></p><figcaption class="figure-caption">Figure&nbsp;3: The Twice-Ramanujan sparsifier in action edges with more strength correspond to larger weights.</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4: The Twice-Ramanujan sparsifier in action edges with more strength correspond to larger weights.</figcaption><p></p>
 </figure>
 </div>
-<p>There were some subtleties in the implementation when numerical issues were encountered. For example, in the algorithm, we need to compute the inverse of <span class="math inline">\(uI - A^{(i)}\)</span> and <span class="math inline">\(A^{(i)} - l I\)</span> for the upper and lower bound values. This introduced a lot of accuracy issues, to circumvent this, we also implemented a binary search-based implementation to find the upper and lower bound for each vector <span class="math inline">\(v_i\)</span>; this turned out to be far superior although it impeded the runtime. You can simply trigger this mode by setting <code>fast=True</code> in the constructor of <code>TwiceRamanujan</code> class.</p>
+<p>There were some subtleties in the implementation when numerical issues were encountered. For example, in the algorithm, we need to compute the inverse of <span class="math inline">\(uI - X^{(i)}\)</span> and <span class="math inline">\(X^{(i)} - l I\)</span> for the upper and lower bound values. This introduced a lot of accuracy issues, to circumvent this, we also implemented a binary search-based implementation to find the upper and lower bound for each vector <span class="math inline">\(v_i\)</span>; this turned out to be far superior although it impeded the runtime. You can simply trigger this mode by setting <code>fast=True</code> in the constructor of <code>TwiceRamanujan</code> class.</p>
 </section>
 </section>
 <section id="sparsification-of-complete-graphs" class="level2">
@@ -753,6 +829,9 @@ Dette, Holger, and William J Studden. 1995. <span>“Some New Asymptotic Propert
 </div>
 <div id="ref-lee2017sdp" class="csl-entry" role="doc-biblioentry">
 Lee, Yin Tat, and He Sun. 2017. <span>“An Sdp-Based Algorithm for Linear-Sized Spectral Sparsification.”</span> In <em>Proceedings of the 49th Annual Acm Sigact Symposium on Theory of Computing</em>, 678–87.
+</div>
+<div id="ref-li2020sgcn" class="csl-entry" role="doc-biblioentry">
+Li, Jiayu, Tianyun Zhang, Hao Tian, Shengmin Jin, Makan Fardad, and Reza Zafarani. 2020. <span>“Sgcn: A Graph Sparsifier Based on Graph Convolutional Networks.”</span> In <em>Pacific-Asia Conference on Knowledge Discovery and Data Mining</em>, 275–87. Springer.
 </div>
 <div id="ref-rudelson1999random" class="csl-entry" role="doc-biblioentry">
 Rudelson, Mark. 1999. <span>“Random Vectors in the Isotropic Position.”</span> <em>Journal of Functional Analysis</em> 164 (1): 60–72.
