@@ -11,6 +11,7 @@ format:
   pdf:
     author: "Hamid R. Kamkari, Amandeep Singh"
     thanks: "We have published this document as a blog post in our repository using Quarto, for a better visualization please check out our post at https://hamidrezakmk.github.io/twice-ramanujan-sparsifiers/docs/"
+    keep-tex: true
     include-in-header:
       text: |
         \usepackage{hyperref}
