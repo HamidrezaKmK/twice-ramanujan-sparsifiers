@@ -25,7 +25,7 @@ This will ensure that the shape of the ellipsoid becomes more and more spherical
 For illustration, the following shows the algorithm in action. The algorithm starts with an initial ellipsoid that is not spherical and then iteratively picks a vector $v_i$ and a weight $s_i$ such that it still remains sandwiched between two spheres of radius $l^{(i)}$ and $u^{(i)}$.
 Note that in this example $\delta_l$ and $\delta_u$ are equal, therefore, for a large enough $k$ the ellipsoid will become spherical because although the radius is growing the gap remains the same, further limiting the range of the ellipsoid.
 
-![The algorithm in action.](figs/algorithm.gif){fig-alt="The schematic of the algorithm in action."}
+<!-- ![The algorithm in action.](figs/algorithm.gif){fig-alt="The schematic of the algorithm in action."} -->
 <!-- ```{python}
 #| label: fig-ellipsoid
 #| fig-cap: "A dummy algorithm that approximates a unit sphere"
@@ -77,14 +77,12 @@ $$\det(A + uv^T) = \det(A) (1 + v^T A^{-1} u)$$
 
 Moreover, plugging these into the characteristic polynomial of $A + vv^T$ yields the following:
 
-$$
 \begin{align*}
 p_{A + vv^T}(\lambda) &= \det(\lambda I - A - vv^T) \\
 & = \det(\lambda I - A) (1 - v^T \left(\lambda I - A \right)^{-1}u) \\
 & = \det (\lambda I - A) \left(1 - v^T \left[\sum_{i=1}^n \frac{1}{\lambda - \lambda_i} u_i u_i^T\right] v\right)\\
 & = p_A(\lambda) \left(1 -  \sum_{i=1}^n \frac{(v^Tu_i)^2}{\lambda - \lambda_i}\right)\\
 \end{align*}
-$$
 
 Therefore, we can assume particles being set on each of the $\lambda_i$ values with the $i$th one on $\lambda_i$ with charge $v^Tu_i$. The new set of equilibrium points for this particle set will entail the new eigenvalues of $A + vv^T$ which are the roots of $p_{A + vv^T}(\lambda)$. Note that for $u_i$ values such that $v^Tu_i=0$ the charge is zero and therefore, the new eigenvalues will be the same as the old ones.
 
@@ -186,14 +184,14 @@ for col, v in zip(colors, vz):
 The goal is to pick a $v$ such that all the eigenvalues are uniformly pushed forward so that they can stay between the new ranges $l^{(i+1)}$ and $u^{(i+1)}$. To get a sense, let's pick one of the $m$ vectors with uniform probability and add it to $A$. In that case, the expected charges can be written as:
 $$E[\langle v, u_j \rangle^2] = \frac{1}{m} \sum_{i=1}^m \langle v_i, u_j \rangle^2 = \frac{1}{m} u_j^T \left( \sum_{i=1}^m v_i v_i^T \right)u_j = \frac{||\Pi u_j||_2^2}{m} = \frac{1}{m}$$
 Hence, on expectation all the particles have charge $1/m$ and the expected deterministic polynomial is:
-$$
+
 \begin{align*}
 E[p_{A + v}(\lambda)] &= p_A(\lambda) E\left[1 - \sum_{i=1}^m \frac{\langle u_i, v\rangle^2}{\lambda - \lambda_i}\right] = p_A(\lambda) \left(1 - \sum_{i=1}^m \frac{E\langle u_i, v\rangle^2}{\lambda - \lambda_i}\right)\\
 & = p_A(\lambda) \left(1 - \sum_{i=1}^m \frac{1/m}{\lambda - \lambda_i}\right) = p_A(\lambda) - \frac{1}{m} \sum_{i=1}^m \frac{p_A(\lambda)}{\lambda - \lambda_i}\\
 & = p_A(\lambda) - \frac{1}{m} \sum_{i=1}^m \prod_{1 = j\neq i}^m (\lambda - \lambda_j)\\
 &= p_A(\lambda) - \frac{1}{m} p'_A(\lambda)\\
 \end{align*}
-$$
+
 Therefore, if we start off with the matrix $p_{A^{(0)}}(\lambda) = \lambda^n$, after $nd$ iterations the expected polynomial is a set of associate Laguerre polynomials that are well studied [@dette1995some], and in particular, it has been proven that the ratio between the largest and smallest root for these polynomials is bounded by the value below:
 
 $$\frac{d + 1 + 2\sqrt{d}}{d + 1 - 2\sqrt{d}} \xrightarrow{\epsilon = \frac{2\sqrt{d}}{d+1}} \frac{1 + \epsilon
@@ -218,12 +216,12 @@ This is set using $\epsilon = \frac{2\sqrt{d}}{d + 1}$ where $\frac{n}{\epsilon^
 
 The big question is, how can we quantize the boundedness of the matrix $A$ at each step? We want $A^{(i)}$ to have eigenvalues that are bounded by $l^{(i+1)}$ and $u^{(i+1)}$; and so, we use a family of **potential functions** that explode when the eigenvalues approach the bounds. A set of such potentials can be chosen using the fact that $uI - A$ or $A - lI$ will have infinitely small eigenvalues when the eigenvalues of $A$ approach $u$ or $l$ respectively; therefore, their inverse will be ill-conditioned and have infinitely large eigenvalues. We can use the following potential functions:
 
-$$\Phi_{u, l}(A) = \Phi_u(A) + \Phi_l(A) = Tr[(uI - A)^{-1}] + Tr[(A - l I)^{-1}]$$
+$$\Phi^u_l(A) = \Phi^u(A) + \Phi_l(A) = Tr[(uI - A)^{-1}] + Tr[(A - l I)^{-1}]$$
 
 In summary, the main idea is to choose $v_i$ and $s_i$ such that the potential for the matrix $A^{(i)}$ in the next iteration does not explode. To do so, we ensure that the potentials remain monotonically decreasing:
 
 $$\infty \gg \Phi^{u^{(0)}}(A^{(0)}) \ge \Phi^{u^{(1)}}(A^{(1)}) \ge ... \ge \Phi^{u^{(nd)}}(A^{(nd)})$$
-$$\infty \gg \Phi^{\ell^{(0)}}(A^{(0)}) \ge \Phi^{\ell^{(1)}}(A^{(1)}) \ge ... \ge \Phi^{\ell^{(nd)}}(A^{(nd)})$$
+$$\infty \gg \Phi_{\ell^{(0)}}(A^{(0)}) \ge \Phi_{\ell^{(1)}}(A^{(1)}) \ge ... \ge \Phi_{\ell^{(nd)}}(A^{(nd)})$$
 
 
 With that in mind, let's assume we are going to assign $s_k$ to any vector $v_k$ such that after the increase in our upper and lower bound, the potential remains non-increasing. Now let us separately consider the upper and lower bound potentials.
@@ -232,46 +230,138 @@ When increasing $l^{(i)}$, the eigenvalues come closer to the lower bound, and h
 $$
 \begin{align*}
 &\Phi^{\overset{l'}{\overbrace{l + \delta_l}}}(A + s \cdot vv^T) \le \Phi^l(A)\\
-\Phi^{l'}(A + s \cdot vv^T) & = Tr(A + s \cdot vv^T - l'I)^{-1}  \qquad \text{Sherman-Morrison}\\\
+\Phi_{l'}(A + s \cdot vv^T) & = Tr(A + s \cdot vv^T - l'I)^{-1}  \qquad \text{Sherman-Morrison}\\\
 & = Tr\left((A - l'I)^{-1}\right) + Tr\left(\frac{s \cdot (A - l'I)^{-1} v v^T (A - l'I)^{-1}}{1 + s \cdot v^T (A - l' I)^{-1} v}\right)\\
-&= \Phi^{l'}(A) - \frac{s \cdot v^T (A - l'I)^{-2}v}{1 + s \cdot v^T  (A - l'I)^{-1}v} \le \Phi^l(A)\\
-\Leftrightarrow &~ \underset{\Delta}{\underbrace{\Phi^{l'}(A) - \Phi^l(A)}} \le \frac{s \cdot v^T (A - l'I)^{-2}v}{1 + s \cdot v^T  (A - l'I)^{-1}v}\\
-\Leftrightarrow &~ s\cdot \left[v^T (A - l'I)^{-2}v  - \Delta v^T(A - l' I)^{-1} v\right] \ge \Delta\\
-\Leftrightarrow &~ s \ge \frac{\Delta}{v^T \left( (A - l'I)^{-2} - \Delta (A - l' I)^{-1} \right) v} = L_A(v)\\
-\end{align*}$$ {#eqn-l-potential}
+&= \Phi_{l'}(A) - \frac{s \cdot v^T (A - l'I)^{-2}v}{1 + s \cdot v^T  (A - l'I)^{-1}v} \le \Phi^l(A)\\
+\Leftrightarrow &~ \underset{\Delta}{\underbrace{\Phi_{l'}(A) - \Phi^l(A)}} \le \frac{s \cdot v^T (A - l'I)^{-2}v}{1 + s \cdot v^T  (A - l'I)^{-1}v}\\
+\Leftrightarrow &~ s\cdot \left[v^T (A - l'I)^{-2}v  - \Delta v^T(A - l' I)^{-1} v\right] \ge \Delta \\ 
+\Leftrightarrow &~ s \ge \frac{\Delta}{v^T \left( (A - l'I)^{-2} - \Delta (A - l' I)^{-1} \right) v} = L_A(v)
+\end{align*}
+$$
+which means,
+
+\begin{equation} \tag{1}\label{eq:lower-bound-potential}
+s \ge L_A(v) = \frac{\Delta}{v^T \left((A - l' I)^{-2} - \Delta (A - l' I)^{-1} \right) v}
+\end{equation}
+
 
 On the other hand, a similar thing can be said for the upper-bound potential. when increasing $u^{(i)}$, the eigenvalues are further away from the upper bound which gives us the freedom to shift the eigenvalues forward. However, this shifting should not be so extreme that the potential at most increases offset the decrease introduced after adding $\delta_u$ to the potential.
-$$\Phi^{\overset{u'}{\overbrace{u + \delta_u}}}(A + s \cdot vv^T) \le \Phi^u(A)$$
 
-Similar to @eqn-l-potential, if we negate $s$ and $A$ then the upper-bound potential will act similarly to the lower-bound potential. Therefore, we can write the following:
-$$s \le U_A(v) = \frac{\Delta}{v^T \left((u' I - A)^{-2} - \Delta (u' I - A)^{-1}\right)v}, ~~ \Delta = \Phi^{u}(A) - \Phi^{u'}(A)$$
+$$ 
+\Phi^{\overset{u'}{\overbrace{u + \delta_u}}}(A + s \cdot vv^T) \le \Phi^u(A)
+$$
 
+Similar to $\eqref{eq:lower-bound-potential}$, if we negate $s$ and $A$ then the upper-bound potential will act similarly to the lower-bound potential. Therefore, we can write the following:
+
+\begin{equation} \tag{2}\label{eq:upper-bound-potential}
+s \le U_A(v) = \frac{\Delta}{v^T \left((u' I - A)^{-2} - \Delta (u' I - A)^{-1}\right)v}
+\end{equation}
+
+Where $\Delta$ is the difference between $\Phi^u(A)$ and $\Phi^{u'}(A)$.
 
 Finally, for every vector $v_i$ at each step, we can introduce an upper and lower bound for the coefficient corresponding to that vector. However, this is not enough to ensure that at least one $v_i$ exists such that $L_A$; in other words, it might be the case that for each vector the upper and lower bounds are contradictory which will put the algorithm in a stale-mate state. To avoid this, we pick the values $\delta_u$ and $\delta_l$ carefully and introduce a nice lemma in the next section that ensures always such a vector exists.
 
 ### The Existence of a good Vector
 
+We will now present the following lemma, that for the potentials having a certain condition, a good vector $v_k$ and a good coefficient $s_k$ always exist. This is the meat and bones of the algorithm:
+
+::: {#lem-good-vector-existance}
+
+For any set of vectors $\langle v_1, v_2, ..., v_m \rangle$ that sum up to an idempotent matrix $\Pi = \sum v_i v_i^T$ and a matrix $A$ being an arbitrary linear combination of their rank one cross product, if $\Phi^u(A) \le \epsilon_U$ and $\Phi_l(A) \le \epsilon_L$ and $\epsilon_u, \epsilon_l, \delta_u, \delta_l$ satisfy the following conditions:
+$$0 \le \delta_u^{-1} + \epsilon_u \le \delta_l^{-1} - \epsilon_l,$$
+Then, there exists a vector $v_k$ such that:
+$$L_A(v_k) \le U_A(v_k)$$
+, and hence, by adding an $A$ with $s \cdot v_k v_k$ for $s \in [L_A(v_k), U_A(v_k)]$ we can ensure that $\Phi^{u + \delta_u}(A + s \cdot v_k v_k) \le \Phi^{u}(A)$ and $\Phi_{l + \delta_l}(A + s \cdot v_k v_k) \le \Phi_l(A)$.
+:::
+
+::: {.solution}
+The proof idea is to show that the sum of all the lower bound values for all the vectors $v_k$ is less than or equal to the sum of all the upper bounds for all vectors $v_k$. In other words,
+$$\sum_{k=1}^m L_A(v_k) \le \sum_{k=1}^m U_A(v_k)$$
+The proof in [@batson2009twice] shows that the left-hand-side is bounded by $\frac{1}{\delta_l^{-1} - \epsilon_l}$ and the right-hand-side is bounded by $\frac{1}{\delta_u^{-1} + \epsilon_u}$. Therefore, the lemma is proven using the conditions mentioned.
+
+To show these two bounds, a lot of algebra is required. The proof is hidden here for brevity but you can check out the proof of Lemma 3.5 and Claim 3.6 in [@batson2009twice] for more details; although, they have used a different notation and instead of bounding $s_k$ values they bound their reciprocals. 
+:::
+
+Now we should pick values that adhere to the conditions:
+$$\delta_l = 1, \delta_u = \frac{\sqrt{d} + 1}{ \sqrt{d} - 1}, l^{(0)} = -n \sqrt{d}, u^{(0)} = \frac{n(d+\sqrt{d})}{(\sqrt{d} -1)}$$
+
+Note that in this case, in the first step (starting off with $A^{(0)} = 0$, the upper and lower potentials are upper bounded as follows:
+$$\Phi^u(A^{(0)}) = Tr(u^{(0)}I)^{-1} = \frac{n}{u^{0}} = \frac{\sqrt{d} - 1}{\sqrt{d} + d} = \epsilon_u$$
+$$\Phi_l(A^{(0)}) = Tr(-l^{(0)} I)^{-1} = \frac{n}{l^{0}} = \frac{1}{\sqrt{d}} = \epsilon_l$$ 
+
+Hence, if we plug in the criteria we have,
+$$
+0 \le 
+\frac{d-1}{d + \sqrt{d}} = \underset{\delta_u^{-1}}{\underbrace{\frac{\sqrt{d} - 1}{\sqrt{d} + 1}}} + \underset{\epsilon_u}{\underbrace{\frac{\sqrt{d}-1}{\sqrt{d}+d}}} = \underset{\delta_l^{-1}}{\underbrace{1}} - \underset{\epsilon_l}{\underbrace{\frac{1}{\sqrt{d}}}} = \frac{\sqrt{d} - 1}{\sqrt{d}}
+$$
+which is satisfied.
+
+Finally, we know that after $nd$ iterations $A^{(nd)}$ will be bounded between the two following spheres:
+
+\begin{align*}
+&~~(l^{(0)} + nd \cdot \delta_l) I \preceq A^{(nd)} \preceq (u^{(0)} + nd \cdot \delta_u) I\\
+\Leftrightarrow & ~~ (nd - n \sqrt{d}) I \preceq A^{(nd)} \preceq \left(\frac{nd (\sqrt{d} + 1)}{\sqrt{d} - 1} + \frac{n(d + \sqrt{d})}{\sqrt{d} - 1}\right) I\\
+\Leftrightarrow & ~~ n \cdot (d - 2 \sqrt{d} + 1) I \preceq A^{(nd)} \preceq n \cdot (d + 2 \sqrt{d} + 1) I\\
+\end{align*}
+
+Then by rescaling, we have that,
+
+\begin{equation} \tag{3} \label{eq:rescaling}
+(1 - \frac{2\sqrt{d}}{d+1}) I \preceq \frac{n}{d+1}A^{(nd)} \preceq (1 + \frac{2\sqrt{d}}{d+1}) I
+\end{equation}
+
+
 ### The Deterministic Algorithm
-For a demonstration of a line plot on a polar axis, see @fig-polar.
 
-```{python}
-#| label: fig-polar
-#| fig-cap: "A line plot on a polar axis"
+Now that we have a general sense of the algorithm, we can do a recap of what the algorithm does:
 
-import numpy as np
-import matplotlib.pyplot as plt
+1. We will first map each edge to a vector $v_i = \sqrt{w_i} L_G^{+/2} L_i$ where $L_i$ is the laplacian for a single edge $i$. 
 
-r = np.arange(0, 2, 0.01)
-theta = 2 * np.pi * r
-fig, ax = plt.subplots(
-  subplot_kw = {'projection': 'polar'} 
-)
-ax.plot(theta, r)
-ax.set_rticks([0.5, 1, 1.5, 2])
-ax.grid(True)
-plt.show()
-```
+2. We start with the all-zeros matrix $A$ which is intended to approximate the spherically shaped idempotent matrix $\Pi = L_G^{+/2} L_G L_G^{+/2}$.
+
+2. To do so, we run $nd$ iterations and pick an edge corresponding to a vector $v_i$ in each iteration such that the potentials remain monotonically non-increasing. 
+    i. For that, we compute the lower and upper bounds for the coefficients. For all the potential computations, we consider the edges in the $n-1$-dimensional subspace after applying $L_G^{+/2}$ to both sides.
+    ii. We pick a vector $v_i$ such that the lower bound for that vector is less than the upper bound and pick a coefficient between those two bounds.
+
+3. We add $A$ with $s \cdot v_i v_i$ and rescale by $\frac{n}{d+1}$ according to $\eqref{eq:rescaling}$. We Repeat the process until we reach the desired number of iterations. Adding $v_i v_i^T$ corresponds to adding the edge $v_i$ and multiplying its weight by $s \cdot \frac{n}{d+1}$.
+
+4. Finally, after $nd$ iterations we know that the following holds:
+$$(d + 1 - 2 \sqrt{d}) \Pi \preceq A^{(nd)} \preceq (d + 1 + 2\sqrt{d}) \Pi$$
+therefore, by dividing $A^{(nd)}$ by $(d + 1)$ we can obtain an approximate $\hat{\Pi}$ that is close to $\Pi$ off by $\frac{2\sqrt{d}}{d+1}$.
+
+**Complexity Analysis** For analyzing the time complexity, we note that the reduction takes $\mathcal{O}(n^3)$ times to compute $L^{+/2}$ and $\mathcal{O}(m \cdot n^2)$ to compute $v_i = \sqrt{w_i} L_G^{+/2} L_i$. Then, the algorithm takes $\mathcal{O}(nd)$ time to run the iterations and at each iteration upper bound and lower bound values should be computed for all vectors $v_i$. To compute these upper and lower bounds, recall that in both $\eqref{eq:upper-bound-potential}$ and $\eqref{eq:lower-bound-potential}$ we need to compute the inverse of $uI - A^{(i)}$ and $A^{(i)} - l I$. As a precompute step, we calculate both of them using $\mathcal{O}(n^3)$ algorithm and then compute every upper and lower bound by $m \times \mathcal{O}(n^2)$ operations for finding the quadratic form. Therefore, the total time complexity of the algorithm is $\mathcal{O}(n^3 + m \cdot n^2 + nd \cdot m \cdot n^2) = \mathcal{O}(m n^3 d)$. Although the algorithm is not fast in particular, it is the first approach that gives near-linear edge counts. Other follow-up works have produced faster results with [@tat2015constructing] giving an almost linear algorithm to find almost linear sparsifiers.
 
 ### Experimental Details
+We implemented the algorithm in Python and tested it on a set of graphs. Our package is available [here](https://github.com/HamidrezaKmK/twice-ramanujan-sparsifiers) and @fig-barbell demonstrates the results of the algorithm on a barbell graph.
 
--- TODO: show the results of using the deterministic algorithm vs the randomized algorithm
+
+```{python}
+#| label: fig-barbell
+#| fig-cap: "The Twice-Ramanujan sparsifier in action on a berbell graph, the bolder edges have higher weights."
+
+# preliminariy steps to include the package
+import sys
+sys.path.append('..')
+
+# importing the package
+from src.TwiceRamanujan import TwiceRamanujan
+
+# get the laplacian of a barbell graph
+g=nx.barbell_graph(4,2)
+
+# setup a twice-Ramanujan solver on the graph with d = 2
+tr = TwiceRamanujan(g, d=2)
+sparsified_laplacian = tr.sparsify()
+
+# draw both graphs
+tr.draw_graph(sparsified_laplacian)
+
+# get the laplacian of g
+L = nx.laplacian_matrix(g).todense()
+# print the minimum and maxmum eigenvalue of L_G and L_H
+f_min = lambda X: np.min(np.linalg.eigvals(X))
+f_max = lambda X: np.max(np.linalg.eigvals(X))
+print(f"eigenvalue range of L_G: [{f_min(L):.2f}, {f_max(L):.2f}]")
+print(f"eigenvalue range of L_H: [{f_min(sparsified_laplacian):.2f}, \
+  {f_max(sparsified_laplacian):.2f}]")
+```

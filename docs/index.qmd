@@ -5,6 +5,14 @@ authors: "Hamid R. Kamkari, Amandeep Singh"
 format:
   html:
     code-fold: true
+  pdf:
+    include-in-header:
+      text: |
+        \usepackage{hyperref}
+        \usepackage{caption}
+        \usepackage{subcaption}
+        \usepackage{algorithm}
+        \usepackage{algpseudocode}
 jupyter: python3
 ---
 
