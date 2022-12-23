@@ -308,7 +308,7 @@ Hence, since $\Pi$ has only eigenvalues equal to one or zero, then we can apply 
 </section>
 <section id="method" class="level2">
 <h2 class="anchored" data-anchor-id="method">Method</h2>
-<p>We will now discuss the deterministic algorithm for approximating the matrix <span class="math inline">\(A\)</span>. The algorithm takes an iterative approach and follows <span class="math inline">\(k\)</span> iterations. At each iteration, it will pick a vector <span class="math inline">\(v_i\)</span> which corresponds to an edge and will add <span class="math inline">\(s_i v_i v_i^T\)</span> to the current accumulated matrix. After <span class="math inline">\(k\)</span> iterations it will give a good approximate for the matrix <span class="math inline">\(A\)</span>. But before we present the bulk of the algorithm, let’s start by laying some groundwork by presenting some useful intuitions.</p>
+<p>We will now discuss the deterministic algorithm for approximating the matrix <span class="math inline">\(A\)</span>. The algorithm takes an iterative approach and follows <span class="math inline">\(k\)</span> iterations. At each iteration, it will pick a vector <span class="math inline">\(v_i\)</span> which corresponds to an edge and will add <span class="math inline">\(s_i v_i v_i^T\)</span> to the current accumulated matrix. After <span class="math inline">\(k\)</span> iterations it will give a good approximation for the matrix <span class="math inline">\(A\)</span>. But before we present the bulk of the algorithm, let’s start by laying some groundwork by presenting some useful intuitions.</p>
 <section id="geometric-interpretation" class="level3">
 <h3 class="anchored" data-anchor-id="geometric-interpretation">Geometric interpretation</h3>
 <p>Note that for any pair of matrices <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>, having the same null-space we have that <span class="math inline">\(A \succeq B \Longleftrightarrow I \succeq A^{+/2} B A^{+/2}\)</span>. Hence, <span class="math display">\[(1 - \epsilon) A \approx_\epsilon B \Longleftrightarrow \Pi \approx_\epsilon A^{+/2} B A^{+/2}\]</span> where <span class="math inline">\(\Pi = A^{+/2} A A^{+/2}\)</span> is the identity in the subspace orthogonal to the null space of <span class="math inline">\(A\)</span> and is an <em>idempotent</em> matrix. In other words, <span class="math inline">\(\Pi^2 = \Pi\)</span>. Therefore, without loss of generality, we may assume that <span class="math inline">\(A\)</span> in <a href="#def-matrix-approximation">Definition&nbsp;2</a> is an idempotent matrix <span class="math inline">\(\Pi\)</span> via the transformation described where <span class="math inline">\(A\)</span> is replaced by <span class="math inline">\(A^{+/2} A A^{+/2}\)</span> and <span class="math inline">\(v_i = A^{+/2} v_i\)</span> for all <span class="math inline">\(1 \le i \le m\)</span>.</p>
@@ -548,7 +548,7 @@ s \le U_A(v) = \frac{\Delta}{v^T \left((u' I - A)^{-2} - \Delta (u' I - A)^{-1}\
 <p>Hence, if we plug in the criteria we have, <span class="math display">\[
 0 \le
 \frac{d-1}{d + \sqrt{d}} = \underset{\delta_u^{-1}}{\underbrace{\frac{\sqrt{d} - 1}{\sqrt{d} + 1}}} + \underset{\epsilon_u}{\underbrace{\frac{\sqrt{d}-1}{\sqrt{d}+d}}} = \underset{\delta_l^{-1}}{\underbrace{1}} - \underset{\epsilon_l}{\underbrace{\frac{1}{\sqrt{d}}}} = \frac{\sqrt{d} - 1}{\sqrt{d}}
-\]</span> which is satisfied.</p>
+\]</span> which is satisfactory.</p>
 <p>Finally, we know that after <span class="math inline">\(nd\)</span> iterations <span class="math inline">\(A^{(nd)}\)</span> will be bounded between the two following spheres:</p>
 <p><span class="math display">\[\begin{align*}
 &amp;~~(l^{(0)} + nd \cdot \delta_l) I \preceq A^{(nd)} \preceq (u^{(0)} + nd \cdot \delta_u) I\\
@@ -584,46 +584,33 @@ s \le U_A(v) = \frac{\Delta}{v^T \left((u' I - A)^{-2} - \Delta (u' I - A)^{-1}\
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preliminariy steps to include the package</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>sys.path.append(<span class="st">'..'</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># importing the package</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.TwiceRamanujan <span class="im">import</span> TwiceRamanujan</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># get the laplacian of a barbell graph</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>g<span class="op">=</span>nx.barbell_graph(<span class="dv">4</span>,<span class="dv">2</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># setup a twice-Ramanujan solver on the graph with d = 2</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>tr <span class="op">=</span> TwiceRamanujan(g, d<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>sparsified_laplacian <span class="op">=</span> tr.sparsify()</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># draw both graphs</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>tr.draw_graph(sparsified_laplacian)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># get the laplacian of g</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>L <span class="op">=</span> nx.laplacian_matrix(g).todense()</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># print the minimum and maxmum eigenvalue of L_G and L_H</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>f_min <span class="op">=</span> <span class="kw">lambda</span> X: np.<span class="bu">min</span>(np.linalg.eigvals(X))</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>f_max <span class="op">=</span> <span class="kw">lambda</span> X: np.<span class="bu">max</span>(np.linalg.eigvals(X))</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"eigenvalue range of L_G: [</span><span class="sc">{</span>f_min(L)<span class="sc">:.2f}</span><span class="ss">, </span><span class="sc">{</span>f_max(L)<span class="sc">:.2f}</span><span class="ss">]"</span>)</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"eigenvalue range of L_H: [</span><span class="sc">{</span>f_min(sparsified_laplacian)<span class="sc">:.2f}</span><span class="ss">, </span><span class="ch">\</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="ss">  </span><span class="sc">{</span>f_max(sparsified_laplacian)<span class="sc">:.2f}</span><span class="ss">]"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>sys.path.append(<span class="st">'..'</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># importing the package</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.TwiceRamanujan <span class="im">import</span> TwiceRamanujan</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># get the laplacian of a barbell graph</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>g<span class="op">=</span>nx.barbell_graph(<span class="dv">5</span>,<span class="dv">0</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>eps <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> math.sqrt(d) <span class="op">/</span> (d <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># setup a twice-Ramanujan solver on the graph with d = 2</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>tr <span class="op">=</span> TwiceRamanujan(g, d<span class="op">=</span><span class="dv">2</span>, verbose<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>sparsified_laplacian <span class="op">=</span> tr.sparsify()</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># draw both graphs</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>tr.juxtapose()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-stderr">
-<pre><code>&lt;class 'networkx.utils.decorators.argmap'&gt; compilation 12:4: FutureWarning: laplacian_matrix will return a scipy.sparse array instead of a matrix in Networkx 3.0.</code></pre>
-</div>
 <div class="cell-output cell-output-display">
 <div id="fig-barbell" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
-<p><img src="index_files/figure-html/fig-barbell-output-2.png" width="540" height="389" class="figure-img"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;3: The Twice-Ramanujan sparsifier in action on a berbell graph, the bolder edges have higher weights.</figcaption><p></p>
+<p><img src="index_files/figure-html/fig-barbell-output-1.png" width="540" height="389" class="figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3: The Twice-Ramanujan sparsifier in action, sparsifiying the barbel graph, edges with more strength correspond to larger weights.</figcaption><p></p>
 </figure>
 </div>
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>eigenvalue range of L_G: [-0.00, 5.18]
-eigenvalue range of L_H: [-0.00,   359.33]</code></pre>
 </div>
-</div>
+<p>There were some subtleties in the implementation when numerical issues were encountered. For example, in the algorithm, we need to compute the inverse of <span class="math inline">\(uI - A^{(i)}\)</span> and <span class="math inline">\(A^{(i)} - l I\)</span> for the upper and lower bound values. This introduced a lot of accuracy issues, to circumvent this, we also implemented a binary search-based implementation to find the upper and lower bound for each vector <span class="math inline">\(v_i\)</span>; this turned out to be far superior although it impeded the runtime. You can simply trigger this mode by setting <code>fast=True</code> in the constructor of <code>TwiceRamanujan</code> class.</p>
 </section>
 </section>
 <section id="sparsification-of-complete-graphs" class="level2">

@@ -1,4 +1,4 @@
-We will now discuss the deterministic algorithm for approximating the matrix $A$. The algorithm takes an iterative approach and follows $k$ iterations. At each iteration, it will pick a vector $v_i$ which corresponds to an edge and will add $s_i v_i v_i^T$ to the current accumulated matrix. After $k$ iterations it will give a good approximate for the matrix $A$. But before we present the bulk of the algorithm, let's start by laying some groundwork by presenting some useful intuitions.
+We will now discuss the deterministic algorithm for approximating the matrix $A$. The algorithm takes an iterative approach and follows $k$ iterations. At each iteration, it will pick a vector $v_i$ which corresponds to an edge and will add $s_i v_i v_i^T$ to the current accumulated matrix. After $k$ iterations it will give a good approximation for the matrix $A$. But before we present the bulk of the algorithm, let's start by laying some groundwork by presenting some useful intuitions.
 
 ### Geometric interpretation
 
@@ -294,7 +294,7 @@ $$
 0 \le 
 \frac{d-1}{d + \sqrt{d}} = \underset{\delta_u^{-1}}{\underbrace{\frac{\sqrt{d} - 1}{\sqrt{d} + 1}}} + \underset{\epsilon_u}{\underbrace{\frac{\sqrt{d}-1}{\sqrt{d}+d}}} = \underset{\delta_l^{-1}}{\underbrace{1}} - \underset{\epsilon_l}{\underbrace{\frac{1}{\sqrt{d}}}} = \frac{\sqrt{d} - 1}{\sqrt{d}}
 $$
-which is satisfied.
+which is satisfactory.
 
 Finally, we know that after $nd$ iterations $A^{(nd)}$ will be bounded between the two following spheres:
 
@@ -337,31 +337,27 @@ We implemented the algorithm in Python and tested it on a set of graphs. Our pac
 
 ```{python}
 #| label: fig-barbell
-#| fig-cap: "The Twice-Ramanujan sparsifier in action on a berbell graph, the bolder edges have higher weights."
+#| fig-cap: "The Twice-Ramanujan sparsifier in action, sparsifiying the barbel graph, edges with more strength correspond to larger weights."
+
 
 # preliminariy steps to include the package
 import sys
+import math
 sys.path.append('..')
 
 # importing the package
 from src.TwiceRamanujan import TwiceRamanujan
 
 # get the laplacian of a barbell graph
-g=nx.barbell_graph(4,2)
-
+g=nx.barbell_graph(5,0)
+d = 2
+eps = 2 * math.sqrt(d) / (d + 1)
 # setup a twice-Ramanujan solver on the graph with d = 2
-tr = TwiceRamanujan(g, d=2)
+tr = TwiceRamanujan(g, d=2, verbose=1)
 sparsified_laplacian = tr.sparsify()
 
 # draw both graphs
-tr.draw_graph(sparsified_laplacian)
-
-# get the laplacian of g
-L = nx.laplacian_matrix(g).todense()
-# print the minimum and maxmum eigenvalue of L_G and L_H
-f_min = lambda X: np.min(np.linalg.eigvals(X))
-f_max = lambda X: np.max(np.linalg.eigvals(X))
-print(f"eigenvalue range of L_G: [{f_min(L):.2f}, {f_max(L):.2f}]")
-print(f"eigenvalue range of L_H: [{f_min(sparsified_laplacian):.2f}, \
-  {f_max(sparsified_laplacian):.2f}]")
+tr.juxtapose()
 ```
+
+There were some subtleties in the implementation when numerical issues were encountered. For example, in the algorithm, we need to compute the inverse of $uI - A^{(i)}$ and $A^{(i)} - l I$ for the upper and lower bound values. This introduced a lot of accuracy issues, to circumvent this, we also implemented a binary search-based implementation to find the upper and lower bound for each vector $v_i$; this turned out to be far superior although it impeded the runtime. You can simply trigger this mode by setting `fast=True` in the constructor of `TwiceRamanujan` class.

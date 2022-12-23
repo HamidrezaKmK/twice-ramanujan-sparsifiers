@@ -3,166 +3,294 @@ import scipy
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-import sympy
+import typing as th
+from tqdm import tqdm
+
+import warnings
+
+warnings.simplefilter(action="ignore", category=FutureWarning)
 
 
 class TwiceRamanujan:
-    def __init__(self, L, d, verbose=0):
-        if type(L) == nx.classes.graph.Graph:
-            self.L = nx.laplacian_matrix(L).todense()
-            # turn self.L into a numpy array
-            self.L = np.array(self.L)
-        else:
-            self.L = L
+    def __init__(
+        self,
+        graph: th.Union[nx.Graph, np.array],
+        d: int,
+        eps: float = 1e-2,
+        fast=False,
+        verbose=0,
+    ):
+
+        if not isinstance(graph, nx.Graph):
+            graph = nx.from_numpy_matrix(graph)
+
+        # The epsilon value used for numerical stuff
+        self.eps = eps
+        self.fast_settings = fast
+
+        self.graph = graph
+
+        # setup the other values
         self.d = d
-        self.n = self.L.shape[0]
-        self.parameters()
-        self.v = self.vectors(self.L)
+        self.n = len(self.graph.nodes)
         self.verbose = verbose
 
-    def parameters(self):
-        d, n = self.d, self.n
-        d_root = math.sqrt(d)
-        self.delta_l = 1
-        self.delta_u = (d_root + 1) / (d_root - 1)
-        epsilon_l = 1 / d_root
-        epsilon_u = (d_root - 1) / (d + d_root)
-        self.l_0 = -n / epsilon_l
-        self.u_0 = n / epsilon_u
+        self.sparsified_graph = None
 
-    def vectors(self, L):
-        n = L.shape[0]
-        L_copy = L.copy()
-        B = np.array([[]])
-        weight = np.array([[]])
-        b = None
-        for i in range(n):
-            for j in range(n):
-                if i == j:
-                    continue
-                elif L_copy[i][j] == 0:
-                    continue
+    def do_reduction(self):
+        # get the laplacian of self.graph
+        self.L = nx.laplacian_matrix(self.graph).todense()
+
+        # get the pseudo-inverse of the Laplacian
+        self.L_pinv = scipy.linalg.pinv(self.L)
+
+        # do an eigendecomposition of the Laplacian
+        eig_vals, eig_vecs = np.linalg.eigh(self.L_pinv)
+        eig_vals[np.abs(eig_vals) < self.eps] = 0
+        self.L_pinv_sqrt = eig_vecs @ np.diag(np.sqrt(eig_vals)) @ eig_vecs.T
+
+        # Reduce to the matrix problem:
+
+        # set the list of vectors
+        self.edge_vectors = []
+        self.edges = []
+        self.Pi = np.zeros((self.n, self.n))
+        # iterate over all the edges with weights
+        for (a, b, c) in self.graph.edges.data("weight"):
+            # set the weight to 1 if it is not set
+            if c is None:
+                self.graph[a][b]["weight"] = 1
+
+            # set the weight
+            w = self.graph[a][b]["weight"]
+
+            # create a vector with one at a and -1 at b
+            L_ab = np.zeros((self.n, 1))
+            L_ab[a][0], L_ab[b][0] = 1, -1
+            # add the corresponding vector to the list
+            self.edge_vectors.append(math.sqrt(w) * self.L_pinv_sqrt @ L_ab)
+            self.Pi += self.edge_vectors[-1] @ self.edge_vectors[-1].T
+            self.edges.append((a, b))
+
+    def upper_bound_function(self, A, u, delta_u, v):
+        if self.fast_settings:
+            inv_diff = scipy.linalg.pinv(self.Pi * (u + delta_u) - A)
+            pot_diff = self.potential_upper(A, u) - self.potential_upper(A, u + delta_u)
+            ret = v.T @ inv_diff @ inv_diff @ v / pot_diff - v.T @ inv_diff @ v
+            ret = 1 / ret.item()
+            return ret
+        else:
+
+            def check(s):
+                crit1 = np.max(np.linalg.eigh(A + s * v @ v.T)[0]) < u + delta_u
+                crit2 = self.potential_upper(
+                    A + s * v @ v.T, u + delta_u
+                ) <= self.potential_upper(A, u)
+                return crit1 and crit2
+
+            s = 1
+            while check(s):
+                s *= 2
+
+            s_L, s_R = 0, s
+            # print("searching in ", s_L, s_R)
+            for _ in range(100):
+                s = (s_L + s_R) / 2
+                if check(s):
+                    s_L = s
                 else:
-                    if b is None:
-                        b = np.zeros((n, 1))
-                        L_copy[j][i] = 0
-                        b[i][0] = 1
-                        b[j][0] = -1
-                        weight = np.append(weight, [[-L_copy[i][j]]])
-                        continue
-                    x = np.zeros((n, 1))
-                    L_copy[j][i] = 0
-                    x[i][0] = 1
-                    x[j][0] = -1
-                    b = np.append(b, x, axis=1)
-                    weight = np.append(weight, [[-L_copy[i][j]]])
-        v = scipy.linalg.sqrtm((scipy.linalg.pinv(L))) @ b @ np.diag(np.sqrt(weight))
-        return v
+                    s_R = s
+            return s_L
 
-    def L_Inverse(self):
-        eigenValues, eigenVectors = scipy.linalg.eig(L)
-        idx = eigenValues.argsort()
-        eigenValues = eigenValues[idx]
-        eigenVectors = eigenVectors[:, idx]
-        InverseEigen = [0] + list(map(lambda x: 1 / x, eigenValues[1:]))
-        temp = np.matmul(eigenVectors, np.diag(InverseEigen))
-        L_Inv = np.matmul(temp, eigenVectors.transpose())
-        return L_Inv
+    def lower_bound_function(self, A, l, delta_l, v):
+        if self.fast_settings:
+            inv_diff = scipy.linalg.pinv(A - self.Pi * (l + delta_l))
+            pot_diff = self.potential_lower(A, l + delta_l) - self.potential_lower(A, l)
+            ret = (
+                pot_diff
+                / (v.T @ (inv_diff @ inv_diff - pot_diff * inv_diff) @ v).item()
+            )
+            return ret
+        else:
 
-    def L_SquareRoot(self):
-        eigenValues, eigenVectors = scipy.linalg.eig(L)
-        idx = eigenValues.argsort()
-        eigenValues = eigenValues[idx]
-        eigenValues[0] = 0
-        eigenVectors = eigenVectors[:, idx]
-        InverseEigen = [0] + list(map(lambda x: x ** (1 / 2), eigenValues[1:]))
-        temp = np.matmul(eigenVectors, np.diag(InverseEigen))
-        L_Inv = np.matmul(temp, eigenVectors.transpose())
-        return L_Inv
+            def check(s):
+                crit1 = np.sort(np.linalg.eigh(A + s * v @ v.T)[0])[1] > l + delta_l
+                crit2 = self.potential_lower(
+                    A + s * v @ v.T, l + delta_l
+                ) <= self.potential_lower(A, l)
+                return crit1 and crit2
 
-    def upper_bound_function(self, L, u, delta_u, v):
-        n = self.L.shape[0]
-        inv_diff = scipy.linalg.pinv(
-            (u + delta_u) * np.identity(n)
-            - L
-            - (u + delta_u) * (1 / math.sqrt(n)) * np.ones((n, n))
-        )
-        pot_diff = self.potential_upper(L, u + delta_u) - self.potential_upper(L, u)
-        upper_bound = (v.T @ (inv_diff @ inv_diff) @ v) / (-pot_diff) + v.T @ (
-            inv_diff
-        ) @ v
-        return upper_bound
+            s = 1
+            while not check(s):
+                s *= 2
+                if s > 1e10:
+                    return math.inf
+            # print(s)
+            # print(np.min(np.linalg.eigh(A + s * v @ v.T)[0]))
+            # print(l + delta_l)
+            s_L, s_R = 0, s
+            for _ in range(100):
+                s = (s_L + s_R) / 2
+                if not check(s):
+                    s_L = s
+                else:
+                    s_R = s
+            return s_R
 
-    def lower_bound_function(self, L, l, delta_l, v):
-        n = self.L.shape[0]
-        inv_diff = scipy.linalg.pinv(
-            L
-            - (l + delta_l) * np.identity(n)
-            + (l + delta_l) * (1 / math.sqrt(n)) * np.ones((n, n))
-        )
-        pot_diff = self.potential_lower(L, l + delta_l) - self.potential_lower(L, l)
-        lower_bound = (v.T @ (inv_diff @ inv_diff) @ v) / pot_diff - v.T @ (
-            inv_diff
-        ) @ v
-        return lower_bound
+        # print("Delta lower: ", pot_diff)
 
-    def adjac(self, L):
-        A = np.diag(np.diag(L)) - L
-        return A
+        # lower_bound = (v.T @ (inv_diff @ inv_diff) @ v) / pot_diff - v.T @ (
+        #     inv_diff
+        # ) @ v
+        # return lower_bound.item()
 
-    def potential_upper(self, L, u):
-        eigenValues, eigenVectors = np.linalg.eig(L)
-        upper = 0
+    def potential_upper(self, L, u: float):
+        eigenValues, _ = np.linalg.eigh(L)
+        ret = 0
         for val in eigenValues:
-            upper += 1 / (u - val)
-        upper -= 1 / u
-        return upper
+            ret += 1 / (u - val)
+        # one of the eigenvalues would have been zero the following offsets
+        ret -= 1.0 / (u - 0)
+        return ret
 
     def potential_lower(self, L, l):
-        eigenValues, eigenVectors = np.linalg.eig(L)
+        eigenValues, _ = np.linalg.eigh(L)
         lower = 0
         for val in eigenValues:
             lower += 1 / (val - l)
-        lower += 1 / l
+        # one of the eigenvalues would have been zero the following offsets
+        lower -= 1.0 / (0 - l)
         return lower
 
+    def sanity_check(self, A, l, u):
+        ret = True
+        # check if the eigenvalues of A are between l and u
+        eigenValues, _ = np.linalg.eigh(A)
+        for val in eigenValues:
+            if val < l or val > u:
+                print(f"eigval {val} illegal and not between {l} and {u}")
+                ret = False
+        return ret
+
     def sparsify(self):
-        L, v, n, d = self.L, self.v, self.n, self.d
-        l_0, u_0, delta_l, delta_u = self.l_0, self.u_0, self.delta_l, self.delta_u
+        self.do_reduction()
+
+        # setup all the parameters
+        d, n = self.d, self.n
+        d_root = math.sqrt(d)
+        delta_l = 1
+        delta_u = (d_root + 1) / (d_root - 1)
+        epsilon_l = 1 / d_root
+        epsilon_u = (d_root - 1) / (d + d_root)
+        l = -n / epsilon_l
+        u = n / epsilon_u
+
+        # A would be the idempotent matrix with eigenvalues equal to 1 or 0
+        # print the eigenvalues of self.Pi
+
         A = np.zeros((n, n))
-        l, u = l_0, u_0
-        for i in range(d * (n - 1)):
-            m = v.shape[1]
+
+        # this scaling will ensure A is positive in all the other eigenvalues and
+        # is strictly sandwiched between l and u
+
+        self.sparsified_graph = nx.Graph()
+
+        if self.verbose == 2:
+            iterable = tqdm(range(d * n))
+        else:
+            iterable = range(d * n)
+        for _ in iterable:
+            succ = False
+            for e, v in zip(self.edges, self.edge_vectors):
+                lb = self.lower_bound_function(A, l, delta_l, v)
+                ub = self.upper_bound_function(A, u, delta_u, v)
+
+                if lb <= ub:
+                    s = (lb + ub) / 2
+                    # s = ub - self.eps
+                    A = A + s * v @ v.T
+
+                    a, b = e
+                    w = self.graph[a][b]["weight"] * s / n / (d + 1)
+
+                    # if edge already exists, add the weight
+                    if self.sparsified_graph.has_edge(a, b):
+                        self.sparsified_graph[a][b]["weight"] += w
+                    else:
+                        self.sparsified_graph.add_edge(a, b, weight=w)
+
+                    if self.verbose > 2:
+                        print(
+                            f"picked the edge between {a} and {b} with weight {w:.2f}"
+                        )
+                    succ = True
+                    break
+            # It should succeed at least once
+            # exit(0)
+            assert succ, "No edge was picked"
             l += delta_l
             u += delta_u
-            for j in range(m):
-                vj = v[:, j].reshape(-1, 1)
-                lb = self.lower_bound_function(A, l, delta_l, vj)
-                ub = self.upper_bound_function(A, u, delta_u, vj)
-                if lb > ub:
-                    s = 2 / (ub + lb)
-                    A = A + s * vj @ vj.T
-                    if self.verbose > 0:
-                        print(str(i) + ":" + str(j))
-                    break
-        L_s = scipy.linalg.sqrtm(self.L) @ A @ scipy.linalg.sqrtm(self.L)
-        return np.around(L_s.real, 5)
 
-    def draw_graph(self, L):
-        A = self.adjac(L)
-        G = nx.from_numpy_matrix(A)
-        A1 = self.adjac(self.L)
-        G2 = nx.from_numpy_matrix(A1)
-        pos = nx.spring_layout(G)
+        if self.verbose > 3:
+            print("Final edge weights:")
+            for a, b in self.sparsified_graph.edges:
+                print(a, b, self.sparsified_graph[a][b]["weight"])
+        return self.sparsified_graph
+
+    def juxtapose(self, with_verify=False):
+        pos = nx.spring_layout(self.graph)
         subax1 = plt.subplot(121)
-        nx.draw(G2, pos, with_labels=True, font_weight="bold")
-        for edge in G2.edges(data="weight"):
-            nx.draw_networkx_edges(G2, pos, edgelist=[edge], width=0.1 * edge[2])
+        nx.draw(self.graph, pos, with_labels=True, font_weight="bold")
+        for edge in self.graph.edges(data="weight"):
+            nx.draw_networkx_edges(self.graph, pos, edgelist=[edge], width=edge[2])
+        if self.sparsified_graph is None:
+            raise ValueError("Sparsify the graph first")
         subax2 = plt.subplot(122)
-        nx.draw(G, pos, with_labels=True, font_weight="bold")
-        for edge in G.edges(data="weight"):
-            nx.draw_networkx_edges(G, pos, edgelist=[edge], width=0.1 * edge[2])
+        nx.draw(self.sparsified_graph, pos, with_labels=True, font_weight="bold")
+
+        for edge in self.sparsified_graph.edges(data="weight"):
+            nx.draw_networkx_edges(
+                self.sparsified_graph, pos, edgelist=[edge], width=edge[2]
+            )
+
         plt.show()
+
+    def verify(self, eps=1e-3):
+        # verify that the sparsified graph indeed approximates the laplacian
+        # get the laplacian of self.graph
+        L = nx.laplacian_matrix(self.graph).toarray()
+        # get the laplacian of self.sparsified_graph
+        L_sparsified = nx.laplacian_matrix(self.sparsified_graph).toarray()
+
+        a1 = np.min(np.linalg.eigh(L_sparsified - (1 - eps) * L)[0])
+        b1 = np.min(np.linalg.eigh((1 + eps) * L - L_sparsified)[0])
+        if self.verbose >= 1:
+            print(
+                "LHS (1 - eps) * L_G <= L_H : we check the minimum eigenvalue of the difference:"
+            )
+            print("Min eigenvalue = ", a1)
+            print(
+                "RHS L_H <= (1 + eps) * L_G : we check the minimum eigenvalue of the difference:"
+            )
+            print("Min eigenvalue = ", b1)
+
+        return a1 > -self.eps and b1 > -self.eps
+
+    # def draw_graph(self, L):
+    #     A = self.adjac(L)
+    #     G = nx.from_numpy_matrix(A)
+    #     A1 = self.adjac(self.L)
+    #     G2 = nx.from_numpy_matrix(A1)
+    #     pos = nx.spring_layout(G)
+    #     subax1 = plt.subplot(121)
+    #     nx.draw(G2, pos, with_labels=True, font_weight="bold")
+    #     for edge in G2.edges(data="weight"):
+    #         nx.draw_networkx_edges(G2, pos, edgelist=[edge], width=0.1 * edge[2])
+    #     subax2 = plt.subplot(122)
+    #     nx.draw(G, pos, with_labels=True, font_weight="bold")
+    #     for edge in G.edges(data="weight"):
+    #         nx.draw_networkx_edges(G, pos, edgelist=[edge], width=0.1 * edge[2])
+    #     plt.show()
 
     # def ellipse(self):
     # eigenValues,eigenVectors =scipy.linalg.eig(self.L)
@@ -201,37 +329,12 @@ class TwiceRamanujan:
     # plot(solu[0],solu[1])
 
 
-class Clique:
-    def __init__(self, n):
-        self.__b__ = self.__edges__(n)
-        self.__L__ = self.__laplacian__(self.__b__)
-
-    def __edges__(self, n):
-        p = np.identity(n)
-        b = None
-        for i in range(n):
-            j = i + 1
-            while j < n:
-                edge = p[:, [i]] - p[:, [j]]
-                if b is None:
-                    b = edge
-                    j += 1
-                    continue
-                b = np.append(b, edge, axis=1)
-                j += 1
-        return b
-
-    def laplacian(self):
-        return self.__L__
-
-    def __laplacian__(self, b):
-        return np.matmul(b, b.transpose())
-
-
 if "__main__" == __name__:
     # L=Clique(3).laplacian()
-    g = nx.barbell_graph(4, 2)
-    TR = TwiceRamanujan(g, d=2)
+    d = 2
+    g = nx.barbell_graph(5, 0)
+    TR = TwiceRamanujan(g, d=d, verbose=1)
     L_s = TR.sparsify()
     # TR.ellipse()
-    TR.draw_graph(L_s)
+    TR.juxtapose(with_verify=True)
+    TR.verify(eps=2 * math.sqrt(d) / (d + 1))

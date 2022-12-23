@@ -8,3 +8,6 @@ scipy
 
 # Math notation
 sympy
+
+# tqdm
+tqdm
