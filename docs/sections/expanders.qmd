@@ -1,12 +1,153 @@
 
 ### Expander Graphs
-
+  The expander graph based on literary definition, are the graph have high connectivity or in other words, from every subset, the graph keeps on expanding.In many application like connected computing elements or communication networks,such highly connected components are required but it is always desirable that such connectedness is achieved with sparse constructions. So for example, the complete graph has great expansion, but lacks the sparsity. So when strictly defined, the expanders are the family of the graphs which keeps on expanding with high connectivity but with sparse number of edges. 
 -- TODO: recap of expanders
+There are different definitions which uses different parameters for quantifying expansion
 
--- TODO: expander mixing lemma
+A. Vertex Expansion- It uses the baselines concept that every vertex is has high number of neighbors and quantifiable parameter is defined on the vertex set, having least value.
+
+B. Edge Expansion - It measures the connectivity in terms of edges such that number of edges crossing the vertex sets are high when compared with edges internal to both edges. Like Vertex expansion, the quantification is done based on the set having minimum value of measure.
+
+C. Spectral Expansion- It defined on concept of random walks, which will converge faster if the graph is highly connected. Specifically it is defined in terms of adjacency matrix, where the \Lambda- expander is defined as the one where are the all eigen values except for the largest are bounded 
+$$
+-\lambda \leq \underset{i\neq 1}{\lambda_i} \leq \lambda
+$$ 
+
+### Expander Mixing Lemma
+  The expander mixing lemma suggest that the edges are evenly distributed across edges. In particular, it is associated with quasirandomness which states that edges going between every two sets S,T are closure to the average expected value.
+$$
+  |E(S,T)-\frac{d|S||T|}{n}|\leq \lambda \sqrt{|d||n|}
+$$ 
 
 ### Ramanujan Bounds
+  As seen in the expander mixing lemma, the lower the value of $\lambda$, the cross edge weight more close to the average, which means edges are uniformly distributed. A bound known as alan-bopanna, states lower limit for second-eigenvalue  of d-regular graph G_n. The bound is as given below
+$$
+    \lambda \geq 2\sqrt{d-1} − o(1)\:\text{ As n->} \infty
+$$
+ And a connected d-regular graph is Ramanujan graph.
+$$
+    \lambda \leq 2\sqrt{d-1} \
+$$
+So ramanujan graph will be having lowest value for second largest eigenvalue. As shown in expander mixing lemma, the lower the value of second largest eigenvalue the more is uniform distribution of edges. So ramanujan graph will be best known expander. Thus as known as the d-regular expanders can approximate the complete graphs, the ramanujan graphs will be best sparsifiers as well.
 
 ### The Twice Ramanujan Sparsifier
+   The twice ramanujan sparsifier can approximate the complete graph with weaker but similar bound. First since the graph is non-regular, it will be proven that the graph has an approximate mixing lemma which describes edge distribution
+::: {#Expander Mixing Property}
+Let $L_h(V,E,w)$ be a graph that  $(1+\epsilon)$ approximates the complete graph $L_g$ then for every pair of disjoint sets S and T, 
+$$
+  |E(S,T)-(1+\epsilon/2)|S||T||\leq n(\epsilon/2) \sqrt{|d||n|}
+$$ 
+:::
 
--- TODO: illustration of what happens in the algorithm iteratively on a complete graph.
+:::Proof
+ Thrugh the definition we have
+$$
+  -\frac{\epsilon}{2} L_G \preceq L_H-(1+\epsilon/2)L_G \preceq \frac{\epsilon}{2} L_G
+$$
+
+ So it is possible to write it as 
+$$
+  L_H=(1+\epsilon/2)L_G+X_M
+$$
+where $X_M$ is calculated based on the concept of norm with it having max norm
+as $\frac{\epsilon}{2} ||L_G|| \leq n\epsilon/2$
+Now consider x,y as characterstic vectos of set S,T respectively. As we know
+$-E(S,T) = x^TL_Hy$
+we will get the weight crossing the two sets. And we consider with complete graph, the weight is uniformly distributed
+ $$x^TL_Gy= -|S||T|$$
+ Substituting back
+ $$x^TL_Hy = (1+\frac{\epsilon}{2}x^TL_Gy+x^TX_my)$$
+$$x^TL_Hy = (1+\frac{\epsilon}{2}|S||T|+x^TX_my)$$
+$$-(E(S,T) -(1+\frac{\epsilon}{2}|S||T|)= x^TX_my)$$
+Taking modulus on both sides 
+$$|E(S,T) -(1+\frac{\epsilon}{2})|S||T||= |x^TX_my|$$
+Consider right side and apply cauchy-schwarz inequality
+$$|x^TX_my|\leq||X_m||||x||||y||\leq n\frac{\epsilon}{2}\sqrt{|S||T|}$$
+Substituting back
+$$|E(S,T) -(1+\frac{\epsilon}{2})| \leq n\frac{\epsilon}{2}\sqrt{|S||T|}$$
+
+So the final aspect is the bound, which as stated earlier similar to ramanujan graph
+:::
+
+::: {.Bound}
+If G represents complete graph and H be a weighted graph with same number of vertex with one vertex with degree d.
+If H is a sparsifier for the graph and approximates the complete graph with
+$$L_G \preceq L_H \preceq \kappa L_G$$ 
+then
+$$
+\kappa \geq 1+2/\sqrt(d)-O(\sqrt(d)/n)
+$$
+
+:::proof
+  The key aspect of the  proof is around the fact that if we consider the rayleigh coefficient ratio of $L_H$ for two different vectors. It can be at max $\kappa$ due to sparsifier definition.
+
+  Now for the construction,consider the d-degree vertex, be $v_0$ and its neighbours are $v_1 ....v_n$. Now let weight of the edge connecting that neighbor to the $v_0$ be $w_i$ and weight to all the rest vertices excluding  $v_0$ neighbors be 
+  $\delta_i$.
+
+  So if we define the characteristivectors
+
+$$ x(v_i)=\begin {cases} 
+      1 & v_i\in v_0 \\
+      \frac{1}{\sqrt{d}} & v_i\in {v_1,...v_d} \\
+      0 & v_i\notin {v_0,v_1...v_d} 
+   \end{cases}
+$$
+
+$$ y(v_i)=\begin {cases} 
+      1 & v_i\in v_0 \\
+      -\frac{1}{\sqrt{d}} & v_i\in {v_1,...v_d} \\
+      0 & v_i\notin {v_0,v_1...v_d} 
+   \end{cases}
+$$
+Now taking quadratic forms with respect to these and using edge definition of laplacian
+$$
+x^TL_Hx = \sum^{d}_{i=1}w_i(1-1/\sqrt(d))^2+\sum^d_{i=1}\delta_i(1/\sqrt(d)-0)^2 
+$$
+$$
+ = \sum^{d}_{i=1}w_i-\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}-2\sum^d_{i=1}\frac{w_i}{\sqrt{d}} 
+$$
+
+Similarly for y
+$$
+y^TL_Hy = \sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}+2\sum^d_{i=1}\frac{w_i}{\sqrt{d}} 
+$$
+Now taking ratio
+$$\frac{y^TL_Hy}{x^TL_Hx}=\frac{1+\frac{1}{\sqrt{d}}\frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}}{1-\frac{1}{\sqrt{d}}\frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}}$$
+
+Now consider the lowean bound L_H with respect. If we consider a vertex and its characteristic vector with respect to its neigbours. The quadratic form, which will be weighted degree of the graph, will be bounded between n $n\kappa$. So applying
+$$
+\frac{2\sum^d_{i=1}w_i}{\sum^{d}_{i=1}w_i+\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}= \frac{2}{1+\frac{\sum^{d}_{i=1}\frac{\delta_i+w_i}{d}}{\sum^d_{i=1}w_i}} \geq \frac{2}{1+\kappa}
+$$
+thus
+$$\frac{y^TL_Hy}{x^TL_Hx}\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}
+$$
+Since quadratic form for L_H, lowest possible value n and highest possible value $n\kappa$ is only true foor vecotr orthogonal to all single constant vector. So transforming variables
+$$
+||x^*|| = ||x||^2-(<x,1/\sqrt{n}>)^2 = 2+\frac{(1+\sqrt{d})^2}{n}
+$$
+$$
+||x^*|| = ||x||^2-(<x,1/\sqrt{n}>)^2 = 2+\frac{(1-\sqrt{d})^2}{n}
+$$
+$$
+||y^*|| = ||y||^2-(<y,1/\sqrt{n}>)^2 = 2-\frac{(1-\sqrt{d})^2}{n}
+$$
+$$
+taking ratio 
+\frac{||x^*||}{||y^*||} = 1- \frac{4\sqrt{d}}{2-\frac{(1-\sqrt{d})^2}{n}}
+$$
+$$
+\frac{||x^*||}{||y^*||} = 1- O(\frac{\sqrt{d}}{n})
+$$
+Changing variables for quadratic form ratio
+
+$$\frac{y^TL_Hy}{x^TL_Hx}\frac{||x^*||}{||y^*||}\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}(1- O(\frac{\sqrt{d}}{n}))
+$$
+maximum value for left hand side due to lowean bound is $\kappa$
+$$\kappa\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}(1- O(\frac{\sqrt{d}}{n}))
+$$
+$$\frac{y^TL_Hy}{x^TL_Hx}\frac{||x^*||}{||y^*||}\geq \frac{1+\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}{1-\frac{1}{\sqrt{d}}\frac{2}{1+\kappa}}(1- O(\frac{\sqrt{d}}{n}))
+$$
+which finally transforms to
+$$
+\kappa \geq 1+2/\sqrt(d)-O(\sqrt(d)/n)
+$$
